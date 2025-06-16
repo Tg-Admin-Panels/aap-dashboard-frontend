@@ -1,5 +1,6 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import axiosInstance from '../../utils/axiosInstance';
+import axiosFormInstance from '../../utils/axiosFormInstance';
 
 
 // Create Wing
@@ -13,6 +14,43 @@ export const createWing= createAsyncThunk(
     } catch (error: any) {
       console.log(error.response?.data?.message)
       return rejectWithValue(error.response?.data?.message || 'An error occurred');
+    }
+  }
+);
+
+export const addLeaderToWing = createAsyncThunk(
+  `wings/wingId/leader`,
+  async (
+    { wingId, data }: { wingId: string; data: any },
+    { rejectWithValue }
+  ) => {
+    try {
+      const formData = new FormData();
+
+      // Append each field from data
+      for (const key in data) {
+        if (data[key]) {
+          formData.append(key, data[key]);
+        }
+      }
+
+      const response = await axiosFormInstance.post(
+        `/wings/${wingId}/leader`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      console.log("wing data from api", response.data);
+      return response.data;
+    } catch (error: any) {
+      console.log(error.response?.data?.message);
+      return rejectWithValue(
+        error.response?.data?.message || "An error occurred"
+      );
     }
   }
 );

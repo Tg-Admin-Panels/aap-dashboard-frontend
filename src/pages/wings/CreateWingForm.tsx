@@ -11,7 +11,7 @@ import * as Yup from "yup";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../features/store";
 import { faker } from "@faker-js/faker";
-import { createWing, getAllWingMembers } from "../../features/wings/wingsApi";
+import { addLeaderToWing, createWing, getAllWingMembers } from "../../features/wings/wingsApi";
 import { toast } from "react-toastify";
 import { setErrorToNull, setSelectedWingToNull } from "../../features/wings/wings.slice";
 import AddLeaderCard from "./AddLeaderCard";
@@ -36,7 +36,7 @@ const CreateWing = () => {
     (state: RootState) => state.wings
   );
 
-  const { members } = useSelector((state: RootState) => state.wingMembers);
+  // const { members } = useSelector((state: RootState) => state.wingMembers);
   const [showAddLeaderModal, setShowAddLeaderModal] = React.useState(false);
 
   console.log("wings", wings);
@@ -48,9 +48,9 @@ const CreateWing = () => {
     resetForm();
   };
 
-  useEffect(() => {
-    dispatch(getAllWingMembers());
-  }, []);
+  // useEffect(() => {
+  //   dispatch(getAllWingMembers());
+  // }, []);
 
 
   useEffect(() => {
@@ -190,8 +190,9 @@ const CreateWing = () => {
         >
           <AddLeaderCard
             wing={selectedWing}
-            existingMembers={members}
-            onSubmit={(data) => console.log("Submitted Data:", data)}
+            onSubmit={(data) =>
+              dispatch(addLeaderToWing({ wingId: selectedWing?._id, data }))
+            }
           />
         </Modal> 
       )}

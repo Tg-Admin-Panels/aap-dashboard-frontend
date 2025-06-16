@@ -2,19 +2,18 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 
-// Create Axios instance
-const axiosInstance = axios.create({
+
+const axiosFormInstance = axios.create({
   baseURL: 'http://localhost:8000',
   headers: {
-    'Content-Type': 'application/json',
-  }
-
-});
+    'Content-Type': 'multipart/form-data',
+  } 
+})
 
 
 
 // Add a request interceptor to attach the token
-axiosInstance.interceptors.request.use(
+axiosFormInstance.interceptors.request.use(
   (config) => {
     const token = Cookies.get('token');
     if (token) {
@@ -27,7 +26,4 @@ axiosInstance.interceptors.request.use(
   }
 );
 
-
-
-
-export default axiosInstance;
+export default axiosFormInstance;

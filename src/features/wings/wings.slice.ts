@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { createWing, getAllWings,} from './wingsApi';
+import { addLeaderToWing, createWing, getAllWings,} from './wingsApi';
 
 
 interface Member {
@@ -62,7 +62,11 @@ const wingSlice = createSlice({
       })
       .addCase(getAllWings.fulfilled, (state, action) => {
         state.wings = action.payload.data;
-      });
+      })
+      .addCase(addLeaderToWing.fulfilled, (state, action) => {
+        state.selectedWing = action.payload?.data
+        console.log("wing leader data from api",state.selectedWing)
+      })
   },
 });
 
