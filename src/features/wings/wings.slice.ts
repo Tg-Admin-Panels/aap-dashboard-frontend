@@ -26,9 +26,8 @@ interface WingState {
   error: string | null;
 }
 
-
 const initialState: WingState = {
-  wings: Array<Wings>(),
+  wings: [],
   selectedWing: null,
   loading: false,
   error: null,
@@ -37,43 +36,36 @@ const initialState: WingState = {
 const wingSlice = createSlice({
   name: 'wings',
   initialState,
-  reducers: {},
+  reducers: {
+    setSelectedWingToNull: (state) => {
+      state.selectedWing = null;
+    },
+    setErrorToNull: (state) => {
+      state.error = null
+    }
+  },
   extraReducers: (builder) => {
     builder
-    //   .addCase(getAllMedicines.pending, (state) => {
-    //     state.loading = true;
-    //     state.error = null;
-    //   })
-      // .addCase(getAllMedicines.fulfilled, (state, action) => {
-      //   state.loading = false;
-      //   state.medicines = action.payload.data;
-      // })
-      // .addCase(getAllMedicines.rejected, (state, action) => {
-      //   state.loading = false;
-      //   state.error = action.error.message || 'Failed to fetch medicines';
-      // })
-      // .addCase(createMedicine.fulfilled, (state, action) => {
-      //   state.medicines.push(action.payload);
-      // })
+      .addCase(createWing.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(createWing.rejected, (state, action) => {
+        state.error = String(action.payload) || "Failed to create wing";
+        state.loading = false;
+      })
       .addCase(createWing.fulfilled, (state, action) => {
-        state.wings.push(action.payload);
+        state.wings.push(action.payload?.data);
+        state.selectedWing = action.payload?.data
+        state.loading = false;
+        state.error = null;
       })
       .addCase(getAllWings.fulfilled, (state, action) => {
         state.wings = action.payload.data;
-      })
-      // .addCase(deleteMedicineById.fulfilled, (state, action) => {
-      //   state.medicines = state.medicines.filter((medicine) => medicine.medicineId !== action.payload);
-      // })
-      // .addCase(getMedicineById.fulfilled, (state, action) => {
-      //   state.selectedMedicine = action.payload;
-      // })
-      // .addCase(updateMedicineById.fulfilled, (state, action) => {
-      //   const index = state.medicines.findIndex((medicine) => medicine.medicineId === action.payload.medicineId);
-      //   if (index !== -1) {
-      //     state.medicines[index] = action.payload;
-      //   }
-      // });
+      });
   },
 });
 
 export default wingSlice.reducer;
+
+export const { setSelectedWingToNull, setErrorToNull } = wingSlice.actions;

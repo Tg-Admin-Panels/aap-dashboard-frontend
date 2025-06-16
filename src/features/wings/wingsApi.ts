@@ -30,6 +30,23 @@ export const getAllWings = createAsyncThunk(
   }
 );
 
+
+// Get all leaders
+export const getAllWingMembers = createAsyncThunk(
+  "wings/getAllWingMembers",
+  async (_, {rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get(`/wings/wingmembers`);
+      console.log("wingmember data from api",response.data)
+      return response.data;
+    } catch (error: any) {
+      console.log(error.response?.data?.message)
+      return rejectWithValue(error.response?.data?.message || "An error occurred");
+    }
+  }
+)
+
+
 // Get All Medicines
 export const getAllMedicines = createAsyncThunk(
   'wings/getAllWings',

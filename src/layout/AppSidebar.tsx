@@ -315,22 +315,16 @@ const AppSidebar: React.FC = () => {
       >
         <Link to="/">
           {isExpanded || isHovered || isMobileOpen ? (
-            <>
+            <div className=" flex flex-col items-center gap-2">
               <img
-                className="dark:hidden"
-                src="/images/logo/logo.svg"
+                className="brightness-0 dark:brightness-100"
+                src="/images/logo/app-logo.png"
                 alt="Logo"
                 width={150}
                 height={40}
               />
-              <img
-                className="hidden dark:block"
-                src="/images/logo/logo-dark.svg"
-                alt="Logo"
-                width={150}
-                height={40}
-              />
-            </>
+              <h2 className="text-2xl font-semibold text:gray-800 dark:text-gray-300">Aam Admi Party</h2>
+            </div>
           ) : (
             <img
               src="/images/logo/logo-icon.svg"
@@ -378,7 +372,7 @@ const AppSidebar: React.FC = () => {
             </div>
           </div>
         </nav>
-        {isExpanded || isHovered || isMobileOpen ? <SidebarWidget /> : null}
+        {/* {isExpanded || isHovered || isMobileOpen ? <SidebarWidget /> : null} */}
       </div>
     </aside>
   );

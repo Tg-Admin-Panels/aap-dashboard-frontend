@@ -7,12 +7,12 @@ import NotFound from "./pages/OtherPage/NotFound";
 import AppLayout from "./layout/AppLayout";
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import Home from "./pages/Dashboard/Home";
-import MedicineList from "./pages/medicine/MedicineList";
+import MedicineList from "./pages/wings/MedicineList";
 import SellForm from "./pages/inventory/SellForm";
 import SellHistory from "./pages/inventory/SellHistory";
 import ProtectedLayout from "./layout/ProtectedLayout";
 import { useEffect } from "react";
-import CreateWing from "./pages/medicine/CreateWingForm";
+import CreateWing from "./pages/wings/CreateWingForm";
 import { Bounce, ToastContainer } from "react-toastify";
 
 export default function App() {
