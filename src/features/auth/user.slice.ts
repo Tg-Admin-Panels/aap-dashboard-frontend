@@ -1,11 +1,37 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import {  loginUser } from './authApi';
-import { SerializedError } from '@reduxjs/toolkit';
-import Cookies from 'js-cookie';
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { checkAuth, loginUser } from "./authApi";
+import { SerializedError } from "@reduxjs/toolkit";
+import Cookies from "js-cookie";
+
+// interface Volunteer {
+//   _id: string;
+//   fullName: string;
+//   dateOfBirth: string;
+//   age: number;
+//   gender: string;
+//   mobileNumber: string;
+//   religion?: string;
+//   profilePicture?: string;
+//   zone: string;
+//   district: string;
+//   block: string;
+//   wardNumber?: string;
+//   boothNumber?: string;
+//   pinCode?: string;
+//   postOffice?: string;
+//   cityName?: string;
+//   streetOrLocality?: string;
+//   panchayat?: string;
+//   villageName?: string;
+//   status: string;
+// }
 
 interface UserData {
-  username: string;
-  email: string;
+  name: string;
+  mobileNumber: string;
+  role: string;
+  volunteer: string | null;
+  token: string;
 }
 
 interface User {
@@ -15,50 +41,53 @@ interface User {
 
 interface AuthState {
   user: UserData | null;
-  isAuthenticated:boolean;
+  isAuthenticated: boolean;
   loading: boolean;
   error: string | null;
 }
 
 const initialState: AuthState = {
   user: null,
-  isAuthenticated:false,
+  isAuthenticated: false,
   loading: false,
   error: null,
 };
 
 const authSlice = createSlice({
-  name: 'auth',
+  name: "auth",
   initialState,
   reducers: {
     setUser: (state, action: PayloadAction<User>) => {
       state.user = action.payload.data;
-      state.isAuthenticated=true
+      state.isAuthenticated = true;
       if (action.payload.token) {
-        Cookies.set('token', action.payload.token, { expires: 7 }); // Store token for 7 days
+        console.log("token", action.payload.token);
+        Cookies.set("token", action.payload.data.token, { expires: 7 }); // Store token for 7 days
       }
     },
     logout: (state) => {
       state.user = null;
-      state.isAuthenticated=false
-      Cookies.remove('token'); // Remove token on logout
+      state.isAuthenticated = false;
+      Cookies.remove("token"); // Remove token on logout
     },
   },
   extraReducers: (builder) => {
     builder
-      // .addCase(fetchUser.pending, (state) => {
-      //   state.loading = true;
-      //   state.error = null;
-      // })
-      // .addCase(fetchUser.fulfilled, (state, action: PayloadAction<UserData>) => {
-      //   state.loading = false;
-      //   state.user = action.payload;
-      //   state.isAuthenticated=true
-      // })
-      // .addCase(fetchUser.rejected, (state, action) => {
-      //   state.loading = false;
-      //   state.error = String(action.payload) || 'Failed to fetch user';
-      // })
+      .addCase(checkAuth.fulfilled, (state, action: PayloadAction<User>) => {
+        state.loading = false;
+        state.user = action.payload.data;
+        state.isAuthenticated = true;
+        console.log("isAuthenticated", state.isAuthenticated);
+      })
+      .addCase(checkAuth.rejected, (state) => {
+        state.loading = false;
+        state.user = null;
+        state.isAuthenticated = false;
+      })
+      .addCase(checkAuth.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
       .addCase(loginUser.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -66,15 +95,23 @@ const authSlice = createSlice({
       .addCase(loginUser.fulfilled, (state, action: PayloadAction<User>) => {
         state.loading = false;
         state.user = action.payload.data;
-        if (action.payload.token) {
-          Cookies.set('token', action.payload.token, { expires: 7 }); // Store token
-          state.isAuthenticated=true
+        console.log("payload data", action.payload.data);
+        if (action.payload.data.token) {
+          Cookies.set("token", action.payload.data.token, { expires: 7 }); // Store token
+          state.isAuthenticated = true;
+          console.log("isAuth after login", state.isAuthenticated)
         }
       })
-      .addCase(loginUser.rejected, (state, action: PayloadAction<unknown, string, any, SerializedError>) => {
-        state.loading = false;
-        state.error = action.error?.message || 'Failed to login';
-      });
+      .addCase(
+        loginUser.rejected,
+        (
+          state,
+          action: PayloadAction<unknown, string, any, SerializedError>
+        ) => {
+          state.loading = false;
+          state.error = action.error?.message || "Failed to login";
+        }
+      );
   },
 });
 

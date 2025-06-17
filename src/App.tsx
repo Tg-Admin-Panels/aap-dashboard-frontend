@@ -14,14 +14,20 @@ import ProtectedLayout from "./layout/ProtectedLayout";
 import { useEffect } from "react";
 import CreateWing from "./pages/wings/CreateWingForm";
 import { Bounce, ToastContainer } from "react-toastify";
+import VolunteerTable from "./pages/volunteers/VolunteersList";
+import MemberTable from "./pages/members/membersTable";
+import VolunteerDetailsPage from "./pages/volunteers/volunteersDetailsPage";
+import { checkAuth } from "./features/auth/authApi";
 
 export default function App() {
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
-  // const isAuthenticated = true
+
   const dispatch = useDispatch<AppDispatch>();
 
+  console.log("isAuthenticated", isAuthenticated);
+
   useEffect(() => {
-    dispatch({ type: 'auth/checkAuth' });
+    dispatch(checkAuth());
   }, [dispatch]);
 
   return (
@@ -57,8 +63,12 @@ export default function App() {
             <Route index path="/" element={<Home />} />
             <Route path="/wing/add" element={<CreateWing />} />
             <Route path="/wing/list" element={<MedicineList />} />
-            <Route path="/inventory" element={<SellForm />} />
-            <Route path="/inventory/history" element={<SellHistory />} />
+            <Route path="/volunteers/" element={<VolunteerTable />} />
+            <Route
+              path="/volunteers/:volunteerId"
+              element={<VolunteerDetailsPage />}
+            />
+            <Route path="/members/" element={<MemberTable />} />
           </Route>
         </Route>
 

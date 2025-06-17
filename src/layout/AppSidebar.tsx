@@ -17,12 +17,15 @@ import {
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
 import SidebarWidget from "./SidebarWidget";
+import { useSelector } from "react-redux";
+import { RootState } from "../features/store";
 
 type NavItem = {
   name: string;
   icon: React.ReactNode;
   path?: string;
   subItems?: { name: string; path: string; pro?: boolean; new?: boolean }[];
+  role?: string[];
 };
 
 const navItems: NavItem[] = [
@@ -30,16 +33,28 @@ const navItems: NavItem[] = [
     icon: <GridIcon />,
     name: "Dashboard",
     subItems: [{ name: "Ecommerce", path: "/", pro: false }],
+    role: ["admin", "volunteer"]
   },
   {
     icon: <GridIcon />,
     name: "Wing",
-    subItems: [{ name: "Create Wing", path: "/wing/add", pro: false },{ name: "All Wings", path: "/wing/list", pro: false }],
+    subItems: [
+      { name: "Create Wing", path: "/wing/add", pro: false },
+      { name: "All Wings", path: "/wing/list", pro: false },
+    ],
+    role: ["admin"]
   },
   {
     icon: <GridIcon />,
-    name: "Inventory",
-    subItems: [{ name: "Sell", path: "/inventory/", pro: false },{ name: "Today Sell", path: "/inventory/history", pro: false }],
+    name: "Volunteers",
+    subItems: [{ name: "All Volunteers", path: "/volunteers/", pro: false }],
+    role: ["admin"]
+  },
+  {
+    icon: <GridIcon />,
+    name: "Members",
+    subItems: [{ name: "All Members", path: "/members/", pro: false }],
+    role: ["admin", "volunteer"]
   },
   // {
   //   icon: <CalenderIcon />,
@@ -105,7 +120,7 @@ const othersItems: NavItem[] = [
 const AppSidebar: React.FC = () => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
   const location = useLocation();
-
+  const {user} = useSelector((state: RootState) => state.auth); 
   const [openSubmenu, setOpenSubmenu] = useState<{
     type: "main" | "others";
     index: number;
@@ -173,7 +188,7 @@ const AppSidebar: React.FC = () => {
   const renderMenuItems = (items: NavItem[], menuType: "main" | "others") => (
     <ul className="flex flex-col gap-4">
       {items.map((nav, index) => (
-        <li key={nav.name}>
+        <li key={nav.name} className={`${nav.role?.includes(user?.role || "") ? "" : "hidden"}`}>
           {nav.subItems ? (
             <button
               onClick={() => handleSubmenuToggle(index, menuType)}

@@ -5,18 +5,23 @@ import activeMedicineReducer from './wings/activeMedicine.slice'
 import authMiddleware from './middlewares/authMiddleware'
 import wingReducer from "./wings/wings.slice"
 import wingMembersReducer from "./wings/wingMembers.slice"
-
+import volunteersReducer from "./volunteers/volunteers.slice"
+import membersReducer from "./members/members.slice"
+import volunteerMembers from "./members/volunteerMember.slice"
 const store = configureStore({
   reducer: {
     auth: authReducer,
-    wings:wingReducer,
-    wingMembers:wingMembersReducer,
-    inventory:inventoryReducer,
-    activeMedicines:activeMedicineReducer
+    wings: wingReducer,
+    wingMembers: wingMembersReducer,
+    inventory: inventoryReducer,
+    activeMedicines: activeMedicineReducer,
+    volunteers: volunteersReducer,
+    members: membersReducer,
+    volunteerMembers: volunteerMembers,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(authMiddleware),
-})
+});
 
 export type RootState = ReturnType<typeof store.getState>
 export type AppDispatch = typeof store.dispatch

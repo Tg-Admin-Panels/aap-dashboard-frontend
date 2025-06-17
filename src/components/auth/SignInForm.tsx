@@ -9,7 +9,7 @@ import { loginUser } from '../../features/auth/authApi';
 import {Link} from "react-router-dom"
 
 const validationSchema = Yup.object().shape({
-  username: Yup.string().required('Username is required'),
+  mobileNumber: Yup.string().required('MobileNumber is required'),
   password: Yup.string().required('Password is required'),
 });
 
@@ -18,7 +18,7 @@ const SignInForm: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { loading, error } = useSelector((state: RootState) => state.auth);
 
-  const handleSubmit = (values: { username: string; password: string }) => {
+  const handleSubmit = (values: { mobileNumber: string; password: string }) => {
     dispatch(loginUser(values));
   };
 
@@ -34,12 +34,16 @@ const SignInForm: React.FC = () => {
       </div>
       <div className="flex flex-col justify-center flex-1 w-full max-w-md mx-auto">
         <div>
-          <h1 className="mb-2 font-semibold text-gray-800 text-title-sm">Sign In</h1>
-          <p className="text-sm text-gray-500">Enter your username and password to sign in!</p>
+          <h1 className="mb-2 font-semibold text-gray-800 text-title-sm">
+            Sign In
+          </h1>
+          <p className="text-sm text-gray-500">
+            Enter your username and password to sign in!
+          </p>
           {error && <div className="text-red-500">{error}</div>}
         </div>
         <Formik
-          initialValues={{ username: '', password: '' }}
+          initialValues={{ mobileNumber: "", password: "" }}
           validationSchema={validationSchema}
           onSubmit={handleSubmit}
         >
@@ -47,23 +51,31 @@ const SignInForm: React.FC = () => {
             <Form className="space-y-6">
               {/* Username Field */}
               <div>
-                <label className="block mb-2">Username</label>
+                <label className="block dark:text-gray-300 mb-2">
+                  Username
+                </label>
                 <Field
-                  name="username"
-                  className="w-full p-2 border rounded"
-                  placeholder="Enter your username"
+                  name="mobileNumber"
+                  className="w-full p-2 dark:text-gray-300 border rounded"
+                  placeholder="Enter your mobile number"
                 />
-                <ErrorMessage name="username" component="div" className="text-red-500 text-sm" />
+                <ErrorMessage
+                  name="mobileNumber"
+                  component="div"
+                  className="text-red-500 text-sm"
+                />
               </div>
 
               {/* Password Field */}
               <div>
-                <label className="block mb-2">Password</label>
+                <label className="block dark:text-gray-300 mb-2">
+                  Password
+                </label>
                 <div className="relative">
                   <Field
                     name="password"
-                    type={showPassword ? 'text' : 'password'}
-                    className="w-full p-2 border rounded"
+                    type={showPassword ? "text" : "password"}
+                    className="w-full dark:text-gray-300 p-2 border rounded"
                     placeholder="Enter your password"
                   />
                   <span
@@ -73,7 +85,11 @@ const SignInForm: React.FC = () => {
                     {showPassword ? <EyeIcon /> : <EyeCloseIcon />}
                   </span>
                 </div>
-                <ErrorMessage name="password" component="div" className="text-red-500 text-sm" />
+                <ErrorMessage
+                  name="password"
+                  component="div"
+                  className="text-red-500 text-sm"
+                />
               </div>
 
               {/* Submit Button */}
@@ -82,14 +98,19 @@ const SignInForm: React.FC = () => {
                 className="w-full bg-blue-500 text-white py-2 rounded"
                 disabled={loading}
               >
-                {loading ? 'Signing in...' : 'Sign In'}
+                {loading ? "Signing in..." : "Sign In"}
               </button>
             </Form>
           )}
         </Formik>
 
         <div className="mt-5 text-center">
-          <p className="text-sm">Don't have an account? <Link to="/signup" className="text-blue-500">Sign Up</Link></p>
+          <p className="text-sm">
+            Don't have an account?{" "}
+            <Link to="/signup" className="text-blue-500">
+              Sign Up
+            </Link>
+          </p>
         </div>
       </div>
     </div>
