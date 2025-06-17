@@ -1,17 +1,19 @@
 // src/components/member/MemberTable.tsx
-import { useEffect } from "react";
+import { use, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../features/store";
-import { getAllMembers } from "../../features/members/membersApi";
+import { getAllMembers, getMembersByVolunteer } from "../../features/members/membersApi";
 
 export default function MemberTable() {
   const dispatch = useDispatch<AppDispatch>();
   const { members, loading, error } = useSelector(
     (state: RootState) => state.members
   );
+  const {user} = useSelector((state: RootState) => state.auth);
 
   useEffect(() => {
-    dispatch(getAllMembers());
+    if(user?.role === "volunteer") dispatch(getMembersByVolunteer(user.volunteer!));
+    if(user?.role === "admin") dispatch(getAllMembers());
   }, [dispatch]);
 
   if (loading) return <p>Loading...</p>;

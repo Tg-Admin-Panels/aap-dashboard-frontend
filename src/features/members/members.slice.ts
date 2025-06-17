@@ -1,6 +1,6 @@
 // src/features/members/membersSlice.ts
 import { createSlice } from "@reduxjs/toolkit";
-import { getAllMembers } from "./membersApi";
+import { getAllMembers, getMembersByVolunteer } from "./membersApi";
 
 interface VolunteerInfo {
   _id: string;
@@ -50,7 +50,20 @@ const membersSlice = createSlice({
       .addCase(getAllMembers.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
+      })
+      .addCase(getMembersByVolunteer.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getMembersByVolunteer.fulfilled, (state, action) => {
+        state.loading = false;
+        state.members = action.payload.data;
+      })
+      .addCase(getMembersByVolunteer.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
       });
+
   },
 });
 
