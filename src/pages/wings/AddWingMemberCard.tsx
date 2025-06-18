@@ -21,6 +21,13 @@ interface Wings {
 
 interface AddLeaderCardProps {
   wing: Wings | null;
+  memberType: "leader" | "member"; 
+  initialValues?: {
+    name: string;
+    phone: string;
+    image: string;
+    post: string;
+  } | null;
   onSubmit: (data: {
     name: string;
     phone: string;
@@ -29,11 +36,11 @@ interface AddLeaderCardProps {
   }) => void;
 }
 
-const AddLeaderCard: React.FC<AddLeaderCardProps> = ({ wing, onSubmit }) => {
+const AddWingMemberCard: React.FC<AddLeaderCardProps> = ({ wing, memberType, onSubmit, initialValues }) => {
   const [imagePreview, setImagePreview] = useState<string>("");
 
   const formik = useFormik({
-    initialValues: {
+    initialValues: initialValues || {
       name: "",
       phone: "",
       image: "",
@@ -44,7 +51,7 @@ const AddLeaderCard: React.FC<AddLeaderCardProps> = ({ wing, onSubmit }) => {
       phone: Yup.string()
         .matches(/^\d{10}$/, "Phone must be 10 digits")
         .required("Phone is required"),
-      image: Yup.string().required("Image is required"),
+      image: Yup.mixed().required("Image is required"),
       post: Yup.string().required("Post is required"),
     }),
     onSubmit: (values) => {
@@ -55,20 +62,17 @@ const AddLeaderCard: React.FC<AddLeaderCardProps> = ({ wing, onSubmit }) => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file && file.type.startsWith("image/")) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64 = reader.result as string;
-        formik.setFieldValue("image", base64);
-        setImagePreview(base64);
-      };
-      reader.readAsDataURL(file);
+      formik.setFieldValue("image", file); 
+      const previewUrl = URL.createObjectURL(file);
+      setImagePreview(previewUrl);
     }
   };
+  
 
   return (
     <div className="bg-[#101828] w-full p-6 rounded-2xl shadow-lg max-w-md text-white space-y-5">
       <h2 className="text-xl font-semibold">
-        Add Leader to Wing:{" "}
+        Add {memberType === "leader" ? "Leader" : "Member"} to Wing:{" "}
         <span className="text-blue-400 font-bold">{wing?.name}</span>
       </h2>
 
@@ -118,10 +122,10 @@ const AddLeaderCard: React.FC<AddLeaderCardProps> = ({ wing, onSubmit }) => {
           {formik.touched.image && formik.errors.image && (
             <p className="text-red-400 text-sm">{formik.errors.image}</p>
           )}
-          {imagePreview && (
+          {(imagePreview || initialValues?.image) && (
             <div className="relative mt-4 w-fit">
               <img
-                src={imagePreview}
+                src={imagePreview || initialValues?.image || "" }
                 alt="Preview"
                 className="max-h-40 rounded-md border border-gray-700"
               />
@@ -162,7 +166,7 @@ const AddLeaderCard: React.FC<AddLeaderCardProps> = ({ wing, onSubmit }) => {
             className="w-full py-2 mt-4 bg-blue-600 hover:bg-blue-700 rounded-md font-medium transition disabled:opacity-50"
             // disabled={!formik.isValid || formik.isSubmitting}
           >
-            Add Leader
+            Submit
           </button>
         </div>
       </form>
@@ -170,4 +174,4 @@ const AddLeaderCard: React.FC<AddLeaderCardProps> = ({ wing, onSubmit }) => {
   );
 };
 
-export default AddLeaderCard;
+export default AddWingMemberCard;

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { use, useEffect } from "react";
 import {
   Formik,
   Form,
@@ -12,8 +12,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../features/store";
 import { addLeaderToWing, createWing } from "../../features/wings/wingsApi";
 import { toast } from "react-toastify";
-import { setErrorToNull, setSelectedWingToNull } from "../../features/wings/wings.slice";
-import AddLeaderCard from "./AddLeaderCard";
+import { setErrorToNull, setSelectedWingToNull, setShowCreateLeaderModal } from "../../features/wings/wings.slice";
+import AddWingMemberCard from "./AddWingMemberCard";
 import Modal from "../../components/modal/Modal";
 
 
@@ -29,12 +29,12 @@ const validationSchema = Yup.object().shape({
 
 const CreateWing = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { loading, error, wings, selectedWing } = useSelector(
+  const { loading, error, wings, selectedWing, showCreateLeaderModal } = useSelector(
     (state: RootState) => state.wings
   );
 
   // const { members } = useSelector((state: RootState) => state.wingMembers);
-  const [showAddLeaderModal, setShowAddLeaderModal] = React.useState(false);
+
 
   console.log("wings", wings);
   const handleSubmit = async (
@@ -45,50 +45,12 @@ const CreateWing = () => {
     resetForm();
   };
 
-  // useEffect(() => {
-  //   dispatch(getAllWingMembers());
-  // }, []);
-
-
   useEffect(() => {
-    if (error) {
-      toast.error(error, {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-      });
-    }
-
+  
     return () => {
       dispatch(setErrorToNull());
     };
   }, [error])
-
-  useEffect(() => {
-    if (selectedWing) {
-      toast.success("Wing created successfully", {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-      });
-
-      setShowAddLeaderModal(true);
-    }
-
-    return () => {
-      dispatch(setSelectedWingToNull());
-    };
-  }, [selectedWing]);
 
   return (
     <div className="p-8">
@@ -179,19 +141,20 @@ const CreateWing = () => {
           )}
         </Formik>
       </div>
-      {showAddLeaderModal && (
+      {showCreateLeaderModal && (
         <Modal
-            onCancel={() => { setShowAddLeaderModal(false)  }}
-            onConfirm={ () => { setShowAddLeaderModal(false) }}
-
+          onCancel={() => {
+            dispatch(setShowCreateLeaderModal(false));
+          }}
         >
-          <AddLeaderCard
+          <AddWingMemberCard
             wing={selectedWing}
+            memberType="leader"
             onSubmit={(data) =>
-              dispatch(addLeaderToWing({ wingId: selectedWing!._id, data }))
+              dispatch(addLeaderToWing({ wingId: selectedWing?._id, data }))
             }
           />
-        </Modal> 
+        </Modal>
       )}
     </div>
   );

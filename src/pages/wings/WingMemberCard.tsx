@@ -1,19 +1,33 @@
+import { FaPen } from "react-icons/fa";
 
 interface WingMemberCardProps {
+  _id: string;
   name: string;
   image: string;
   post: string;
   phone: string;
+  onEdit?: (id: string) => void;
 }
 
 const WingMemberCard: React.FC<WingMemberCardProps> = ({
+  _id,
   name,
   image,
   post,
   phone,
+  onEdit,
 }) => {
   return (
-    <div className="bg-white dark:bg-gray-800 shadow-md rounded-lg overflow-hidden p-4 w-[200px]">
+    <div className="relative bg-white dark:bg-gray-800 shadow-md rounded-lg overflow-hidden p-4 w-[200px]">
+      {/* Edit Button Top Right */}
+      <button
+        onClick={() => onEdit?.(_id)}
+        title="Edit Member"
+        className="rounded-full p-2 bg-[#00000045] hover:bg-[#00000080] absolute top-2 right-2 text-blue-600 hover:text-blue-800 text-sm"
+      >
+        <FaPen className="text-gray-300"/>
+      </button>
+
       <img
         src={image}
         alt={name}

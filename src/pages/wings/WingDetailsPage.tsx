@@ -1,17 +1,38 @@
 import { useParams } from "react-router-dom";
 import { useEffect } from "react";
 import WingMemberCard from "./WingMemberCard";
-import { getWingMembers } from "../../features/wings/wingsApi";
+import {
+  addMemberToWing,
+  changeLeader,
+  getWingMembers,
+  updateMember,
+} from "../../features/wings/wingsApi";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../features/store";
+import {
+  setSelectedMember,
+  setShowChangeLeaderModal,
+  setShowCreateMemberModal,
+  setShowUpdateMemberModal,
+} from "../../features/wings/wings.slice";
+import AddWingMemberCard from "./AddWingMemberCard";
+import Modal from "../../components/modal/Modal";
+import { FaPen, FaRegPlayCircle } from "react-icons/fa";
+import ChangeWingLeaderCard from "./ChangeWingLeaderCard";
 
 export default function WingDetails() {
   const { id } = useParams();
   const dispatch = useDispatch<AppDispatch>();
 
-  const { selectedWing, error, loading } = useSelector(
-    (state: RootState) => state.wings
-  );
+  const {
+    selectedWing,
+    error,
+    loading,
+    showCreateMemberModal,
+    selectedMember,
+    showUpdateMemberModal,
+    showChangeLeaderModal,
+  } = useSelector((state: RootState) => state.wings);
 
   useEffect(() => {
     dispatch(getWingMembers(id!));
@@ -28,11 +49,41 @@ export default function WingDetails() {
   return (
     <div className="p-6 max-w-7xl mx-auto">
       {/* Wing Leader Section */}
-      {selectedWing?.leader && (
-        <section className="mb-12">
-          <h2 className="text-3xl font-bold text-gray-800 dark:text-white mb-6 border-b pb-2">
+
+      <section className="mb-12">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-3xl font-bold text-gray-800 dark:text-white">
             Wing Leader
           </h2>
+
+          <div className="flex gap-3">
+            {/* Update Leader (only if leader exists) */}
+            {selectedWing?.leader && (
+              <button
+                onClick={() => {
+                  dispatch(setSelectedMember(selectedWing.leader));
+                  dispatch(setShowUpdateMemberModal(true));
+                }}
+                className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow transition"
+              >
+                Update Leader
+              </button>
+            )}
+
+            {/* Change Leader (always available) */}
+            <button
+              onClick={() => {
+                dispatch(setShowChangeLeaderModal(true));
+              }}
+              className="bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow transition"
+            >
+              Change Leader
+            </button>
+          </div>
+        </div>
+
+        {/* Leader Card (if leader exists) */}
+        {selectedWing?.leader ? (
           <div className="flex flex-col md:flex-row items-center gap-6 bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6">
             <img
               src={selectedWing.leader.image}
@@ -51,8 +102,12 @@ export default function WingDetails() {
               </p>
             </div>
           </div>
-        </section>
-      )}
+        ) : (
+          <p className="text-gray-600 dark:text-gray-300 italic">
+            No leader assigned to this wing.
+          </p>
+        )}
+      </section>
 
       {/* Member Header and Add Button */}
       <div className="flex justify-between items-center mb-6">
@@ -60,7 +115,7 @@ export default function WingDetails() {
           Wing Members
         </h2>
         <button
-          onClick={() => console.log("Open Add Member Modal")}
+          onClick={() => dispatch(setShowCreateMemberModal(true))}
           className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-md transition"
         >
           + Add Member
@@ -68,15 +123,24 @@ export default function WingDetails() {
       </div>
 
       {/* Members Grid */}
-      {selectedWing?.members.length > 0 ? (
+      {selectedWing?.members?.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {selectedWing?.members.map((member) => (
             <WingMemberCard
+              _id={member._id}
               key={member._id}
               name={member.name}
               image={member.image}
               post={member.post}
               phone={member.phone}
+              onEdit={(id) => {
+                dispatch(
+                  setSelectedMember(
+                    selectedWing.members.find((member) => member._id === id)
+                  )
+                );
+                dispatch(setShowUpdateMemberModal(true));
+              }}
             />
           ))}
         </div>
@@ -84,6 +148,55 @@ export default function WingDetails() {
         <p className="text-gray-600 dark:text-gray-300">
           No members found in this wing.
         </p>
+      )}
+
+      {/* Add Member Modal  */}
+      {showCreateMemberModal && (
+        <Modal
+          onCancel={() => {
+            dispatch(setShowCreateMemberModal(false));
+          }}
+        >
+          <AddWingMemberCard
+            wing={selectedWing}
+            memberType="member"
+            onSubmit={(data) => dispatch(addMemberToWing({ wingId: id, data }))}
+          />
+        </Modal>
+      )}
+
+      {/* Update Member Modal  */}
+      {showUpdateMemberModal && (
+        <Modal
+          onCancel={() => {
+            dispatch(setShowUpdateMemberModal(false));
+          }}
+        >
+          <AddWingMemberCard
+            wing={selectedWing}
+            memberType="member"
+            onSubmit={(data) =>
+              dispatch(updateMember({ memberId: selectedMember?._id, data }))
+            }
+            initialValues={selectedMember}
+          />
+        </Modal>
+      )}
+
+      {showChangeLeaderModal && (
+        <Modal
+          onCancel={() => {
+            dispatch(setShowChangeLeaderModal(false));
+          }}
+        >
+          <ChangeWingLeaderCard
+            wing={selectedWing}
+            memberType="leader"
+            onSubmit={(data) =>
+              dispatch(changeLeader({ wingId: id, data }))
+            }
+          />
+        </Modal>
       )}
     </div>
   );
