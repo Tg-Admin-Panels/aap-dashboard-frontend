@@ -10,16 +10,13 @@ import {
 import * as Yup from "yup";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../features/store";
-import { faker } from "@faker-js/faker";
-import { addLeaderToWing, createWing, getAllWingMembers } from "../../features/wings/wingsApi";
+import { addLeaderToWing, createWing } from "../../features/wings/wingsApi";
 import { toast } from "react-toastify";
 import { setErrorToNull, setSelectedWingToNull } from "../../features/wings/wings.slice";
 import AddLeaderCard from "./AddLeaderCard";
 import Modal from "../../components/modal/Modal";
 
-// const FORM_ENUM = ['tablet', 'capsule', 'syrup', 'injection', 'ointment'];
-// const STRENGTH_ENUM = ['100 mg', '250 mg', '500 mg', '1 g', '2 g'];
-// const UNIT_ENUM = ['pieces', 'boxes', 'bottles', 'packs', 'strips'];
+
 const STATUS_ENUM = ["active", "deactive"];
 
 const initialValues = {
@@ -191,7 +188,7 @@ const CreateWing = () => {
           <AddLeaderCard
             wing={selectedWing}
             onSubmit={(data) =>
-              dispatch(addLeaderToWing({ wingId: selectedWing?._id, data }))
+              dispatch(addLeaderToWing({ wingId: selectedWing!._id, data }))
             }
           />
         </Modal> 

@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../features/store';
 import { getAllWings } from '../../features/wings/wingsApi';
+import { Link } from 'react-router';
 
 interface Member {
   _id: string;
@@ -20,7 +21,7 @@ interface Wings {
 }
 
 
-export default function MedicineTable() {
+export default function WingTable() {
   const dispatch = useDispatch<AppDispatch>();
   const { wings, loading, error } = useSelector((state: RootState) => state.wings);
   console.log("Wings in WingList", wings)
@@ -63,19 +64,21 @@ export default function MedicineTable() {
                   {wing.members?.length}
                 </td>
                 <td className="px-5 py-4 p-8 text-start text-gray-700 dark:text-gray-300 cursor-pointer">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24px"
-                    height="24px"
-                    viewBox="0 0 16 16"
-                    fill="none"                  
-                  >
-                    <path
-                      d="M10 0L9 1L11.2929 3.29289L6.2929 8.29289L7.70711 9.70711L12.7071 4.7071L15 7L16 6V0H10Z"
-                      fill="#465FFF"
-                    />
-                    <path d="M1 2H6V4H3V13H12V10H14V15H1V2Z" fill="#465FFF" />
-                  </svg>
+                  <Link to={`/wings/${wing._id}/details`}>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24px"
+                      height="24px"
+                      viewBox="0 0 16 16"
+                      fill="none"
+                    >
+                      <path
+                        d="M10 0L9 1L11.2929 3.29289L6.2929 8.29289L7.70711 9.70711L12.7071 4.7071L15 7L16 6V0H10Z"
+                        fill="#465FFF"
+                      />
+                      <path d="M1 2H6V4H3V13H12V10H14V15H1V2Z" fill="#465FFF" />
+                    </svg>
+                  </Link>
                 </td>
               </tr>
             ))}

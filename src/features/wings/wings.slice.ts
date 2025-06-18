@@ -1,8 +1,8 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { addLeaderToWing, createWing, getAllWings,} from './wingsApi';
+import { addLeaderToWing, createWing, getAllWings, getWingMembers,} from './wingsApi';
 
 
-interface Member {
+export interface WingMember {
   _id: string;
   name: string;
   phone: string;
@@ -15,8 +15,8 @@ interface Member {
 interface Wings {
   _id: string;
   name: string;
-  leader: Member;
-  members: Member[];
+  leader: WingMember;
+  members: WingMember[];
 }
 
 interface WingState {

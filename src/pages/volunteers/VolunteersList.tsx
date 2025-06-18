@@ -1,9 +1,12 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../features/store";
-import { getAllVolunteers } from "../../features/volunteers/volunteersApi";
-import { updateVolunteerStatus } from "../../features/volunteers/volunteersApi";
+import {
+  getAllVolunteers,
+  updateVolunteerStatus,
+} from "../../features/volunteers/volunteersApi";
 import { Link } from "react-router";
+import FilterSelect from "../../components/inputs/FilterSelect";
 
 export default function VolunteerTable() {
   const dispatch = useDispatch<AppDispatch>();
@@ -11,9 +14,33 @@ export default function VolunteerTable() {
     (state: RootState) => state.volunteers
   );
 
+  const [genderFilter, setGenderFilter] = useState("");
+  const [zoneFilter, setZoneFilter] = useState("");
+  const [districtFilter, setDistrictFilter] = useState("");
+  const [blockFilter, setBlockFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+
   useEffect(() => {
     dispatch(getAllVolunteers());
   }, [dispatch]);
+
+  // Unique values for filters
+  const genders = [...new Set(volunteers.map((v) => v.gender))];
+  const zones = [...new Set(volunteers.map((v) => v.zone))];
+  const districts = [...new Set(volunteers.map((v) => v.district))];
+  const blocks = [...new Set(volunteers.map((v) => v.block))];
+  const statuses = ["active", "blocked"];
+
+  // Filtered data
+  const filteredVolunteers = volunteers.filter((v) => {
+    return (
+      (genderFilter === "" || v.gender === genderFilter) &&
+      (zoneFilter === "" || v.zone === zoneFilter) &&
+      (districtFilter === "" || v.district === districtFilter) &&
+      (blockFilter === "" || v.block === blockFilter) &&
+      (statusFilter === "" || v.status === statusFilter)
+    );
+  });
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error}</p>;
@@ -24,36 +51,70 @@ export default function VolunteerTable() {
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="border-b border-gray-100 dark:border-white/[0.05]">
-              {[
-                "ID",
-                "Name",
-                "Gender",
-                "Mobile",
-                "Age",
-                "Zone",
-                "District",
-                "Block",
-                "Status",
-              ].map((header) => (
-                <th
-                  key={header}
-                  className="px-5 py-3 font-medium text-gray-500 text-xs uppercase"
-                >
-                  {header}
-                </th>
-              ))}
+              <th className="px-5 py-3 text-xs uppercase text-gray-500 font-medium">
+                ID
+              </th>
+              <th className="px-5 py-3 text-xs uppercase text-gray-500 font-medium">
+                Name
+              </th>
+              <th className="px-5 py-3 text-xs uppercase text-gray-500 font-medium">
+                <FilterSelect
+                  label="Gender"
+                  value={genderFilter}
+                  options={genders}
+                  onChange={setGenderFilter}
+                />
+              </th>
+              <th className="px-5 py-3 text-xs uppercase text-gray-500 font-medium">
+                Mobile
+              </th>
+              <th className="px-5 py-3 text-xs uppercase text-gray-500 font-medium">
+                Age
+              </th>
+              <th className="px-5 py-3 text-xs uppercase text-gray-500 font-medium">
+                <FilterSelect
+                  label="Zone"
+                  value={zoneFilter}
+                  options={zones}
+                  onChange={setZoneFilter}
+                />
+              </th>
+              <th className="px-5 py-3 text-xs uppercase text-gray-500 font-medium">
+                <FilterSelect
+                  label="District"
+                  value={districtFilter}
+                  options={districts}
+                  onChange={setDistrictFilter}
+                />
+              </th>
+              <th className="px-5 py-3 text-xs uppercase text-gray-500 font-medium">
+                <FilterSelect
+                  label="Block"
+                  value={blockFilter}
+                  options={blocks}
+                  onChange={setBlockFilter}
+                />
+              </th>
+              <th className="px-5 py-3 text-xs uppercase text-gray-500 font-medium">
+                <FilterSelect
+                  label="Status"
+                  value={statusFilter}
+                  options={statuses}
+                  onChange={setStatusFilter}
+                />
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-            {volunteers?.map((volunteer) => (
+            {filteredVolunteers.map((volunteer) => (
               <tr key={volunteer._id}>
                 <td className="px-5 py-4 text-sm text-gray-700 hover:underline dark:text-gray-300">
-                  <Link to={`/volunteers/${volunteer?._id}`}>
+                  <Link to={`/volunteers/${volunteer._id}`}>
                     {volunteer._id}
                   </Link>
                 </td>
-                <td className="px-5 py-4 text-sm hover:underline  text-gray-700 dark:text-gray-300">
-                  <Link to={`/volunteers/${volunteer?._id}`}>
+                <td className="px-5 py-4 text-sm text-gray-700 hover:underline dark:text-gray-300">
+                  <Link to={`/volunteers/${volunteer._id}`}>
                     {volunteer.fullName}
                   </Link>
                 </td>

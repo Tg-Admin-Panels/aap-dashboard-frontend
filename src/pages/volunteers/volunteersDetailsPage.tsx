@@ -106,7 +106,7 @@ export default function VolunteerDetailsPage() {
       )}
 
       {/* Members Table */}
-      <div className="p-6 rounded-lg border-2 border-gray-200 shadow bg-white dark:bg-gray-900">
+      <div className="p-6 rounded-lg border border-gray-200 shadow bg-white dark:bg-gray-900">
         <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
           Members Joined by This Volunteer
         </h2>

@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { createWing, getAllWingMembers, getAllWings } from "./wingsApi";
+import { createWing, getAllWings } from "./wingsApi";
 
 interface Member {
   _id: string;
@@ -32,19 +32,19 @@ const wingMemberSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(getAllWingMembers.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(getAllWingMembers.rejected, (state, action) => {
-        state.error = String(action.payload) || "Failed to create wing";
-        state.loading = false;
-      })
-      .addCase(getAllWingMembers.fulfilled, (state, action) => {
-        state.members = action.payload.data;
-        state.loading = false;
-        state.error = null;
-      });
+      // .addCase(getAllWingMembers.pending, (state) => {
+      //   state.loading = true;
+      //   state.error = null;
+      // })
+      // .addCase(getAllWingMembers.rejected, (state, action) => {
+      //   state.error = String(action.payload) || "Failed to create wing";
+      //   state.loading = false;
+      // })
+      // .addCase(getAllWingMembers.fulfilled, (state, action) => {
+      //   state.members = action.payload.data;
+      //   state.loading = false;
+      //   state.error = null;
+      // });
   },
 });
 

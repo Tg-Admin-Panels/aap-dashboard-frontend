@@ -7,7 +7,7 @@ import NotFound from "./pages/OtherPage/NotFound";
 import AppLayout from "./layout/AppLayout";
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import Home from "./pages/Dashboard/Home";
-import MedicineList from "./pages/wings/MedicineList";
+import MedicineList from "./pages/wings/WingTable";
 import SellForm from "./pages/inventory/SellForm";
 import SellHistory from "./pages/inventory/SellHistory";
 import ProtectedLayout from "./layout/ProtectedLayout";
@@ -18,6 +18,7 @@ import VolunteerTable from "./pages/volunteers/VolunteersList";
 import MemberTable from "./pages/members/membersTable";
 import VolunteerDetailsPage from "./pages/volunteers/volunteersDetailsPage";
 import { checkAuth } from "./features/auth/authApi";
+import WingDetails from "./pages/wings/WingDetailsPage";
 
 export default function App() {
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
@@ -63,6 +64,7 @@ export default function App() {
             <Route index path="/" element={<Home />} />
             <Route path="/wing/add" element={<CreateWing />} />
             <Route path="/wing/list" element={<MedicineList />} />
+            <Route path="/wings/:id/details" element={<WingDetails />} />
             <Route path="/volunteers/" element={<VolunteerTable />} />
             <Route
               path="/volunteers/:volunteerId"

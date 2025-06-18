@@ -1,7 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit'
 import authReducer from '../features/auth/user.slice'
 import inventoryReducer from '../features/inventory/inventory.slice'
-import activeMedicineReducer from './wings/activeMedicine.slice'
 import authMiddleware from './middlewares/authMiddleware'
 import wingReducer from "./wings/wings.slice"
 import wingMembersReducer from "./wings/wingMembers.slice"
@@ -14,7 +13,6 @@ const store = configureStore({
     wings: wingReducer,
     wingMembers: wingMembersReducer,
     inventory: inventoryReducer,
-    activeMedicines: activeMedicineReducer,
     volunteers: volunteersReducer,
     members: membersReducer,
     volunteerMembers: volunteerMembers,
