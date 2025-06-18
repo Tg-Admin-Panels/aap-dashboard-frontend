@@ -85,9 +85,9 @@ const CreateWing = () => {
       setShowAddLeaderModal(true);
     }
 
-    // return () => {
-    //   dispatch(setSelectedWingToNull());
-    // };
+    return () => {
+      dispatch(setSelectedWingToNull());
+    };
   }, [selectedWing]);
 
   return (

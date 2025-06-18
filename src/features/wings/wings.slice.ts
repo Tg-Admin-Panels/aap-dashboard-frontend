@@ -67,6 +67,9 @@ const wingSlice = createSlice({
         state.selectedWing = action.payload?.data
         console.log("wing leader data from api",state.selectedWing)
       })
+      .addCase(getWingMembers.fulfilled, (state, action) => {
+        state.selectedWing = action.payload?.data
+      })
   },
 });
 
