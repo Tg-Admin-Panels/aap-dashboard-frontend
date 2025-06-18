@@ -798,3 +798,12 @@ span.flatpickr-weekday,
 .simplebar-scrollbar.simplebar-visible:before {
   @apply opacity-100;
 }
+
+:root {
+  --aap-bg-color: #0c1b32;
+  --aap-text-color: #ffffff;
+  --aap-primary-color: #f6c106;
+  --aap-secondary-color: #101f3c;
+  --aap-button-text: #ffffff;
+  --aap-button-bg: linear-gradient(135deg, #f6c106 0%, #be8610 100%);
+}

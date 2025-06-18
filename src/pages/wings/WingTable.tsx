@@ -9,22 +9,21 @@ interface Member {
   name: string;
   phone: string;
   image: string;
-  role:string;
+  role: string;
   post: string;
 }
 
 interface Wings {
-  _id: string
+  _id: string;
   name: string;
   leader: Member;
   members: Member[];
 }
 
-
 export default function WingTable() {
   const dispatch = useDispatch<AppDispatch>();
   const { wings, loading, error } = useSelector((state: RootState) => state.wings);
-  console.log("Wings in WingList", wings)
+
   useEffect(() => {
     dispatch(getAllWings());
   }, [dispatch]);
@@ -37,11 +36,11 @@ export default function WingTable() {
       <div className="max-w-full overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="border-b border-gray-100 dark:border-white/[0.05]">
-              {["Wing ID", "Name", "Leader", "Members"].map((header) => (
+            <tr style={{ backgroundColor: "#101f3c" }}>
+              {["Wing ID", "Name", "Leader", "Members", "Actions"].map((header) => (
                 <th
                   key={header}
-                  className="px-5 py-3 font-medium text-gray-500 text-start text-xs uppercase"
+                  className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider"
                 >
                   {header}
                 </th>
@@ -63,7 +62,7 @@ export default function WingTable() {
                 <td className="px-5 py-4 text-start text-gray-700 dark:text-gray-300">
                   {wing.members?.length}
                 </td>
-                <td className="px-5 py-4 p-8 text-start text-gray-700 dark:text-gray-300 cursor-pointer">
+                <td className="px-5 py-4 text-start">
                   <Link to={`/wings/${wing._id}/details`}>
                     <svg
                       xmlns="http://www.w3.org/2000/svg"

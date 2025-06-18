@@ -7,7 +7,6 @@ import {
 } from "../../features/members/membersApi";
 import FilterSelect from "../../components/inputs/FilterSelect";
 
-
 export default function MemberTable() {
   const dispatch = useDispatch<AppDispatch>();
   const { members, loading, error } = useSelector(
@@ -55,13 +54,13 @@ export default function MemberTable() {
     <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
       <div className="max-w-full overflow-x-auto">
         <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="border-b border-gray-100 dark:border-white/[0.05] bg-gray-100 dark:bg-gray-800">
-              <th className="px-5 py-3 font-medium text-gray-500 text-xs uppercase">
+          {/* 🟦 Styled Header like WingTable */}
+          <thead style={{ backgroundColor: "#101f3c" }}>
+            <tr>
+              <th className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider">
                 Name
               </th>
-
-              <th className="px-5 py-3 font-medium text-gray-500 text-xs uppercase">
+              <th className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider">
                 <FilterSelect
                   label="State"
                   value={stateFilter}
@@ -69,12 +68,10 @@ export default function MemberTable() {
                   onChange={setStateFilter}
                 />
               </th>
-
-              <th className="px-5 py-3 font-medium text-gray-500 text-xs uppercase">
+              <th className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider">
                 Mobile
               </th>
-
-              <th className="px-5 py-3 font-medium text-gray-500 text-xs uppercase">
+              <th className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider">
                 <FilterSelect
                   label="Joined By"
                   value={joinedByFilter}
@@ -82,17 +79,18 @@ export default function MemberTable() {
                   onChange={setJoinedByFilter}
                 />
               </th>
-
-              <th className="px-5 py-3 font-medium text-gray-500 text-xs uppercase">
+              <th className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider">
                 <FilterSelect
                   label="Volunteer"
                   value={volunteerFilter}
-                  options={uniqueVolunteers.map((vol) => vol)}
+                  options={uniqueVolunteers}
                   onChange={setVolunteerFilter}
                 />
               </th>
             </tr>
           </thead>
+
+          {/* 🔽 Table Body */}
           <tbody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
             {filteredMembers.map((member) => (
               <tr key={member._id}>

@@ -6,10 +6,10 @@ import * as Yup from 'yup';
 import { EyeCloseIcon, EyeIcon } from '../../icons';
 import { AppDispatch, RootState } from '../../features/store';
 import { loginUser } from '../../features/auth/authApi';
-import {Link} from "react-router-dom"
+import { Link } from "react-router-dom";
 
 const validationSchema = Yup.object().shape({
-  mobileNumber: Yup.string().required('MobileNumber is required'),
+  mobileNumber: Yup.string().required('Mobile number is required'),
   password: Yup.string().required('Password is required'),
 });
 
@@ -23,64 +23,68 @@ const SignInForm: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col flex-1">
-      <div className="w-full max-w-md pt-10 mx-auto">
+    <div className="flex flex-col flex-1 bg-[var(--aap-bg-color)] text-[var(--aap-text-color)] px-6 py-10 sm:px-8">
+      {/* Back to Dashboard */}
+      <div className="w-full max-w-md mx-auto">
         <Link
           to="/"
-          className="inline-flex items-center text-sm text-gray-500 transition-colors hover:text-gray-700"
+          className="inline-flex items-center text-sm text-[var(--aap-muted-color)] hover:text-[var(--aap-primary-color)] transition-colors"
         >
-          Back to dashboard
+          ← Back to Home
         </Link>
       </div>
+
+      {/* Sign-In Form Content */}
       <div className="flex flex-col justify-center flex-1 w-full max-w-md mx-auto">
-        <div>
-          <h1 className="mb-2 font-semibold text-gray-800 text-title-sm">
+        <div className="mb-6">
+          <h1 className="mb-2 font-bold text-3xl text-[var(--aap-primary-color)]">
             Sign In
           </h1>
-          <p className="text-sm text-gray-500">
-            Enter your username and password to sign in!
+          <p className="text-sm text-[var(--aap-muted-color)]">
+            Enter your number and password to sign in!
           </p>
-          {error && <div className="text-red-500">{error}</div>}
+          {error && <div className="text-red-500 text-sm mt-2">{error}</div>}
         </div>
+
         <Formik
           initialValues={{ mobileNumber: "", password: "" }}
           validationSchema={validationSchema}
           onSubmit={handleSubmit}
         >
           {() => (
-            <Form className="space-y-6">
-              {/* Username Field */}
+            <Form className="space-y-5">
+              {/* Mobile Number */}
               <div>
-                <label className="block dark:text-gray-300 mb-2">
-                  Username
+                <label className="block mb-1 text-sm font-medium">
+                  Number
                 </label>
                 <Field
                   name="mobileNumber"
-                  className="w-full p-2 dark:text-gray-300 border rounded"
+                  className="w-full px-4 py-2 border border-gray-300 rounded bg-transparent focus:outline-none focus:ring-2 focus:ring-[var(--aap-primary-color)]"
                   placeholder="Enter your mobile number"
                 />
                 <ErrorMessage
                   name="mobileNumber"
                   component="div"
-                  className="text-red-500 text-sm"
+                  className="text-red-500 text-sm mt-1"
                 />
               </div>
 
-              {/* Password Field */}
+              {/* Password */}
               <div>
-                <label className="block dark:text-gray-300 mb-2">
+                <label className="block mb-1 text-sm font-medium">
                   Password
                 </label>
                 <div className="relative">
                   <Field
                     name="password"
                     type={showPassword ? "text" : "password"}
-                    className="w-full dark:text-gray-300 p-2 border rounded"
+                    className="w-full px-4 py-2 border border-gray-300 rounded bg-transparent focus:outline-none focus:ring-2 focus:ring-[var(--aap-primary-color)]"
                     placeholder="Enter your password"
                   />
                   <span
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-2 cursor-pointer"
+                    className="absolute right-4 top-2.5 cursor-pointer text-[var(--aap-muted-color)]"
                   >
                     {showPassword ? <EyeIcon /> : <EyeCloseIcon />}
                   </span>
@@ -88,14 +92,14 @@ const SignInForm: React.FC = () => {
                 <ErrorMessage
                   name="password"
                   component="div"
-                  className="text-red-500 text-sm"
+                  className="text-red-500 text-sm mt-1"
                 />
               </div>
 
-              {/* Submit Button */}
+              {/* Submit */}
               <button
                 type="submit"
-                className="w-full bg-blue-500 text-white py-2 rounded"
+                className="w-full py-2 rounded bg-[var(--aap-primary-color)] text-white hover:bg-opacity-90 transition-colors"
                 disabled={loading}
               >
                 {loading ? "Signing in..." : "Sign In"}
@@ -104,17 +108,16 @@ const SignInForm: React.FC = () => {
           )}
         </Formik>
 
-        <div className="mt-5 text-center">
-          <p className="text-sm">
-            Don't have an account?{" "}
-            <Link to="/signup" className="text-blue-500">
-              Sign Up
-            </Link>
-          </p>
+        {/* Sign Up Link */}
+        <div className="mt-6 text-center text-sm">
+          Don’t have an account?{" "}
+          <Link to="/signup" className="text-[var(--aap-primary-color)] hover:underline">
+            Sign Up
+          </Link>
         </div>
       </div>
     </div>
   );
-}
+};
 
 export default SignInForm;

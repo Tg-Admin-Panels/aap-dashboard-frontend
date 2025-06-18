@@ -18,21 +18,28 @@ const WingMemberCard: React.FC<WingMemberCardProps> = ({
   onEdit,
 }) => {
   return (
-    <div className="relative bg-white dark:bg-gray-800 shadow-md rounded-lg overflow-hidden p-4 w-[200px]">
-      {/* Edit Button Top Right */}
+    <div
+      className="relative group bg-white dark:bg-gray-800 shadow-md rounded-lg overflow-hidden p-4 w-[200px] transition-all duration-300"
+    >
+      {/* Edit Icon - background blue with hover effect */}
       <button
         onClick={() => onEdit?.(_id)}
         title="Edit Member"
-        className="rounded-full p-2 bg-[#00000045] hover:bg-[#00000080] absolute top-2 right-2 text-blue-600 hover:text-blue-800 text-sm"
+        className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 
+                   bg-blue-600 hover:bg-blue-700 text-white 
+                   p-2 rounded-full transition duration-300 ease-in-out z-10"
       >
-        <FaPen className="text-gray-300"/>
+        <FaPen className="text-sm" />
       </button>
 
+      {/* Member Image */}
       <img
         src={image}
         alt={name}
         className="w-full h-32 object-cover rounded-md"
       />
+
+      {/* Member Info */}
       <h3 className="text-lg font-semibold mt-2 text-center text-gray-800 dark:text-white">
         {name}
       </h3>
