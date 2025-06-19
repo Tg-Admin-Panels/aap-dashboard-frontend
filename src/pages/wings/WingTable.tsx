@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../features/store';
 import { getAllWings } from '../../features/wings/wingsApi';
 import { Link } from 'react-router';
+import SpinnerOverlay from '../../components/ui/SpinnerOverlay';
 
 interface Member {
   _id: string;
@@ -29,11 +30,12 @@ export default function WingTable() {
     dispatch(getAllWings());
   }, [dispatch]);
 
-  if (loading) return <p>Loading...</p>;
+  // if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error}</p>;
 
   return (
     <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
+      <SpinnerOverlay loading={loading} />
       <div className="max-w-full overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>

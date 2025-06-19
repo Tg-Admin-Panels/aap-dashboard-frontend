@@ -5,11 +5,15 @@ import {
   getAllVolunteers,
   updateVolunteerStatus,
 } from "../../features/volunteers/volunteersApi";
-import { Link } from "react-router";
+import { Link, useSearchParams } from "react-router";
 import FilterSelect from "../../components/inputs/FilterSelect";
+import SearchBar from "../../components/inputs/SearchBar";
+import SpinnerOverlay from "../../components/ui/SpinnerOverlay";
 
 export default function VolunteerTable() {
   const dispatch = useDispatch<AppDispatch>();
+  const [searchParams] = useSearchParams();
+  
   const { volunteers, loading, error } = useSelector(
     (state: RootState) => state.volunteers
   );
@@ -21,7 +25,8 @@ export default function VolunteerTable() {
   const [statusFilter, setStatusFilter] = useState("");
 
   useEffect(() => {
-    dispatch(getAllVolunteers());
+    const search = searchParams.get("search") || "";
+    dispatch(getAllVolunteers(search));
   }, [dispatch]);
 
   // Unique values for filters
@@ -42,11 +47,14 @@ export default function VolunteerTable() {
     );
   });
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error: {error}</p>;
+  // if (loading) return <p>Loading...</p>;
+  // if (error) return <p>Error: {error}</p>;
 
   return (
     <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
+      <SpinnerOverlay loading={loading}/> 
+      <SearchBar onSearch={(query: string) => dispatch(getAllVolunteers(query))}/>
+      
       <div className="max-w-full overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>

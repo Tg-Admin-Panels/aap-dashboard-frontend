@@ -4,9 +4,9 @@ import axiosInstance from "../../utils/axiosInstance";
 
 export const getAllMembers = createAsyncThunk(
   "members/getAllMembers",
-  async (_, { rejectWithValue }) => {
+  async (search: string | undefined, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get("/members");
+      const response = await axiosInstance.get(`/members?search=${search || ""}`);
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
@@ -32,9 +32,9 @@ export const getMemberById = createAsyncThunk(
 
 export const getMembersByVolunteer = createAsyncThunk(
   "members/getMembersByVolunteer",
-  async (volunteerId: string, { rejectWithValue }) => {
+  async ({volunteerId, search}: {volunteerId: string, search: string | undefined}, { rejectWithValue }) => {
     try {
-      const res = await axiosInstance.get(`/members/joined-by/${volunteerId}`);
+      const res = await axiosInstance.get(`/members/joined-by/${volunteerId}/?search=${search || ""}`);
       return res.data;
     } catch (error: any) {
       return rejectWithValue(
