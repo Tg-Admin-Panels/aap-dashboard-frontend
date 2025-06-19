@@ -8,8 +8,6 @@ import AppLayout from "./layout/AppLayout";
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import Home from "./pages/Dashboard/Home";
 import MedicineList from "./pages/wings/WingTable";
-import SellForm from "./pages/inventory/SellForm";
-import SellHistory from "./pages/inventory/SellHistory";
 import ProtectedLayout from "./layout/ProtectedLayout";
 import { useEffect } from "react";
 import CreateWing from "./pages/wings/CreateWingForm";

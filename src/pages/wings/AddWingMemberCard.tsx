@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { Form } from "react-router";
+import { useSelector } from "react-redux";
+import { RootState } from "../../features/store";
 
 interface Member {
   _id: string;
@@ -21,7 +23,7 @@ interface Wings {
 
 interface AddLeaderCardProps {
   wing: Wings | null;
-  memberType: "leader" | "member"; 
+  title: string;
   initialValues?: {
     name: string;
     phone: string;
@@ -36,8 +38,9 @@ interface AddLeaderCardProps {
   }) => void;
 }
 
-const AddWingMemberCard: React.FC<AddLeaderCardProps> = ({ wing, memberType, onSubmit, initialValues }) => {
+const AddWingMemberCard: React.FC<AddLeaderCardProps> = ({ wing, title, onSubmit, initialValues }) => {
   const [imagePreview, setImagePreview] = useState<string>("");
+  const { loading } = useSelector((state: RootState) => state.wings);
 
   const formik = useFormik({
     initialValues: initialValues || {
@@ -70,9 +73,9 @@ const AddWingMemberCard: React.FC<AddLeaderCardProps> = ({ wing, memberType, onS
   
 
   return (
-    <div className="bg-[#101828] w-full p-6 rounded-2xl shadow-lg max-w-md text-white space-y-5">
+    <div className="bg-white dark:bg-[#101828] w-full p-6 rounded-2xl  max-w-md dark:text-white space-y-5">
       <h2 className="text-xl font-semibold">
-        Add {memberType === "leader" ? "Leader" : "Member"} to Wing:{" "}
+        {title}
         <span className="text-blue-400 font-bold">{wing?.name}</span>
       </h2>
 
@@ -86,7 +89,7 @@ const AddWingMemberCard: React.FC<AddLeaderCardProps> = ({ wing, memberType, onS
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
             value={formik.values.name}
-            className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-md text-white"
+            className="w-full px-3 py-2 dark:bg-gray-800 border border-gray-700 rounded-md dark:text-white"
           />
           {formik.touched.name && formik.errors.name && (
             <p className="text-red-400 text-sm">{formik.errors.name}</p>
@@ -103,7 +106,7 @@ const AddWingMemberCard: React.FC<AddLeaderCardProps> = ({ wing, memberType, onS
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
             value={formik.values.phone}
-            className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-md text-white"
+            className="w-full px-3 py-2 dark:bg-gray-800 border border-gray-700 rounded-md dark:text-white"
           />
           {formik.touched.phone && formik.errors.phone && (
             <p className="text-red-400 text-sm">{formik.errors.phone}</p>
@@ -117,7 +120,7 @@ const AddWingMemberCard: React.FC<AddLeaderCardProps> = ({ wing, memberType, onS
             type="file"
             accept="image/*"
             onChange={handleFileChange}
-            className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-md text-white file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700"
+            className="w-full px-3 py-2 dark:bg-gray-800 border border-gray-700 rounded-md dark:text-white file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700"
           />
           {formik.touched.image && formik.errors.image && (
             <p className="text-red-400 text-sm">{formik.errors.image}</p>
@@ -125,7 +128,7 @@ const AddWingMemberCard: React.FC<AddLeaderCardProps> = ({ wing, memberType, onS
           {(imagePreview || initialValues?.image) && (
             <div className="relative mt-4 w-fit">
               <img
-                src={imagePreview || initialValues?.image || "" }
+                src={imagePreview || initialValues?.image || ""}
                 alt="Preview"
                 className="max-h-40 rounded-md border border-gray-700"
               />
@@ -152,7 +155,7 @@ const AddWingMemberCard: React.FC<AddLeaderCardProps> = ({ wing, memberType, onS
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
             value={formik.values.post}
-            className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-md text-white"
+            className="w-full px-3 py-2 dark:bg-gray-800 border border-gray-700 rounded-md dark:text-white"
           />
           {formik.touched.post && formik.errors.post && (
             <p className="text-red-400 text-sm">{formik.errors.post}</p>
@@ -163,10 +166,10 @@ const AddWingMemberCard: React.FC<AddLeaderCardProps> = ({ wing, memberType, onS
         <div>
           <button
             type="submit"
-            className="w-full py-2 mt-4 bg-blue-600 hover:bg-blue-700 rounded-md font-medium transition disabled:opacity-50"
+            className="w-full py-2 mt-4 bg-blue-600 hover:bg-blue-700 rounded-md text-white font-medium transition disabled:opacity-50"
             // disabled={!formik.isValid || formik.isSubmitting}
           >
-            Submit
+            {loading ? "Submitting..." : "Submit"}
           </button>
         </div>
       </form>

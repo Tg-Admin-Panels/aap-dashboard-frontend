@@ -44,7 +44,7 @@ const Modal: React.FC<ModalProps> = ({
   return (
     <div className="z-100 w-[100vw] h-screen flex justify-center items-center fixed top-1/2 left-1/2 translate-x-[-50%] translate-y-[-50%] backdrop-brightness-50">
       <div
-        className="min-w-[300px] h-[80vh] overflow-y-auto min-h-[150px] p-4 bg-white dark:bg-[#101828] dark:border-gray-800 rounded-lg relative border-2"
+        className="min-w-[300px] h-[80vh] overflow-y-auto min-h-[150px] bg-white dark:bg-[#101828] dark:border-gray-800 rounded-lg relative border-2"
         ref={popupRef}
       >
         {title && <h2 className="mb-2 text-lg font-semibold">{title}</h2>}

@@ -84,16 +84,17 @@ const AppHeader: React.FC = () => {
           </button>
 
           <Link to="/" className="lg:hidden">
-            <img
+            {/* <img
               className="dark:hidden"
               src="./images/logo/logo.svg"
               alt="Logo"
-            />
-            <img
+            /> */}
+            <h2 className="text-xl font-medium dark:text-white">AAP Admin</h2>
+            {/* <img
               className="hidden dark:block"
               src="./images/logo/logo-dark.svg"
               alt="Logo"
-            />
+            /> */}
           </Link>
 
           <button
@@ -162,7 +163,7 @@ const AppHeader: React.FC = () => {
             {/* <!-- Dark Mode Toggler --> */}
             <ThemeToggleButton />
             {/* <!-- Dark Mode Toggler --> */}
-            <NotificationDropdown />
+            {/* <NotificationDropdown /> */}
             {/* <!-- Notification Menu Area --> */}
           </div>
           {/* <!-- User Area --> */}

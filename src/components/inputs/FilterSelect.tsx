@@ -20,11 +20,15 @@ const FilterSelect: React.FC<FilterSelectProps> = ({
       value={value}
       onChange={(e) => onChange(e.target.value)}
     >
-      <option value="" className="dark:bg-gray-900  ">
+      <option value="" className="dark:bg-gray-900 text-black dark:text-white ">
         {label}
       </option>
       {options.map((option) => (
-        <option key={option} value={option} className="dark:bg-gray-900">
+        <option
+          key={option}
+          value={option}
+          className="dark:bg-gray-900 text-black dark:text-white"
+        >
           {option}
         </option>
       ))}

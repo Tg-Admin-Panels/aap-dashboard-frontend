@@ -160,7 +160,7 @@ export default function WingDetails() {
         >
           <AddWingMemberCard
             wing={selectedWing}
-            memberType="member"
+            title="Add Member"
             onSubmit={(data) => dispatch(addMemberToWing({ wingId: id, data }))}
           />
         </Modal>
@@ -175,7 +175,7 @@ export default function WingDetails() {
         >
           <AddWingMemberCard
             wing={selectedWing}
-            memberType="member"
+            title="Update Member"
             onSubmit={(data) =>
               dispatch(updateMember({ memberId: selectedMember?._id, data }))
             }
