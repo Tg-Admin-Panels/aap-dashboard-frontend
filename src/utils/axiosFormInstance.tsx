@@ -4,7 +4,7 @@ import Cookies from 'js-cookie';
 
 
 const axiosFormInstance = axios.create({
-  baseURL: 'http://localhost:8000',
+  baseURL: import.meta.env.VITE_BASE_URL,
   headers: {
     'Content-Type': 'multipart/form-data',
   },
