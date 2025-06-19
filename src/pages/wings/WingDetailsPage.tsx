@@ -72,13 +72,14 @@ export default function WingDetails() {
 
             {/* Change Leader (always available) */}
             <button
-              onClick={() => {
-                dispatch(setShowChangeLeaderModal(true));
-              }}
-              className="bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow transition"
-            >
-              Change Leader
-            </button>
+  onClick={() => {
+    dispatch(setShowChangeLeaderModal(true));
+  }}
+  className="bg-white border-blue-600 border-2 text-blue-600 hover:bg-blue-600 hover:text-white text-sm font-medium px-4 py-2 rounded-lg shadow transition-colors duration-200"
+>
+  Change Leader
+</button>
+
           </div>
         </div>
 

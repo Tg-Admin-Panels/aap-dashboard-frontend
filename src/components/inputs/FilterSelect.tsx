@@ -15,20 +15,21 @@ const FilterSelect: React.FC<FilterSelectProps> = ({
   onChange,
 }) => {
   return (
-    <select
-      className="text-sm px-1 py-1 outline-none"
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-    >
-      <option value="" className="dark:bg-gray-900  ">
-        {label}
-      </option>
-      {options.map((option) => (
-        <option key={option} value={option} className="dark:bg-gray-900">
-          {option}
-        </option>
-      ))}
-    </select>
+  <select
+  className="text-sm px-1 py-1 "
+  value={value}
+  onChange={(e) => onChange(e.target.value)}
+>
+  <option value="" className="bg-white text-black">
+    {label}
+  </option>
+  {options.map((option) => (
+    <option key={option} value={option} className="bg-white text-black">
+      {option}
+    </option>
+  ))}
+</select>
+
   );
 };
 
