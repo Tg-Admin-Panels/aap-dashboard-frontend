@@ -29,14 +29,12 @@ export default function VolunteerTable() {
     dispatch(getAllVolunteers(search));
   }, [dispatch]);
 
-  // Unique values for filters
   const genders = [...new Set(volunteers.map((v) => v.gender))];
   const zones = [...new Set(volunteers.map((v) => v.zone))];
   const districts = [...new Set(volunteers.map((v) => v.district))];
   const blocks = [...new Set(volunteers.map((v) => v.block))];
   const statuses = ["active", "blocked"];
 
-  // Filtered data
   const filteredVolunteers = volunteers.filter((v) => {
     return (
       (genderFilter === "" || v.gender === genderFilter) &&
@@ -58,14 +56,14 @@ export default function VolunteerTable() {
       <div className="max-w-full overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="border-b border-gray-100 dark:border-white/[0.05]">
-              <th className="px-5 py-3 text-xs uppercase text-gray-500 font-medium">
+            <tr style={{ backgroundColor: "#101f3c" }}>
+              <th className="px-5 py-3 text-xs uppercase text-white font-semibold tracking-wider">
                 ID
               </th>
-              <th className="px-5 py-3 text-xs uppercase text-gray-500 font-medium">
+              <th className="px-5 py-3 text-xs uppercase text-white font-semibold tracking-wider">
                 Name
               </th>
-              <th className="px-5 py-3 text-xs uppercase text-gray-500 font-medium">
+              <th className="px-5 py-3 text-xs uppercase text-white font-semibold tracking-wider">
                 <FilterSelect
                   label="Gender"
                   value={genderFilter}
@@ -73,13 +71,13 @@ export default function VolunteerTable() {
                   onChange={setGenderFilter}
                 />
               </th>
-              <th className="px-5 py-3 text-xs uppercase text-gray-500 font-medium">
+              <th className="px-5 py-3 text-xs uppercase text-white font-semibold tracking-wider">
                 Mobile
               </th>
-              <th className="px-5 py-3 text-xs uppercase text-gray-500 font-medium">
+              <th className="px-5 py-3 text-xs uppercase text-white font-semibold tracking-wider">
                 Age
               </th>
-              <th className="px-5 py-3 text-xs uppercase text-gray-500 font-medium">
+              <th className="px-5 py-3 text-xs uppercase text-white font-semibold tracking-wider">
                 <FilterSelect
                   label="Zone"
                   value={zoneFilter}
@@ -87,7 +85,7 @@ export default function VolunteerTable() {
                   onChange={setZoneFilter}
                 />
               </th>
-              <th className="px-5 py-3 text-xs uppercase text-gray-500 font-medium">
+              <th className="px-5 py-3 text-xs uppercase text-white font-semibold tracking-wider">
                 <FilterSelect
                   label="District"
                   value={districtFilter}
@@ -95,7 +93,7 @@ export default function VolunteerTable() {
                   onChange={setDistrictFilter}
                 />
               </th>
-              <th className="px-5 py-3 text-xs uppercase text-gray-500 font-medium">
+              <th className="px-5 py-3 text-xs uppercase text-white font-semibold tracking-wider">
                 <FilterSelect
                   label="Block"
                   value={blockFilter}
@@ -103,7 +101,7 @@ export default function VolunteerTable() {
                   onChange={setBlockFilter}
                 />
               </th>
-              <th className="px-5 py-3 text-xs uppercase text-gray-500 font-medium">
+              <th className="px-5 py-3 text-xs uppercase text-white font-semibold tracking-wider">
                 <FilterSelect
                   label="Status"
                   value={statusFilter}
@@ -117,14 +115,10 @@ export default function VolunteerTable() {
             {filteredVolunteers.map((volunteer) => (
               <tr key={volunteer._id}>
                 <td className="px-5 py-4 text-sm text-gray-700 hover:underline dark:text-gray-300">
-                  <Link to={`/volunteers/${volunteer._id}`}>
-                    {volunteer._id}
-                  </Link>
+                  <Link to={`/volunteers/${volunteer._id}`}>{volunteer._id}</Link>
                 </td>
                 <td className="px-5 py-4 text-sm text-gray-700 hover:underline dark:text-gray-300">
-                  <Link to={`/volunteers/${volunteer._id}`}>
-                    {volunteer.fullName}
-                  </Link>
+                  <Link to={`/volunteers/${volunteer._id}`}>{volunteer.fullName}</Link>
                 </td>
                 <td className="px-5 py-4 text-sm text-gray-700 dark:text-gray-300">
                   {volunteer.gender}
@@ -155,11 +149,12 @@ export default function VolunteerTable() {
                         })
                       )
                     }
-                    className="border p-1 rounded bg-white dark:bg-gray-800"
+                    className="border p-1 rounded bg-white text-gray-800 dark:bg-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="active">Active</option>
                     <option value="blocked">Blocked</option>
                   </select>
+
                 </td>
               </tr>
             ))}
