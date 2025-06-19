@@ -24,9 +24,9 @@ export const createVolunteer = createAsyncThunk(
 // Get All Volunteers
 export const getAllVolunteers = createAsyncThunk(
   "volunteers/getAllVolunteers",
-  async (_, { rejectWithValue }) => {
+  async (search: string | undefined, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get("/volunteers");
+      const response = await axiosInstance.get(`/volunteers?search=${search || ""}`);
       return response.data;
     } catch (error: any) {
       return rejectWithValue(

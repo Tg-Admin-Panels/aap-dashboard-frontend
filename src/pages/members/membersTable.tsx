@@ -6,6 +6,8 @@ import {
   getMembersByVolunteer,
 } from "../../features/members/membersApi";
 import FilterSelect from "../../components/inputs/FilterSelect";
+import SearchBar from "../../components/inputs/SearchBar";
+import SpinnerOverlay from "../../components/ui/SpinnerOverlay";
 
 export default function MemberTable() {
   const dispatch = useDispatch<AppDispatch>();
@@ -20,7 +22,7 @@ export default function MemberTable() {
 
   useEffect(() => {
     if (user?.role === "volunteer")
-      dispatch(getMembersByVolunteer(user.volunteer!));
+      dispatch(getMembersByVolunteer({ volunteerId: user.volunteer!, search: "" }));
     if (user?.role === "admin") dispatch(getAllMembers());
   }, [dispatch]);
 
@@ -47,11 +49,20 @@ export default function MemberTable() {
     );
   });
 
-  if (loading) return <p>Loading...</p>;
+  // if (loading) return <p>Loading...</p>;
   if (error) return <p className="text-red-600">Error: {error}</p>;
 
   return (
     <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
+      <SpinnerOverlay loading={loading} />
+      <SearchBar
+        onSearch={(query) => {
+          if (user?.role === "admin") dispatch(getAllMembers(query));
+          else if (user?.role === "volunteer")
+            dispatch(getMembersByVolunteer({volunteerId: user?.volunteer!, search: query}));
+        }}
+      />
+
       <div className="max-w-full overflow-x-auto">
         <table className="w-full text-left border-collapse">
           {/* 🟦 Styled Header like WingTable */}
