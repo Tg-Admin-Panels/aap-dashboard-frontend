@@ -25,14 +25,14 @@ const SignInForm: React.FC = () => {
   return (
     <div className="flex flex-col flex-1 bg-[var(--aap-bg-color)] text-[var(--aap-text-color)] px-6 py-10 sm:px-8">
       {/* Back to Dashboard */}
-      <div className="w-full max-w-md mx-auto">
+      {/* <div className="w-full max-w-md mx-auto">
         <Link
           to="/"
           className="inline-flex items-center text-sm text-[var(--aap-muted-color)] hover:text-[var(--aap-primary-color)] transition-colors"
         >
           ← Back to Home
         </Link>
-      </div>
+      </div> */}
 
       {/* Sign-In Form Content */}
       <div className="flex flex-col justify-center flex-1 w-full max-w-md mx-auto">
@@ -109,12 +109,12 @@ const SignInForm: React.FC = () => {
         </Formik>
 
         {/* Sign Up Link */}
-        <div className="mt-6 text-center text-sm">
+        {/* <div className="mt-6 text-center text-sm">
           Don’t have an account?{" "}
           <Link to="/signup" className="text-[var(--aap-primary-color)] hover:underline">
             Sign Up
           </Link>
-        </div>
+        </div> */}
       </div>
     </div>
   );

@@ -100,7 +100,7 @@ const ChangeWingLeaderCard: React.FC<AddLeaderCardProps> = ({
   const existingMembers = wing?.members || [];
 
   return (
-    <div className="bg-[#101828] w-full p-6 rounded-2xl shadow-lg max-w-md text-white space-y-5">
+    <div className="bg-[#101828] w-full p-6 rounded-sm shadow-sm max-w-md text-white space-y-5">
       <h2 className="text-xl font-semibold">
         Change {memberType === "leader" ? "Leader" : "Member"} of Wing:{" "}
         <span className="text-blue-400 font-bold">{wing?.name}</span>
