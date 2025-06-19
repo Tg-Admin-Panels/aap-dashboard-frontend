@@ -5,16 +5,7 @@ import { AppDispatch, RootState } from "../../features/store";
 import { getMembersByVolunteer } from "../../features/members/membersApi";
 import { useParams } from "react-router-dom";
 import { getVolunteerById } from "../../features/volunteers/volunteersApi";
-import {
-  FaUser,
-  FaPhone,
-  FaVenusMars,
-  FaBirthdayCake,
-  FaMapMarkerAlt,
-  FaBuilding,
-  FaHashtag,
-  FaCheck,
-} from "react-icons/fa";
+
 
 export default function VolunteerDetailsPage() {
   const { volunteerId } = useParams<{ volunteerId: string }>();
@@ -30,7 +21,7 @@ export default function VolunteerDetailsPage() {
   useEffect(() => {
     if (volunteerId) {
       dispatch(getVolunteerById(volunteerId));
-      dispatch(getMembersByVolunteer(volunteerId));
+      dispatch(getMembersByVolunteer({ volunteerId, search: "" }));
     }
   }, [dispatch, volunteerId]);
 

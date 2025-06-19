@@ -1,7 +1,5 @@
-import { use, useState } from "react";
-import { DropdownItem } from "../ui/dropdown/DropdownItem";
+import { useState } from "react";
 import { Dropdown } from "../ui/dropdown/Dropdown";
-import { Link } from "react-router";
 import store, { RootState } from "../../features/store";
 import { logout } from "../../features/auth/user.slice";
 import { useSelector } from "react-redux";

@@ -14,7 +14,7 @@ export default function VolunteerTable() {
   const dispatch = useDispatch<AppDispatch>();
   const [searchParams] = useSearchParams();
   
-  const { volunteers, loading, error } = useSelector(
+  const { volunteers, loading } = useSelector(
     (state: RootState) => state.volunteers
   );
 

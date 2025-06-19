@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import {
   Formik,
   Form,
@@ -10,10 +10,8 @@ import * as Yup from "yup";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../features/store";
 import { addLeaderToWing, createWing } from "../../features/wings/wingsApi";
-import { toast } from "react-toastify";
 import {
   setErrorToNull,
-  setSelectedWingToNull,
   setShowCreateLeaderModal,
 } from "../../features/wings/wings.slice";
 import AddWingMemberCard from "./AddWingMemberCard";
@@ -29,7 +27,7 @@ const validationSchema = Yup.object().shape({
 
 const CreateWing = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { loading, error, wings, selectedWing, showCreateLeaderModal } =
+  const { loading, error, selectedWing, showCreateLeaderModal } =
     useSelector((state: RootState) => state.wings);
 
   const handleSubmit = async (
@@ -100,8 +98,8 @@ const CreateWing = () => {
       {showCreateLeaderModal && (
         <Modal onCancel={() => dispatch(setShowCreateLeaderModal(false))}>
           <AddWingMemberCard
+            title="Add Wing Leader"
             wing={selectedWing}
-            memberType="leader"
             onSubmit={(data) =>
               dispatch(addLeaderToWing({ wingId: selectedWing?._id, data }))
             }

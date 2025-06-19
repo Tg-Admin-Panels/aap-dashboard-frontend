@@ -1,6 +1,4 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { createWing, getAllWings } from "./wingsApi";
-
 interface Member {
   _id: string;
   name: string;
