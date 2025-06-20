@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import StatisticsChart from "../../components/ecommerce/StatisticsChart";
 import PageMeta from "../../components/common/PageMeta";
 
@@ -107,7 +107,7 @@ function StateDistribution({ stateDistribution }: any) {
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-5">
       <h2 className="text-xl font-semibold mb-4">Members by State</h2>
       <Chart
-        options={stateChartOptions}
+        options={stateChartOptions as any}
         series={stateChartSeries}
         type="bar"
         height={250}
@@ -163,7 +163,7 @@ function GenderChartDistribution({ genderDistribution }: any) {
         Volunteer Gender Distribution
       </h2>
       <Chart
-        options={genderChartOptions}
+        options={genderChartOptions as any}
         series={genderChartSeries}
         type="pie"
         height={250}
@@ -186,7 +186,7 @@ function JoinSourceChart({ joinSources }: any) {
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-5">
       <h2 className="text-xl font-semibold mb-4">Member Join Sources</h2>
       <Chart
-        options={joinChartOptions}
+        options={joinChartOptions as any}
         series={joinChartSeries}
         type="donut"
         height={250}

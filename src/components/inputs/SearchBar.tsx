@@ -9,7 +9,7 @@ interface SearchBarProps {
 
 function SearchBar({ onSearch }: SearchBarProps): React.ReactElement {
   const inputRef = useRef<HTMLInputElement>(null);
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [_, setSearchParams] = useSearchParams();
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();

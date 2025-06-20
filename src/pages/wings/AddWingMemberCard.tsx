@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { Form } from "react-router";
 import { useSelector } from "react-redux";
 import { RootState } from "../../features/store";
 
@@ -23,7 +22,7 @@ interface Wings {
 
 interface AddLeaderCardProps {
   wing: Wings | null;
-  title: string;
+  title: string | null;
   initialValues?: {
     name: string;
     phone: string;
