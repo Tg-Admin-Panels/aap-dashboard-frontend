@@ -192,7 +192,6 @@ export default function WingDetails() {
         >
           <ChangeWingLeaderCard
             wing={selectedWing}
-            memberType="leader"
             onSubmit={(data) =>
               dispatch(changeLeader({ wingId: id, data }))
             }

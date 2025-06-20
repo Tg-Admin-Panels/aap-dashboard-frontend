@@ -20,7 +20,6 @@ interface Wings {
 
 interface AddLeaderCardProps {
   wing: Wings | null;
-  memberType: "leader" | "member";
   initialValues?: {
     name: string;
     phone: string;
@@ -38,7 +37,6 @@ interface AddLeaderCardProps {
 
 const ChangeWingLeaderCard: React.FC<AddLeaderCardProps> = ({
   wing,
-  memberType,
   onSubmit,
   initialValues,
 }) => {
@@ -102,7 +100,7 @@ const ChangeWingLeaderCard: React.FC<AddLeaderCardProps> = ({
   return (
     <div className="bg-[#101828] w-full p-6 rounded-sm shadow-sm max-w-md text-white space-y-5">
       <h2 className="text-xl font-semibold">
-        Change {memberType === "leader" ? "Leader" : "Member"} of Wing:{" "}
+        Change Leader of Wing:{" "}
         <span className="text-blue-400 font-bold">{wing?.name}</span>
       </h2>
 
@@ -231,7 +229,7 @@ const ChangeWingLeaderCard: React.FC<AddLeaderCardProps> = ({
             className="w-full py-2 mt-4 bg-blue-600 hover:bg-blue-700 rounded-md font-medium transition disabled:opacity-50"
           >
             {selectedMemberId
-              ? `Assign Selected Member as ${memberType}`
+              ? `Assign Selected Member as leader`
               : "Submit"}
           </button>
         </div>
