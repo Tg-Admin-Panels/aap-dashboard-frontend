@@ -39,7 +39,7 @@ export default function WingTable() {
         <table className="w-full text-left border-collapse">
           <thead>
             <tr style={{ backgroundColor: "#101f3c" }}>
-              {["Wing ID", "Name", "Leader", "Members", "Actions"].map((header) => (
+              {["Name", "Leader", "Members", "Actions"].map((header) => (
                 <th
                   key={header}
                   className="px-5 py-3 text-white text-xs font-semibold uppercase tracking-wider"
@@ -52,14 +52,14 @@ export default function WingTable() {
           <tbody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
             {wings?.map((wing: Wings) => (
               <tr key={wing._id}>
-                <td className="px-5 py-4 text-start text-gray-700 dark:text-gray-300">
+                {/* <td className="px-5 py-4 text-start text-gray-700 dark:text-gray-300">
                   {wing._id}
-                </td>
+                </td> */}
                 <td className="px-5 py-4 text-start text-gray-700 dark:text-gray-300">
                   {wing.name}
                 </td>
                 <td className="px-5 py-4 text-start text-gray-700 dark:text-gray-300">
-                  {wing.leader?.name}
+                  {wing.leader ? wing.leader?.name : 'NA'}
                 </td>
                 <td className="px-5 py-4 text-start text-gray-700 dark:text-gray-300">
                   {wing.members?.length}
@@ -68,8 +68,8 @@ export default function WingTable() {
                   <Link to={`/wings/${wing._id}/details`}>
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
-                      width="24px"
-                      height="24px"
+                      width="20px"
+                      height="20px"
                       viewBox="0 0 16 16"
                       fill="none"
                     >

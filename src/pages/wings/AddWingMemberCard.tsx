@@ -3,6 +3,7 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useSelector } from "react-redux";
 import { RootState } from "../../features/store";
+import { CloseIcon } from "../../icons";
 
 interface Member {
   _id: string;
@@ -40,6 +41,8 @@ interface AddLeaderCardProps {
 const AddWingMemberCard: React.FC<AddLeaderCardProps> = ({ wing, title, onSubmit, initialValues }) => {
   const [imagePreview, setImagePreview] = useState<string>("");
   const { loading } = useSelector((state: RootState) => state.wings);
+  const [_, setFile] = useState<File | null>(null);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const formik = useFormik({
     initialValues: initialValues || {
@@ -49,12 +52,12 @@ const AddWingMemberCard: React.FC<AddLeaderCardProps> = ({ wing, title, onSubmit
       post: "",
     },
     validationSchema: Yup.object({
-      name: Yup.string().required("Name is required"),
+      name: Yup.string().required("Name is required").matches(/^[A-Za-z\s-]+$/, "Only alphabets, spaces, and dashes are allowed"),
       phone: Yup.string()
         .matches(/^\d{10}$/, "Phone must be 10 digits")
         .required("Phone is required"),
       image: Yup.mixed().required("Image is required"),
-      post: Yup.string().required("Post is required"),
+      post: Yup.string().required("Post is required").matches(/^[A-Za-z\s-]+$/, "Only alphabets, spaces, and dashes are allowed"),
     }),
     onSubmit: (values) => {
       onSubmit(values);
@@ -62,14 +65,16 @@ const AddWingMemberCard: React.FC<AddLeaderCardProps> = ({ wing, title, onSubmit
   });
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file && file.type.startsWith("image/")) {
-      formik.setFieldValue("image", file); 
-      const previewUrl = URL.createObjectURL(file);
+    const selectedFile = e.target.files?.[0];
+    if (selectedFile && selectedFile.type.startsWith("image/")) {
+      setFile(selectedFile);
+      formik.setFieldValue("image", selectedFile);
+      const previewUrl = URL.createObjectURL(selectedFile);
       setImagePreview(previewUrl);
     }
   };
-  
+
+
 
   return (
     <div className="bg-white dark:bg-[#101828] w-full p-6 rounded-2xl  max-w-md dark:text-white space-y-5">
@@ -116,6 +121,7 @@ const AddWingMemberCard: React.FC<AddLeaderCardProps> = ({ wing, title, onSubmit
         <div>
           <label className="block mb-1 text-sm">Upload Image</label>
           <input
+            ref={fileInputRef}
             type="file"
             accept="image/*"
             onChange={handleFileChange}
@@ -135,14 +141,19 @@ const AddWingMemberCard: React.FC<AddLeaderCardProps> = ({ wing, title, onSubmit
                 type="button"
                 onClick={() => {
                   formik.setFieldValue("image", "");
+                  setFile(null);
                   setImagePreview("");
+                  if (fileInputRef.current) {
+                    fileInputRef.current.value = "";
+                  }
                 }}
                 className="absolute -top-2 -right-2 bg-red-600 hover:bg-red-700 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs"
               >
-                ✖
+                <CloseIcon />
               </button>
             </div>
           )}
+
         </div>
 
         {/* Post */}
@@ -166,7 +177,7 @@ const AddWingMemberCard: React.FC<AddLeaderCardProps> = ({ wing, title, onSubmit
           <button
             type="submit"
             className="w-full py-2 mt-4 bg-blue-600 hover:bg-blue-700 rounded-md text-white font-medium transition disabled:opacity-50"
-            // disabled={!formik.isValid || formik.isSubmitting}
+          // disabled={!formik.isValid || formik.isSubmitting}
           >
             {loading ? "Submitting..." : "Submit"}
           </button>

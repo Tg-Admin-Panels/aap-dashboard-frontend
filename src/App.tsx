@@ -29,6 +29,17 @@ export default function App() {
     dispatch(checkAuth());
   }, [dispatch]);
 
+  if (!isAuthenticated) {
+    return <div className="flex flex-col items-center justify-center h-screen bg-white text-gray-800">
+      <img
+        src="../images/logo/app-logo.png" // Replace with your logo path
+        alt="Logo"
+        className="h-24 mb-4 brightness-0 dark:brightness-100"
+      />
+      <p className="text-lg font-semibold">Loading...</p>
+    </div>
+  }
+
   return (
     <Router>
       <ToastContainer

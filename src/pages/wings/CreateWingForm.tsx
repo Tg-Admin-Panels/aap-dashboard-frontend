@@ -21,9 +21,13 @@ const initialValues = {
   name: "",
 };
 
+
 const validationSchema = Yup.object().shape({
-  name: Yup.string().required("Wing name is required"),
+  name: Yup.string()
+    .required("Wing name is required")
+    .matches(/^[A-Za-z\s-]+$/, "Only alphabets, spaces, and dashes are allowed"),
 });
+
 
 const CreateWing = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -66,6 +70,7 @@ const CreateWing = () => {
                   <div key={key}>
                     <label className="block font-medium text-gray-800 dark:text-gray-200 mb-1 capitalize">
                       {key.replace(/([A-Z])/g, " $1")}
+                      <span className="text-red-500">*</span>
                     </label>
                     <Field
                       name={key}

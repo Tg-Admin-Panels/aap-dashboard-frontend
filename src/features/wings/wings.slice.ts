@@ -143,7 +143,7 @@ const wingSlice = createSlice({
         toast.error(state.error);
       })
       .addCase(addMemberToWing.fulfilled, (state, action) => {
-        state.selectedWing = action.payload?.data;
+        state.selectedWing?.members.push(action.payload?.data.member);
         state.showCreateMemberModal = false;
         state.loading = false;
         state.error = null;
@@ -162,7 +162,8 @@ const wingSlice = createSlice({
       })
       .addCase(changeLeader.fulfilled, (state, action) => {
         if (state.selectedWing) {
-          state.selectedWing.leader = action.payload?.data;
+          state.selectedWing.leader = action.payload?.data.leader;
+          state.selectedWing.members = action.payload?.data.members;
         }
         state.loading = false;
         state.error = null;
@@ -183,14 +184,21 @@ const wingSlice = createSlice({
       .addCase(updateMember.fulfilled, (state, action) => {
         const updatedMember = action.payload?.data;
         if (state.selectedWing) {
-          const index = state.selectedWing.members.findIndex(
-            (m) => m._id === updatedMember._id
-          );
-          if (index !== -1) {
-            state.selectedWing.members[index] = updatedMember;
+          if (updatedMember.role === 'leader') {
+            state.selectedWing.leader = updatedMember
+          }
+
+          if (updatedMember.role === 'member') {
+            const index = state.selectedWing.members.findIndex(
+              (m) => m._id === updatedMember._id
+            );
+            if (index !== -1) {
+              state.selectedWing.members[index] = updatedMember;
+            }
+
           }
         }
-        state.showUpdateMemberModal = false;  
+        state.showUpdateMemberModal = false;
         state.selectedMember = null;
         state.loading = false;
         toast.success("Member updated successfully");

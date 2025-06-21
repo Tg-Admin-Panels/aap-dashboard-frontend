@@ -13,7 +13,7 @@ import SpinnerOverlay from "../../components/ui/SpinnerOverlay";
 export default function VolunteerTable() {
   const dispatch = useDispatch<AppDispatch>();
   const [searchParams] = useSearchParams();
-  
+
   const { volunteers, loading } = useSelector(
     (state: RootState) => state.volunteers
   );
@@ -50,16 +50,14 @@ export default function VolunteerTable() {
 
   return (
     <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
-      <SpinnerOverlay loading={loading}/> 
-      <SearchBar onSearch={(query: string) => dispatch(getAllVolunteers(query))}/>
-      
+      <SpinnerOverlay loading={loading} />
+      <SearchBar onSearch={(query: string) => dispatch(getAllVolunteers(query))} />
+
       <div className="max-w-full overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
             <tr style={{ backgroundColor: "#101f3c" }}>
-              <th className="px-5 py-3 text-xs uppercase text-white font-semibold tracking-wider">
-                ID
-              </th>
+
               <th className="px-5 py-3 text-xs uppercase text-white font-semibold tracking-wider">
                 Name
               </th>
@@ -114,9 +112,9 @@ export default function VolunteerTable() {
           <tbody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
             {filteredVolunteers.map((volunteer) => (
               <tr key={volunteer._id}>
-                <td className="px-5 py-4 text-sm text-gray-700 hover:underline dark:text-gray-300">
+                {/* <td className="px-5 py-4 text-sm text-gray-700 hover:underline dark:text-gray-300">
                   <Link to={`/volunteers/${volunteer._id}`}>{volunteer._id}</Link>
-                </td>
+                </td> */}
                 <td className="px-5 py-4 text-sm text-gray-700 hover:underline dark:text-gray-300">
                   <Link to={`/volunteers/${volunteer._id}`}>{volunteer.fullName}</Link>
                 </td>

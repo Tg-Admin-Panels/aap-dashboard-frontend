@@ -11,7 +11,7 @@ export const loginUser = createAsyncThunk(
   'users/loginUser',
   async (credentials: LoginCredentials, { rejectWithValue }) => {
     try {
-      const response = await axios.post('http://64.227.134.93/api/users/login', credentials, {
+      const response = await axios.post(import.meta.env.VITE_BASE_URL, credentials, {
         withCredentials: true
       })
       console.log(response.data)

@@ -18,6 +18,7 @@ import {
 import AddWingMemberCard from "./AddWingMemberCard";
 import Modal from "../../components/modal/Modal";
 import ChangeWingLeaderCard from "./ChangeWingLeaderCard";
+import SpinnerOverlay from "../../components/ui/SpinnerOverlay";
 
 export default function WingDetails() {
   const { id } = useParams();
@@ -25,7 +26,7 @@ export default function WingDetails() {
 
   const {
     selectedWing,
-    error,
+
     loading,
     showCreateMemberModal,
     selectedMember,
@@ -37,18 +38,12 @@ export default function WingDetails() {
     dispatch(getWingMembers(id!));
   }, [id]);
 
-  if (loading)
-    return (
-      <p className="text-center mt-10 text-lg text-gray-600 dark:text-gray-300">
-        Loading...
-      </p>
-    );
-  if (error) return <p className="text-center text-red-600">Error: {error}</p>;
+
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
       {/* Wing Leader Section */}
-
+      <SpinnerOverlay loading={loading} />
       <section className="mb-12">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-3xl font-bold text-gray-800 dark:text-white">
@@ -71,13 +66,13 @@ export default function WingDetails() {
 
             {/* Change Leader (always available) */}
             <button
-  onClick={() => {
-    dispatch(setShowChangeLeaderModal(true));
-  }}
-  className="bg-white border-blue-600 border-2 text-blue-600 hover:bg-blue-600 hover:text-white text-sm font-medium px-4 py-2 rounded-lg shadow transition-colors duration-200"
->
-  Change Leader
-</button>
+              onClick={() => {
+                dispatch(setShowChangeLeaderModal(true));
+              }}
+              className="bg-white border-blue-600 border-2 text-blue-600 hover:bg-blue-600 hover:text-white text-sm font-medium px-4 py-2 rounded-lg shadow transition-colors duration-200"
+            >
+              Change Leader
+            </button>
 
           </div>
         </div>
@@ -123,7 +118,7 @@ export default function WingDetails() {
       </div>
 
       {/* Members Grid */}
-      {selectedWing &&  selectedWing?.members?.length > 0 ? (
+      {selectedWing && selectedWing?.members?.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
 
           {selectedWing?.members.map((member) => (
