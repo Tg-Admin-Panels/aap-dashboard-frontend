@@ -17,6 +17,13 @@ import MemberTable from "./pages/members/membersTable";
 import VolunteerDetailsPage from "./pages/volunteers/volunteersDetailsPage";
 import { checkAuth } from "./features/auth/authApi";
 import WingDetails from "./pages/wings/WingDetailsPage";
+import BoothTeamList from "./pages/booth-team/BoothTeam";
+import AddBoothTeamMember from "./pages/booth-team/AddBoothTeamMember";
+import LocationDropdowns from "./pages/OtherPage/LocationDropdowns";
+import CreateState from "./pages/Locations/CreateState";
+import CreateDistrict from "./pages/Locations/CreateDistrict";
+import CreateLegislativeAssembly from "./pages/Locations/CreateLegislativeAssembly";
+import CreateBooth from "./pages/Locations/CreateBooth";
 
 export default function App() {
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
@@ -29,7 +36,7 @@ export default function App() {
     dispatch(checkAuth());
   }, [dispatch]);
 
-  if (!isAuthenticated) {
+  if (isAuthenticated == null) {
     return <div className="flex flex-col items-center justify-center h-screen bg-white text-gray-800">
       <img
         src="../images/logo/app-logo.png" // Replace with your logo path
@@ -80,6 +87,13 @@ export default function App() {
               element={<VolunteerDetailsPage />}
             />
             <Route path="/members/" element={<MemberTable />} />
+            <Route path="/booth-team" element={<BoothTeamList />} />
+            <Route path="/booth-team/add" element={<AddBoothTeamMember />} />
+            <Route path="/locations" element={<LocationDropdowns />} />
+            <Route path="/locations/create-state" element={<CreateState />} />
+            <Route path="/locations/create-district" element={<CreateDistrict />} />
+            <Route path="/locations/create-assembly" element={<CreateLegislativeAssembly />} />
+            <Route path="/locations/create-booth" element={<CreateBooth />} />
           </Route>
         </Route>
 

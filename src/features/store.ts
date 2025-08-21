@@ -7,6 +7,8 @@ import wingMembersReducer from "./wings/wingMembers.slice"
 import volunteersReducer from "./volunteers/volunteers.slice"
 import membersReducer from "./members/members.slice"
 import volunteerMembers from "./members/volunteerMember.slice"
+import boothTeamReducer from "./booth-team/boothTeam.slice"
+import locationsReducer from "./locations/locations.slice"
 const store = configureStore({
   reducer: {
     auth: authReducer,
@@ -16,6 +18,8 @@ const store = configureStore({
     volunteers: volunteersReducer,
     members: membersReducer,
     volunteerMembers: volunteerMembers,
+    boothTeam: boothTeamReducer,
+    locations: locationsReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(authMiddleware),

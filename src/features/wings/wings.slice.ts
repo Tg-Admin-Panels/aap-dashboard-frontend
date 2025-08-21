@@ -19,11 +19,54 @@ export interface WingMember {
   post: string;
 }
 
-interface Wings {
+interface Cta {
+  label: string;
+  href: string;
+  variant: "primary" | "secondary" | "link";
+}
+
+interface Bullet {
+  text: string;
+  icon?: string;
+}
+
+interface Image {
+  url: string;
+  alt?: string;
+  caption?: string;
+  glow: {
+    enabled: boolean;
+    color: string;
+  };
+  aspectRatio?: string;
+}
+
+interface Hero {
+  title: string;
+  highlight?: string;
+  subtitle?: string;
+  description?: string;
+  bullets: Bullet[];
+  image: Image;
+  ctas: {
+    primary: Cta;
+    secondary?: Cta;
+  };
+}
+
+interface SectionHeader {
+  title: string;
+  subtitle?: string;
+}
+
+export interface Wings {
   _id: string;
   name: string;
-  leader: WingMember;
+  slug: string;
+  leader?: WingMember;
   members: WingMember[];
+  hero: Hero;
+  ourLeadersSection: SectionHeader;
 }
 
 interface WingState {
@@ -35,7 +78,7 @@ interface WingState {
   showCreateLeaderModal: boolean;
   showCreateMemberModal: boolean;
   showUpdateMemberModal: boolean;
-  showChangeLeaderModal: boolean
+  showChangeLeaderModal: boolean;
 }
 
 const initialState: WingState = {
@@ -47,7 +90,7 @@ const initialState: WingState = {
   showCreateLeaderModal: false,
   showCreateMemberModal: false,
   showUpdateMemberModal: false,
-  showChangeLeaderModal: false
+  showChangeLeaderModal: false,
 };
 
 const wingSlice = createSlice({
@@ -70,11 +113,11 @@ const wingSlice = createSlice({
       state.selectedMember = action.payload;
     },
     setShowUpdateMemberModal: (state, action) => {
-      state.showUpdateMemberModal = action.payload
+      state.showUpdateMemberModal = action.payload;
     },
     setShowChangeLeaderModal: (state, action) => {
-      state.showChangeLeaderModal = action.payload
-    }
+      state.showChangeLeaderModal = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -167,7 +210,7 @@ const wingSlice = createSlice({
         }
         state.loading = false;
         state.error = null;
-        state.showChangeLeaderModal = false
+        state.showChangeLeaderModal = false;
         toast.success("Leader changed successfully");
       })
       .addCase(changeLeader.rejected, (state, action) => {
@@ -184,18 +227,17 @@ const wingSlice = createSlice({
       .addCase(updateMember.fulfilled, (state, action) => {
         const updatedMember = action.payload?.data;
         if (state.selectedWing) {
-          if (updatedMember.role === 'leader') {
-            state.selectedWing.leader = updatedMember
+          if (updatedMember.role === "leader" && state.selectedWing.leader) {
+            state.selectedWing.leader = updatedMember;
           }
 
-          if (updatedMember.role === 'member') {
+          if (updatedMember.role === "member") {
             const index = state.selectedWing.members.findIndex(
               (m) => m._id === updatedMember._id
             );
             if (index !== -1) {
               state.selectedWing.members[index] = updatedMember;
             }
-
           }
         }
         state.showUpdateMemberModal = false;
@@ -207,7 +249,7 @@ const wingSlice = createSlice({
         state.loading = false;
         state.error = String(action.payload) || "Failed to update member";
         toast.error(state.error);
-      })
+      });
   },
 });
 
@@ -220,5 +262,5 @@ export const {
   setShowCreateMemberModal,
   setSelectedMember,
   setShowUpdateMemberModal,
-  setShowChangeLeaderModal
+  setShowChangeLeaderModal,
 } = wingSlice.actions;

@@ -2,24 +2,9 @@ import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../features/store';
 import { getAllWings } from '../../features/wings/wingsApi';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import SpinnerOverlay from '../../components/ui/SpinnerOverlay';
-
-interface Member {
-  _id: string;
-  name: string;
-  phone: string;
-  image: string;
-  role: string;
-  post: string;
-}
-
-interface Wings {
-  _id: string;
-  name: string;
-  leader: Member;
-  members: Member[];
-}
+import { Wings } from '../../features/wings/wings.slice';
 
 export default function WingTable() {
   const dispatch = useDispatch<AppDispatch>();
@@ -29,7 +14,6 @@ export default function WingTable() {
     dispatch(getAllWings());
   }, [dispatch]);
 
-  // if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error}</p>;
 
   return (
@@ -52,14 +36,11 @@ export default function WingTable() {
           <tbody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
             {wings?.map((wing: Wings) => (
               <tr key={wing._id}>
-                {/* <td className="px-5 py-4 text-start text-gray-700 dark:text-gray-300">
-                  {wing._id}
-                </td> */}
                 <td className="px-5 py-4 text-start text-gray-700 dark:text-gray-300">
                   {wing.name}
                 </td>
                 <td className="px-5 py-4 text-start text-gray-700 dark:text-gray-300">
-                  {wing.leader ? wing.leader?.name : 'NA'}
+                  {wing.leader ? wing.leader.name : 'NA'}
                 </td>
                 <td className="px-5 py-4 text-start text-gray-700 dark:text-gray-300">
                   {wing.members?.length}
@@ -89,3 +70,4 @@ export default function WingTable() {
     </div>
   );
 }
+

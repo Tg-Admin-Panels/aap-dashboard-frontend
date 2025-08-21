@@ -1,43 +1,117 @@
+import React, { useState, useEffect } from "react";
 import ComponentCard from "../../common/ComponentCard";
 import { useDropzone } from "react-dropzone";
-// import Dropzone from "react-dropzone";
+import axios from 'axios';
 
-const DropzoneComponent: React.FC = () => {
-  const onDrop = (acceptedFiles: File[]) => {
-    console.log("Files dropped:", acceptedFiles);
-    // Handle file uploads here
+// Props definition
+interface DropzoneProps {
+  accept: Record<string, string[]>;
+  onDrop?: (files: File[]) => void;
+  multiple?: boolean; // default is true
+  onFileUploadSuccess?: (url: string) => void; // New prop to pass the uploaded URL
+}
+
+
+const DropzoneComponent: React.FC<DropzoneProps> = ({ accept, onDrop, multiple, onFileUploadSuccess }) => {
+  const [uploadProgress, setUploadProgress] = useState<number>(0);
+  const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (showSuccessPopup) {
+      timer = setTimeout(() => {
+        setShowSuccessPopup(false);
+      }, 3000); // Dismiss after 3 seconds
+    }
+    return () => clearTimeout(timer);
+  }, [showSuccessPopup]);
+
+  const handleDrop = async (acceptedFiles: File[]) => {
+    if (onDrop) {
+      onDrop(acceptedFiles);
+    }
+
+    if (acceptedFiles.length === 0) {
+      setError('Please select a file first.');
+      return;
+    }
+
+    const selectedFile = acceptedFiles[0]; // Assuming single file upload for simplicity
+
+    try {
+      // 1. Get signed signature from backend
+      const signatureResponse = await axios.post(`${import.meta.env.VITE_API_URL}/api/cloudinary/signature`, {
+        folder: 'my_app_uploads', // You can customize the folder name
+      });
+
+      const { signature, timestamp, cloudname, api_key } = signatureResponse.data;
+
+      // 2. Create FormData for Cloudinary upload
+      const formData = new FormData();
+      formData.append('file', selectedFile);
+      formData.append('api_key', api_key);
+      formData.append('timestamp', timestamp);
+      formData.append('signature', signature);
+      formData.append('folder', 'my_app_uploads');
+
+      // 3. Upload to Cloudinary directly
+      const cloudinaryUploadResponse = await axios.post(
+        `https://api.cloudinary.com/v1_1/${cloudname}/image/upload`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+          onUploadProgress: (progressEvent) => {
+            if (progressEvent.total) {
+              const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+              setUploadProgress(percentCompleted);
+            }
+          },
+        }
+      );
+
+      const imageUrl = cloudinaryUploadResponse.data.secure_url;
+      setUploadedImageUrl(imageUrl);
+      setUploadProgress(100);
+      setError(null);
+      setShowSuccessPopup(true); // Show success pop-up
+
+      if (onFileUploadSuccess) {
+        onFileUploadSuccess(imageUrl);
+      }
+
+    } catch (err) {
+      console.error('Upload error:', err);
+      setError('Failed to upload image.');
+      setUploadProgress(0);
+    }
   };
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop,
-    accept: {
-      "image/png": [],
-      "image/jpeg": [],
-      "image/webp": [],
-      "image/svg+xml": [],
-    },
+    onDrop: handleDrop,
+    accept,
+    multiple: multiple ?? true, // allow overriding with a default of true
   });
+
   return (
-    <ComponentCard title="Dropzone">
+    <>
       <div className="transition border border-gray-300 border-dashed cursor-pointer dark:hover:border-brand-500 dark:border-gray-700 rounded-xl hover:border-brand-500">
         <form
           {...getRootProps()}
-          className={`dropzone rounded-xl   border-dashed border-gray-300 p-7 lg:p-10
-        ${
-          isDragActive
+          className={`dropzone rounded-xl border-dashed border-gray-300 p-7 lg:p-10 ${isDragActive
             ? "border-brand-500 bg-gray-100 dark:bg-gray-800"
             : "border-gray-300 bg-gray-50 dark:border-gray-700 dark:bg-gray-900"
-        }
-      `}
+            }`}
           id="demo-upload"
         >
-          {/* Hidden Input */}
           <input {...getInputProps()} />
 
           <div className="dz-message flex flex-col items-center m-0!">
-            {/* Icon Container */}
             <div className="mb-[22px] flex justify-center">
-              <div className="flex h-[68px] w-[68px]  items-center justify-center rounded-full bg-gray-200 text-gray-700 dark:bg-gray-800 dark:text-gray-400">
+              <div className="flex h-[68px] w-[68px] items-center justify-center rounded-full bg-gray-200 text-gray-700 dark:bg-gray-800 dark:text-gray-400">
                 <svg
                   className="fill-current"
                   width="29"
@@ -54,13 +128,12 @@ const DropzoneComponent: React.FC = () => {
               </div>
             </div>
 
-            {/* Text Content */}
             <h4 className="mb-3 font-semibold text-gray-800 text-theme-xl dark:text-white/90">
               {isDragActive ? "Drop Files Here" : "Drag & Drop Files Here"}
             </h4>
 
-            <span className=" text-center mb-5 block w-full max-w-[290px] text-sm text-gray-700 dark:text-gray-400">
-              Drag and drop your PNG, JPG, WebP, SVG images here or browse
+            <span className="text-center mb-5 block w-full max-w-[290px] text-sm text-gray-700 dark:text-gray-400">
+              Drag and drop your files here or browse
             </span>
 
             <span className="font-medium underline text-theme-sm text-brand-500">
@@ -69,7 +142,49 @@ const DropzoneComponent: React.FC = () => {
           </div>
         </form>
       </div>
-    </ComponentCard>
+
+      {uploadProgress > 0 && uploadProgress < 100 && (
+        <div style={{ marginTop: '10px' }}>
+          <p>Uploading: {uploadProgress}%</p>
+          <div style={{ width: '100%', backgroundColor: '#f3f3f3', borderRadius: '5px', height: '20px' }}>
+            <div style={{
+              width: `${uploadProgress}%`,
+              backgroundColor: '#4CAF50',
+              height: '100%',
+              borderRadius: '5px',
+              textAlign: 'center',
+              color: 'white',
+              lineHeight: '20px'
+            }}></div>
+          </div>
+        </div>
+      )}
+
+
+      {error && (
+        <p style={{ color: 'red', marginTop: '10px' }}>Error: {error}</p>
+      )}
+
+      {showSuccessPopup && (
+        <div className="fixed inset-0 bg-white/4 backdrop-blur-sm overflow-y-auto h-full w-full flex items-center justify-center z-85">
+          <div className="relative p-8 border w-96 shadow-lg rounded-md bg-white text-center">
+            <button
+              className="absolute top-3 right-3"
+              onClick={() => setShowSuccessPopup(false)}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-400 hover:text-gray-600 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-green-500 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <h3 className="text-lg font-medium text-gray-900">Upload Successful!</h3>
+            <p className="text-sm text-gray-500 mt-2">Your file has been uploaded successfully.</p>
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 

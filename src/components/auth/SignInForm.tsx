@@ -1,4 +1,4 @@
-import  { useState } from 'react';
+import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
@@ -47,7 +47,7 @@ const SignInForm: React.FC = () => {
         </div>
 
         <Formik
-          initialValues={{ mobileNumber: "", password: "" }}
+          initialValues={{ mobileNumber: "9125456749", password: "12345" }}
           validationSchema={validationSchema}
           onSubmit={handleSubmit}
         >

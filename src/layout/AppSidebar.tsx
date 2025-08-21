@@ -9,6 +9,8 @@ import {
   MemberIcon,
   VolunteerIcon,
   WingIcon,
+  GroupIcon,
+  PlusIcon,
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
 import { useSelector } from "react-redux";
@@ -49,6 +51,24 @@ const navItems: NavItem[] = [
     name: "Members",
     subItems: [{ name: "All Members", path: "/members/", pro: false }],
     role: ["admin", "volunteer"]
+  },
+  {
+    icon: <GroupIcon />,
+    name: "Booth Team",
+    subItems: [{ name: "All Booth Team", path: "/booth-team", pro: false }],
+    role: ["admin"]
+  },
+  {
+    icon: <GridIcon />,
+    name: "Locations",
+    subItems: [
+      { name: "All Locations", path: "/locations", pro: false },
+      { name: "Create State", path: "/locations/create-state", pro: false },
+      { name: "Create District", path: "/locations/create-district", pro: false },
+      { name: "Create Legislative Assembly", path: "/locations/create-assembly", pro: false },
+      { name: "Create Booth", path: "/locations/create-booth", pro: false },
+    ],
+    role: ["admin"]
   },
   // {
   //   icon: <CalenderIcon />,
