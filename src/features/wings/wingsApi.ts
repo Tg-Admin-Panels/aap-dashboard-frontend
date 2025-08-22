@@ -4,12 +4,12 @@ import axiosFormInstance from '../../utils/axiosFormInstance';
 
 
 // Create Wing
-export const createWing= createAsyncThunk(
+export const createWing = createAsyncThunk(
   'wings/createWing',
-  async (wingData:any, { rejectWithValue }) => {
+  async (wingData: any, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.post("/wings", wingData);
-      console.log("wing data from api",response.data)
+      console.log("wing data from api", response.data)
       return response.data;
     } catch (error: any) {
       console.log(error.response?.data?.message)
@@ -57,7 +57,7 @@ export const addLeaderToWing = createAsyncThunk(
 
 
 
-export const addMemberToWing   = createAsyncThunk(
+export const addMemberToWing = createAsyncThunk(
   `wings/wingId/member`,
   async (
     { wingId, data }: { wingId?: string; data: any },
@@ -130,6 +130,7 @@ export const changeLeader = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
+      console.log(data)
       const formData = new FormData();
 
       for (const key in data) {
@@ -137,6 +138,7 @@ export const changeLeader = createAsyncThunk(
           formData.append(key, data[key]);
         }
       }
+      console.log(...formData)
 
       const response = await axiosFormInstance.put(
         `/wings/${wingId}/leader-change`,

@@ -13,6 +13,7 @@ import { useEffect } from "react";
 import CreateWing from "./pages/wings/CreateWingForm";
 import { Bounce, ToastContainer } from "react-toastify";
 import VolunteerTable from "./pages/volunteers/VolunteersList";
+import CreateVolunteer from "./pages/volunteers/CreateVolunteer";
 import MemberTable from "./pages/members/membersTable";
 import VolunteerDetailsPage from "./pages/volunteers/volunteersDetailsPage";
 import { checkAuth } from "./features/auth/authApi";
@@ -24,6 +25,9 @@ import CreateState from "./pages/Locations/CreateState";
 import CreateDistrict from "./pages/Locations/CreateDistrict";
 import CreateLegislativeAssembly from "./pages/Locations/CreateLegislativeAssembly";
 import CreateBooth from "./pages/Locations/CreateBooth";
+import VisionTable from "./pages/Visions/VisionTable";
+import CreateVisionForm from "./pages/Visions/CreateVisionForm";
+import VisionDetails from "./pages/Visions/VisionDetailsPage";
 
 export default function App() {
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
@@ -82,6 +86,7 @@ export default function App() {
             <Route path="/wing/list" element={<MedicineList />} />
             <Route path="/wings/:id/details" element={<WingDetails />} />
             <Route path="/volunteers/" element={<VolunteerTable />} />
+            <Route path="/volunteers/add" element={<CreateVolunteer />} />
             <Route
               path="/volunteers/:volunteerId"
               element={<VolunteerDetailsPage />}
@@ -94,6 +99,9 @@ export default function App() {
             <Route path="/locations/create-district" element={<CreateDistrict />} />
             <Route path="/locations/create-assembly" element={<CreateLegislativeAssembly />} />
             <Route path="/locations/create-booth" element={<CreateBooth />} />
+            <Route path="/visions/list" element={<VisionTable />} />
+            <Route path="/visions/add" element={<CreateVisionForm />} />
+            <Route path="/visions/:id/details" element={<VisionDetails />} />
           </Route>
         </Route>
 

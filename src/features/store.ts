@@ -9,6 +9,8 @@ import membersReducer from "./members/members.slice"
 import volunteerMembers from "./members/volunteerMember.slice"
 import boothTeamReducer from "./booth-team/boothTeam.slice"
 import locationsReducer from "./locations/locations.slice"
+import visionsReducer from "./visions/visions.slice"
+
 const store = configureStore({
   reducer: {
     auth: authReducer,
@@ -20,6 +22,7 @@ const store = configureStore({
     volunteerMembers: volunteerMembers,
     boothTeam: boothTeamReducer,
     locations: locationsReducer,
+    visions: visionsReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(authMiddleware),

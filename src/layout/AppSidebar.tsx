@@ -41,9 +41,21 @@ const navItems: NavItem[] = [
     role: ["admin"]
   },
   {
+    icon: <PlusIcon />,
+    name: "Visions",
+    subItems: [
+      { name: "Create Vision", path: "/visions/add", pro: false },
+      { name: "All Visions", path: "/visions/list", pro: false },
+    ],
+    role: ["admin"]
+  },
+  {
     icon: <VolunteerIcon />,
     name: "Volunteers",
-    subItems: [{ name: "All Volunteers", path: "/volunteers/", pro: false }],
+    subItems: [
+      { name: "All Volunteers", path: "/volunteers/", pro: false },
+      { name: "Create Volunteer", path: "/volunteers/add", pro: false },
+    ],
     role: ["admin"]
   },
   {

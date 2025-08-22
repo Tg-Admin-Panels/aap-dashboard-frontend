@@ -42,11 +42,12 @@ const DropzoneComponent: React.FC<DropzoneProps> = ({ accept, onDrop, multiple, 
 
     try {
       // 1. Get signed signature from backend
-      const signatureResponse = await axios.post(`${import.meta.env.VITE_API_URL}/api/cloudinary/signature`, {
-        folder: 'my_app_uploads', // You can customize the folder name
+      const signatureResponse = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/cloudinary/signature`, {
+        folder: 'app_bihar_uploads', // You can customize the folder name
       });
 
-      const { signature, timestamp, cloudname, api_key } = signatureResponse.data;
+      console.log(signatureResponse.data.data)
+      const { signature, timestamp, cloudname, api_key } = signatureResponse.data.data;
 
       // 2. Create FormData for Cloudinary upload
       const formData = new FormData();
@@ -54,7 +55,7 @@ const DropzoneComponent: React.FC<DropzoneProps> = ({ accept, onDrop, multiple, 
       formData.append('api_key', api_key);
       formData.append('timestamp', timestamp);
       formData.append('signature', signature);
-      formData.append('folder', 'my_app_uploads');
+      formData.append('folder', 'app_bihar_uploads');
 
       // 3. Upload to Cloudinary directly
       const cloudinaryUploadResponse = await axios.post(

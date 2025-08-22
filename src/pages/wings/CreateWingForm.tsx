@@ -17,6 +17,7 @@ import {
 } from "../../features/wings/wings.slice";
 import AddWingMemberCard from "./AddWingMemberCard";
 import Modal from "../../components/modal/Modal";
+import DropzoneComponent from "../../components/form/form-elements/DropZone"; // Import DropzoneComponent
 
 const initialValues = {
   name: "",
@@ -70,7 +71,7 @@ const validationSchema = Yup.object().shape({
       })
     ),
     image: Yup.object().shape({
-      url: Yup.string().required("Image URL is required"),
+      url: Yup.string(), // Removed .required("Image URL is required")
       alt: Yup.string(),
       caption: Yup.string(),
       glow: Yup.object().shape({
@@ -133,7 +134,7 @@ const CreateWing = () => {
           validationSchema={validationSchema}
           onSubmit={handleSubmit}
         >
-          {({ values, isSubmitting }) => (
+          {({ values, isSubmitting, setFieldValue }) => (
             <Form>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Wing Identity */}
@@ -232,7 +233,19 @@ const CreateWing = () => {
                     <h3 className="text-lg font-medium text-gray-800 dark:text-gray-200">Image</h3>
                   </div>
                   <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <Field name="hero.image.url" placeholder="Image URL" className="w-full p-2 border rounded" />
+                    {/* Replace Field with DropzoneComponent */}
+                    <div className="md:col-span-2">
+                      <DropzoneComponent
+                        accept={{ 'image/*': ['.png', '.gif', '.jpeg', '.jpg'] }}
+                        onFileUploadSuccess={(url) => setFieldValue("hero.image.url", url)}
+                        multiple={false}
+                      />
+                      {values.hero.image.url && (
+                        <div className="mt-2">
+                          <img src={values.hero.image.url} alt="Hero" className="w-full h-32 object-cover rounded" />
+                        </div>
+                      )}
+                    </div>
                     <Field name="hero.image.alt" placeholder="Alt text" className="w-full p-2 border rounded" />
                     <Field name="hero.image.caption" placeholder="Caption" className="w-full p-2 border rounded" />
                     <Field
