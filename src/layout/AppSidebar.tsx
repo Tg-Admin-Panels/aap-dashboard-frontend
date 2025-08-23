@@ -82,6 +82,22 @@ const navItems: NavItem[] = [
     ],
     role: ["admin"]
   },
+  {
+    icon: <PlusIcon />,
+    name: "Candidate Applications",
+    subItems: [
+      { name: "All Applications", path: "/candidate-applications", pro: false },
+    ],
+    role: ["admin"]
+  },
+  {
+    icon: <PlusIcon />,
+    name: "Campaigns",
+    subItems: [
+      { name: "All Campaigns", path: "/campaigns", pro: false },
+    ],
+    role: ["admin"]
+  },
   // {
   //   icon: <CalenderIcon />,
   //   name: "Calendar",

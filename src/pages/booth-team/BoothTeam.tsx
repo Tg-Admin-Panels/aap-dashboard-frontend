@@ -7,7 +7,6 @@ import {
 } from "../../features/booth-team/boothTeamApi";
 import { Link } from "react-router-dom";
 import Select from "react-select"; // Import react-select
-import SearchBar from "../../components/inputs/SearchBar";
 import SpinnerOverlay from "../../components/ui/SpinnerOverlay";
 import { PlusIcon, TrashBinIcon } from "../../icons";
 
@@ -83,7 +82,7 @@ export default function BoothTeamList() {
   };
 
   return (
-    <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
+    <div className="overflow-hidden h-full rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
       <SpinnerOverlay loading={loading} />
 
       {/* Filter Section */}
@@ -113,7 +112,7 @@ export default function BoothTeamList() {
             <Select
               options={padnaamOptions}
               value={padnaamOptions.find(option => option.value === padnaamFilter)}
-              onChange={(selectedOption) => setPadnaamFilter(selectedOption ? selectedOption.value : "")}
+              onChange={(selectedOption) => setPadnaamFilter(selectedOption?.value!)}
               placeholder="Filter by Padnaam"
               isClearable
               styles={customStyles}
@@ -126,90 +125,94 @@ export default function BoothTeamList() {
         </Link>
       </div>
 
-      <div className="max-w-full overflow-x-auto">
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr style={{ backgroundColor: "#101f3c" }}>
-              <th className="px-5 py-3 text-xs uppercase text-white font-semibold tracking-wider">
-                Name
-              </th>
-              <th className="px-5 py-3 text-xs uppercase text-white font-semibold tracking-wider">
-                Phone
-              </th>
-              <th className="px-5 py-3 text-xs uppercase text-white font-semibold tracking-wider">
-                Email
-              </th>
-              <th className="px-5 py-3 text-xs uppercase text-white font-semibold tracking-wider">
-                Booth Name
-              </th>
-              <th className="px-5 py-3 text-xs uppercase text-white font-semibold tracking-wider">
-                Post
-              </th>
-              <th className="px-5 py-3 text-xs uppercase text-white font-semibold tracking-wider">
-                Padnaam
-              </th>
-              <th className="px-5 py-3 text-xs uppercase text-white font-semibold tracking-wider">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-            {members.map((member) => (
-              <tr key={member._id}>
-                <td className="px-5 py-4 text-sm text-gray-700 dark:text-gray-300">
-                  {member.name}
-                </td>
-                <td className="px-5 py-4 text-sm text-gray-700 dark:text-gray-300">
-                  {member.phone}
-                </td>
-                <td className="px-5 py-4 text-sm text-gray-700 dark:text-gray-300">
-                  {member.email}
-                </td>
-                <td className="px-5 py-4 text-sm text-gray-700 dark:text-gray-300">
-                  {member.boothName}
-                </td>
-                <td className="px-5 py-4 text-sm text-gray-700 dark:text-gray-300">
-                  {member.post}
-                </td>
-                <td className="px-5 py-4 text-sm text-gray-700 dark:text-gray-300">
-                  {member.padnaam}
-                </td>
-                <td className="px-5 py-4 text-sm text-gray-700 dark:text-gray-300">
-                  <button
-                    onClick={() => handleDelete(member._id)}
-                    className="text-red-500 hover:text-red-700"
-                  >
-                    <TrashBinIcon className="w-5 h-5" />
-                  </button>
-                </td>
+      <div className="h-full flex flex-col gap-4 justify-between">
+        <div className="max-w-full h-[450px]  overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr style={{ backgroundColor: "#101f3c" }}>
+                <th className="px-5 py-3 text-xs uppercase text-white font-semibold tracking-wider">
+                  Name
+                </th>
+                <th className="px-5 py-3 text-xs uppercase text-white font-semibold tracking-wider">
+                  Phone
+                </th>
+                <th className="px-5 py-3 text-xs uppercase text-white font-semibold tracking-wider">
+                  Email
+                </th>
+                <th className="px-5 py-3 text-xs uppercase text-white font-semibold tracking-wider">
+                  Booth Name
+                </th>
+                <th className="px-5 py-3 text-xs uppercase text-white font-semibold tracking-wider">
+                  Post
+                </th>
+                <th className="px-5 py-3 text-xs uppercase text-white font-semibold tracking-wider">
+                  Padnaam
+                </th>
+                <th className="px-5 py-3 text-xs uppercase text-white font-semibold tracking-wider">
+                  Actions
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
+              {members.map((member) => (
+                <tr key={member._id}>
+                  <td className="px-5 py-4 text-sm text-gray-700 dark:text-gray-300">
+                    {member.name}
+                  </td>
+                  <td className="px-5 py-4 text-sm text-gray-700 dark:text-gray-300">
+                    {member.phone}
+                  </td>
+                  <td className="px-5 py-4 text-sm text-gray-700 dark:text-gray-300">
+                    {member.email}
+                  </td>
+                  <td className="px-5 py-4 text-sm text-gray-700 dark:text-gray-300">
+                    {member.boothName}
+                  </td>
+                  <td className="px-5 py-4 text-sm text-gray-700 dark:text-gray-300">
+                    {member.post}
+                  </td>
+                  <td className="px-5 py-4 text-sm text-gray-700 dark:text-gray-300">
+                    {member.padnaam}
+                  </td>
+                  <td className="px-5 py-4 text-sm text-gray-700 dark:text-gray-300">
+                    <button
+                      onClick={() => handleDelete(member._id)}
+                      className="text-red-500 hover:text-red-700"
+                    >
+                      <TrashBinIcon className="w-5 h-5" />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Pagination Controls */}
+        <div className="bg-gray-50 px-6 py-4 border-t border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+          <div className="flex items-center justify-between text-sm sm:text-base">
+            <button
+              onClick={() => setPage(prev => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1 || loading}
+              className="px-4 py-2 font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-100 disabled:opacity-50 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600"
+            >
+              Prev
+            </button>
+            <span className="text-gray-700 dark:text-gray-300">
+              Page {currentPage} of {totalPages} ({totalMembers} members)
+            </span>
+            <button
+              onClick={() => setPage(prev => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages || loading}
+              className="px-4 py-2 font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-100 disabled:opacity-50 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+
       </div>
 
-      {/* Pagination Controls */}
-      <div className="bg-gray-50 px-6 py-4 border-t border-gray-200 dark:bg-gray-800 dark:border-gray-700">
-        <div className="flex items-center justify-between text-sm sm:text-base">
-          <button
-            onClick={() => setPage(prev => Math.max(prev - 1, 1))}
-            disabled={currentPage === 1 || loading}
-            className="px-4 py-2 font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-100 disabled:opacity-50 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600"
-          >
-            Prev
-          </button>
-          <span className="text-gray-700 dark:text-gray-300">
-            Page {currentPage} of {totalPages} ({totalMembers} members)
-          </span>
-          <button
-            onClick={() => setPage(prev => Math.min(prev + 1, totalPages))}
-            disabled={currentPage === totalPages || loading}
-            className="px-4 py-2 font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-100 disabled:opacity-50 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600"
-          >
-            Next
-          </button>
-        </div>
-      </div>
     </div>
   );
 }

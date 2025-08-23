@@ -61,3 +61,28 @@ export const removePointFromVision = createAsyncThunk(
     }
   }
 );
+
+export const updateVision = createAsyncThunk(
+  'visions/updateVision',
+  async ({ visionId, visionData }: { visionId: string; visionData: any }, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.put(`/visions/${visionId}`, visionData);
+      return response.data.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
+export const deleteVision = createAsyncThunk(
+  'visions/deleteVision',
+  async (visionId: string, { rejectWithValue }) => {
+    try {
+      await axiosInstance.delete(`/visions/${visionId}`);
+      return visionId;
+    } catch (error: any) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+

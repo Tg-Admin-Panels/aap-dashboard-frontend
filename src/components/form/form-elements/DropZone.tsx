@@ -133,7 +133,7 @@ const DropzoneComponent: React.FC<DropzoneProps> = ({ accept, onDrop, multiple, 
               {isDragActive ? "Drop Files Here" : "Drag & Drop Files Here"}
             </h4>
 
-            <span className="text-center mb-5 block w-full max-w-[290px] text-sm text-gray-700 dark:text-gray-400">
+            <span className="text-center mb-5 block w-full text-sm text-gray-700 dark:text-gray-400">
               Drag and drop your files here or browse
             </span>
 

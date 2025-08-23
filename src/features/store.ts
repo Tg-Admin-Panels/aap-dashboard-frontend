@@ -10,6 +10,8 @@ import volunteerMembers from "./members/volunteerMember.slice"
 import boothTeamReducer from "./booth-team/boothTeam.slice"
 import locationsReducer from "./locations/locations.slice"
 import visionsReducer from "./visions/visions.slice"
+import candidateApplicationReducer from "./candidate-applications/candidateApplication.slice"
+import campaignReducer from "./campaigns/campaign.slice"
 
 const store = configureStore({
   reducer: {
@@ -23,6 +25,8 @@ const store = configureStore({
     boothTeam: boothTeamReducer,
     locations: locationsReducer,
     visions: visionsReducer,
+    candidateApplications: candidateApplicationReducer,
+    campaigns: campaignReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(authMiddleware),

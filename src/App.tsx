@@ -28,6 +28,9 @@ import CreateBooth from "./pages/Locations/CreateBooth";
 import VisionTable from "./pages/Visions/VisionTable";
 import CreateVisionForm from "./pages/Visions/CreateVisionForm";
 import VisionDetails from "./pages/Visions/VisionDetailsPage";
+import CandidateApplications from "./pages/candidate-applications";
+import ApplyForCandidacy from "./pages/candidate-applications/apply";
+import Campaigns from "./pages/campaigns";
 
 export default function App() {
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
@@ -102,6 +105,9 @@ export default function App() {
             <Route path="/visions/list" element={<VisionTable />} />
             <Route path="/visions/add" element={<CreateVisionForm />} />
             <Route path="/visions/:id/details" element={<VisionDetails />} />
+            <Route path="/candidate-applications" element={<CandidateApplications />} />
+            <Route path="/candidate-applications/apply" element={<ApplyForCandidacy />} />
+            <Route path="/campaigns" element={<Campaigns />} />
           </Route>
         </Route>
 

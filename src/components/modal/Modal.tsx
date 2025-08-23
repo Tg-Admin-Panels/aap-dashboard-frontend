@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, ReactNode } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
+import Button from "../ui/button/Button";
 
 interface ModalProps {
   children: ReactNode;
@@ -45,32 +46,34 @@ const Modal: React.FC<ModalProps> = ({
     <div className="z-100 w-[100vw] h-screen flex justify-center items-center fixed top-1/2 left-1/2 translate-x-[-50%] translate-y-[-50%] backdrop-brightness-50 p-0">
 
       <div
-        className="min-w-[300px] h-auto overflow-y-auto min-h-[150px] bg-white dark:bg-[#101828] dark:border-gray-800 rounded-lg relative border-2"
+        className="w-full max-w-3xl max-h-[90vh] overflow-hidden bg-white dark:bg-[#101828] dark:border-gray-800 rounded-lg relative border-2 flex flex-col"
         ref={popupRef}
       >
-        {title && <h2 className="mb-2 text-lg font-semibold">{title}</h2>}
+        <div className="flex-shrink-0 p-5">
+          {title && <h2 className="mb-2 text-lg font-semibold">{title}</h2>}
 
-        <div className="absolute top-0 right-0 m-3 text-lg cursor-pointer">
-          <FontAwesomeIcon
-            icon={faTimes}
-            onClick={onCancel}
-            className="dark:text-gray-300"
-            height={38}
-            width={38}
-          />
+          <div className="absolute top-0 right-0 mb-3 text-lg cursor-pointer">
+            <FontAwesomeIcon
+              icon={faTimes}
+              onClick={onCancel}
+              className="dark:text-gray-300"
+              height={38}
+              width={38}
+            />
+          </div>
         </div>
-        <div>{children}</div>
+        <div className="overflow-y-auto flex-grow">{children}</div>
         {(confirmBtn || cancelBtn) && (
-          <div className="absolute bottom-0 right-0 flex gap-4 mt-4 mr-4 mb-4">
+          <div className="flex-shrink-0 flex gap-4 mt-4 mr-4 mb-4 justify-end">
             {cancelBtn && (
-              <button onClick={onCancel} className="font-bold">
+              <Button variant="outline" onClick={onCancel} className="font-bold">
                 {cancelBtn}
-              </button>
+              </Button>
             )}
             {confirmBtn && (
-              <button onClick={onConfirm} className="font-bold">
+              <Button onClick={onConfirm} className="font-bold">
                 {confirmBtn}
-              </button>
+              </Button>
             )}
           </div>
         )}

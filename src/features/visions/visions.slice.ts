@@ -1,5 +1,23 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { getAllVisions, createVision, getVisionDetails, addPointToVision, removePointFromVision } from './visionsApi';
+import { getAllVisions, createVision, getVisionDetails, addPointToVision, removePointFromVision, updateVision, deleteVision } from './visionsApi';
+
+export interface Vision {
+  _id: string;
+  title: string;
+  image: string;
+  points: string[];
+  icon: string;
+}
+
+interface VisionsState {
+  visions: Vision[];
+  selectedVision: Vision | null;
+  loading: boolean;
+  error: string | null;
+  showAddPointModal: boolean;
+  selectedPoint: string | null;
+}
+
 
 export interface Vision {
   _id: string;
@@ -99,6 +117,32 @@ const visionsSlice = createSlice({
       .addCase(removePointFromVision.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || 'Failed to remove point from vision';
+      })
+      .addCase(updateVision.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateVision.fulfilled, (state, action: PayloadAction<Vision>) => {
+        state.loading = false;
+        state.visions = state.visions.map((vision) =>
+          vision._id === action.payload._id ? action.payload : vision
+        );
+      })
+      .addCase(updateVision.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Failed to update vision';
+      })
+      .addCase(deleteVision.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(deleteVision.fulfilled, (state, action: PayloadAction<string>) => {
+        state.loading = false;
+        state.visions = state.visions.filter((vision) => vision._id !== action.payload);
+      })
+      .addCase(deleteVision.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Failed to delete vision';
       });
   },
 });
