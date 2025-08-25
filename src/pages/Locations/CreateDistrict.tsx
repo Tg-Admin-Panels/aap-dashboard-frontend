@@ -12,6 +12,8 @@ export default function CreateDistrict() {
   const dispatch = useDispatch<AppDispatch>();
   const { loading, error, states } = useSelector((state: RootState) => state.locations);
 
+  const [errors, setErrors] = useState<Partial<Record<keyof typeof formData, string>>>({});
+
   const [formData, setFormData] = useState({
     name: "",
     code: "",
@@ -30,8 +32,19 @@ export default function CreateDistrict() {
     setFormData({ ...formData, parentId: selectedOption ? selectedOption.value : "" });
   };
 
+  const validate = () => {
+    const newErrors: Partial<Record<keyof typeof formData, string>> = {};
+    if (!formData.parentId) newErrors.parentId = "Parent State is required.";
+    if (!formData.name) newErrors.name = "District name is required.";
+    if (!formData.code) newErrors.code = "District code is required.";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!validate()) return;
+
     await dispatch(createDistrict(formData));
     setFormData({ name: "", code: "", parentId: "" }); // Clear form
   };
@@ -93,6 +106,7 @@ export default function CreateDistrict() {
             required
             styles={customStyles}
           />
+          {errors.parentId && <p className="text-red-500 text-xs mt-1">{errors.parentId}</p>}
         </div>
         <div>
           <Label htmlFor="name">District Name</Label>
@@ -103,7 +117,8 @@ export default function CreateDistrict() {
             value={formData.name}
             onChange={handleChange}
             placeholder="Enter district name"
-            required
+            error={!!errors.name}
+            hint={errors.name}
           />
         </div>
         <div>
@@ -115,7 +130,8 @@ export default function CreateDistrict() {
             value={formData.code}
             onChange={handleChange}
             placeholder="Enter district code (e.g., PTN)"
-            required
+            error={!!errors.code}
+            hint={errors.code}
           />
         </div>
         <button

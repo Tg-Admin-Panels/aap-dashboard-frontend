@@ -18,6 +18,7 @@ import {
 import AddWingMemberCard from "./AddWingMemberCard";
 import Modal from "../../components/modal/Modal";
 import DropzoneComponent from "../../components/form/form-elements/DropZone"; // Import DropzoneComponent
+import Label from "../../components/form/Label";
 
 const initialValues = {
   name: "",
@@ -26,7 +27,7 @@ const initialValues = {
     highlight: "",
     subtitle: "",
     description: "",
-    bullets: [{ text: "", icon: "" }],
+    bullets: [{ text: "" }],
     image: {
       url: "",
       alt: "",
@@ -67,7 +68,7 @@ const validationSchema = Yup.object().shape({
     bullets: Yup.array().of(
       Yup.object().shape({
         text: Yup.string().required("Bullet text is required"),
-        icon: Yup.string(),
+
       })
     ),
     image: Yup.object().shape({
@@ -145,12 +146,9 @@ const CreateWing = () => {
                     </h2>
                   </div>
                   <div className="p-4">
-                    <label
-                      htmlFor="name"
-                      className="block font-medium text-gray-800 dark:text-gray-200 mb-1"
-                    >
-                      Wing Name <span className="text-red-500">*</span>
-                    </label>
+                    <Label htmlFor="name" required>
+                      Wing Name
+                    </Label>
                     <Field
                       name="name"
                       className="w-full p-2 border rounded bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -172,15 +170,34 @@ const CreateWing = () => {
                     </h2>
                   </div>
                   <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <Field name="hero.title" placeholder="Title" className="w-full p-2 border rounded" />
-                    <Field name="hero.highlight" placeholder="Highlight" className="w-full p-2 border rounded" />
-                    <Field name="hero.subtitle" placeholder="Subtitle" className="w-full p-2 border rounded" />
-                    <Field
-                      name="hero.description"
-                      placeholder="Description"
-                      as="textarea"
-                      className="w-full p-2 border rounded md:col-span-2"
-                    />
+                    <div>
+                      <Label htmlFor="hero.title" required>
+                        Title
+                      </Label>
+                      <Field name="hero.title" placeholder="Title" className="w-full p-2 border rounded" />
+                      <ErrorMessage
+                        name="hero.title"
+                        component="div"
+                        className="text-red-500 text-sm mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="hero.highlight">Highlight</Label>
+                      <Field name="hero.highlight" placeholder="Highlight" className="w-full p-2 border rounded" />
+                    </div>
+                    <div>
+                      <Label htmlFor="hero.subtitle">Subtitle</Label>
+                      <Field name="hero.subtitle" placeholder="Subtitle" className="w-full p-2 border rounded" />
+                    </div>
+                    <div className="md:col-span-2">
+                      <Label htmlFor="hero.description">Description</Label>
+                      <Field
+                        name="hero.description"
+                        placeholder="Description"
+                        as="textarea"
+                        className="w-full p-2 border rounded"
+                      />
+                    </div>
                   </div>
                 </div>
 
@@ -190,21 +207,25 @@ const CreateWing = () => {
                     <h3 className="text-lg font-medium text-gray-800 dark:text-gray-200">Bullets</h3>
                   </div>
                   <div className="p-4">
+                    <Label required>Bullets</Label>
                     <FieldArray name="hero.bullets">
                       {({ push, remove }) => (
                         <div>
                           {values.hero.bullets.map((_, index) => (
                             <div key={index} className="flex items-center gap-2 mb-2">
-                              <Field
-                                name={`hero.bullets[${index}].text`}
-                                placeholder="Bullet text"
-                                className="w-full p-2 border rounded"
-                              />
-                              <Field
-                                name={`hero.bullets[${index}].icon`}
-                                placeholder="Icon key"
-                                className="p-2 border rounded"
-                              />
+                              <div className="w-full">
+                                <Field
+                                  name={`hero.bullets[${index}].text`}
+                                  placeholder="Bullet text"
+                                  className="w-full p-2 border rounded"
+                                />
+                                <ErrorMessage
+                                  name={`hero.bullets[${index}].text`}
+                                  component="div"
+                                  className="text-red-500 text-sm mt-1"
+                                />
+                              </div>
+
                               <button
                                 type="button"
                                 onClick={() => remove(index)}
@@ -246,13 +267,22 @@ const CreateWing = () => {
                         </div>
                       )}
                     </div>
-                    <Field name="hero.image.alt" placeholder="Alt text" className="w-full p-2 border rounded" />
-                    <Field name="hero.image.caption" placeholder="Caption" className="w-full p-2 border rounded" />
-                    <Field
-                      name="hero.image.aspectRatio"
-                      placeholder="Aspect Ratio (e.g., 16:9)"
-                      className="w-full p-2 border rounded"
-                    />
+                    <div>
+                      <Label htmlFor="hero.image.alt">Alt text</Label>
+                      <Field name="hero.image.alt" placeholder="Alt text" className="w-full p-2 border rounded" />
+                    </div>
+                    <div>
+                      <Label htmlFor="hero.image.caption">Caption</Label>
+                      <Field name="hero.image.caption" placeholder="Caption" className="w-full p-2 border rounded" />
+                    </div>
+                    <div>
+                      <Label htmlFor="hero.image.aspectRatio">Aspect Ratio</Label>
+                      <Field
+                        name="hero.image.aspectRatio"
+                        placeholder="Aspect Ratio (e.g., 16:9)"
+                        className="w-full p-2 border rounded"
+                      />
+                    </div>
                     <div className="flex items-center gap-2">
                       <Field type="checkbox" name="hero.image.glow.enabled" />
                       <label htmlFor="hero.image.glow.enabled" className="text-gray-800 dark:text-gray-200">Glow</label>
@@ -269,12 +299,28 @@ const CreateWing = () => {
                   <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <h4 className="font-medium text-gray-800 dark:text-gray-200">Primary</h4>
+                      <Label htmlFor="hero.ctas.primary.label" required>
+                        Label
+                      </Label>
                       <Field
                         name="hero.ctas.primary.label"
                         placeholder="Label"
                         className="w-full p-2 border rounded mt-1"
                       />
+                      <ErrorMessage
+                        name="hero.ctas.primary.label"
+                        component="div"
+                        className="text-red-500 text-sm mt-1"
+                      />
+                      <Label htmlFor="hero.ctas.primary.href" required>
+                        URL
+                      </Label>
                       <Field name="hero.ctas.primary.href" placeholder="URL" className="w-full p-2 border rounded mt-1" />
+                      <ErrorMessage
+                        name="hero.ctas.primary.href"
+                        component="div"
+                        className="text-red-500 text-sm mt-1"
+                      />
                       <Field
                         name="hero.ctas.primary.variant"
                         as="select"
@@ -287,11 +333,13 @@ const CreateWing = () => {
                     </div>
                     <div>
                       <h4 className="font-medium text-gray-800 dark:text-gray-200">Secondary</h4>
+                      <Label htmlFor="hero.ctas.secondary.label">Label</Label>
                       <Field
                         name="hero.ctas.secondary.label"
                         placeholder="Label"
                         className="w-full p-2 border rounded mt-1"
                       />
+                      <Label htmlFor="hero.ctas.secondary.href">URL</Label>
                       <Field
                         name="hero.ctas.secondary.href"
                         placeholder="URL"
@@ -318,17 +366,30 @@ const CreateWing = () => {
                     </h2>
                   </div>
                   <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <Field
-                      name="ourLeadersSection.title"
-                      placeholder="Section Title"
-                      className="w-full p-2 border rounded"
-                    />
-                    <Field
-                      name="ourLeadersSection.subtitle"
-                      placeholder="Section Subtitle"
-                      as="textarea"
-                      className="w-full p-2 border rounded md:col-span-2"
-                    />
+                    <div>
+                      <Label htmlFor="ourLeadersSection.title" required>
+                        Section Title
+                      </Label>
+                      <Field
+                        name="ourLeadersSection.title"
+                        placeholder="Section Title"
+                        className="w-full p-2 border rounded"
+                      />
+                      <ErrorMessage
+                        name="ourLeadersSection.title"
+                        component="div"
+                        className="text-red-500 text-sm mt-1"
+                      />
+                    </div>
+                    <div className="md:col-span-2">
+                      <Label htmlFor="ourLeadersSection.subtitle">Section Subtitle</Label>
+                      <Field
+                        name="ourLeadersSection.subtitle"
+                        placeholder="Section Subtitle"
+                        as="textarea"
+                        className="w-full p-2 border rounded"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>

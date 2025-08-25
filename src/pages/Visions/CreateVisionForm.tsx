@@ -3,6 +3,7 @@ import * as Yup from 'yup';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../features/store';
 import { createVision } from '../../features/visions/visionsApi';
+import Label from '../../components/form/Label';
 import DropzoneComponent from '../../components/form/form-elements/DropZone';
 
 const initialValues = {
@@ -48,12 +49,9 @@ const CreateVisionForm = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="md:col-span-2">
                   <div className="p-4">
-                    <label
-                      htmlFor="title"
-                      className="block font-medium text-gray-800 dark:text-gray-200 mb-1"
-                    >
-                      Title <span className="text-red-500">*</span>
-                    </label>
+                    <Label htmlFor="title" required>
+                      Title
+                    </Label>
                     <Field
                       name="title"
                       className="w-full p-2 border rounded bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -69,7 +67,7 @@ const CreateVisionForm = () => {
 
                 <div className="md:col-span-2">
                   <div className="p-4">
-                    <h3 className="text-lg font-medium text-gray-800 dark:text-gray-200">Image</h3>
+                    <Label htmlFor="image">Image</Label>
                     <DropzoneComponent
                       accept={{ 'image/*': ['.png', '.gif', '.jpeg', '.jpg'] }}
                       onFileUploadSuccess={(url) => setFieldValue("image", url)}
@@ -85,32 +83,38 @@ const CreateVisionForm = () => {
 
                 <div className="md:col-span-2">
                   <div className="p-4">
-                    <h3 className="text-lg font-medium text-gray-800 dark:text-gray-200">Points</h3>
+                    <Label required>Points</Label>
                     <FieldArray name="points">
                       {({ push, remove }) => (
                         <div>
                           {values.points.map((_, index) => (
-                            <div key={index} className="flex items-center gap-2 mb-2">
-                              <Field
+                            <div key={index} className="w-full mb-2">
+                              <div className="flex items-center gap-2">
+                                <Field
+                                  name={`points[${index}]`}
+                                  placeholder="Point description"
+                                  className="w-full p-2 border rounded"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => remove(index)}
+                                  className="bg-red-500 text-white p-2 rounded"
+                                >
+                                  Remove
+                                </button>
+                              </div>
+                              <ErrorMessage
                                 name={`points[${index}]`}
-                                placeholder="Point description"
-                                className="w-full p-2 border rounded"
+                                component="div"
+                                className="text-red-500 text-sm mt-1"
                               />
-                              <button
-                                type="button"
-                                onClick={() => remove(index)}
-                                className="bg-red-500 text-white p-2 rounded"
-                              >
-                                Remove
-                              </button>
                             </div>
                           ))}
                           <button
                             type="button"
                             onClick={() => push('')}
                             className="bg-blue-500 text-white p-2 rounded mt-2"
-                          >
-                            Add Point
+                          >                            Add Point
                           </button>
                         </div>
                       )}
@@ -120,7 +124,7 @@ const CreateVisionForm = () => {
 
                 <div className="md:col-span-2">
                   <div className="p-4">
-                    <h3 className="text-lg font-medium text-gray-800 dark:text-gray-200">Icon</h3>
+                    <Label htmlFor="icon">Icon</Label>
                     <DropzoneComponent
                       accept={{ 'image/*': ['.png', '.gif', '.jpeg', '.jpg', '.svg'] }}
                       onFileUploadSuccess={(url) => setFieldValue("icon", url)}

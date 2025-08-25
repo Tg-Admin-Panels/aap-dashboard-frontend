@@ -12,14 +12,9 @@ import { Campaign, getAllCampaigns } from "../../features/campaigns/campaignApi"
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import { Table, TableBody, TableCell, TableHeader, TableRow } from "../../components/ui/table";
 import { ArrowUpIcon, PencilIcon } from "../../icons";
-import { FaEye, FaSearch } from "react-icons/fa";
+import { FaEye, } from "react-icons/fa";
 import Button from "../../components/ui/button/Button";
 import CreateCampaignModal from "../../components/campaigns/CreateCampaignModal";
-// import CreateCampaignModal from "../../components/campaigns/CreateCampaignModal";
-// import EditCampaignModal from "../../components/campaigns/EditCampaignModal";
-// import ChangeCampaignStatusModal from "../../components/campaigns/ChangeCampaignStatusModal";
-// import ViewCampaignCommentsModal from "../../components/campaigns/ViewCampaignCommentsModal";
-import { useNavigate } from "react-router";
 import EditCampaignModal from "../../components/campaigns/EditCampaignModal";
 import ViewCampaignCommentsModal from "../../components/campaigns/ViewCampaignCommentsModal";
 
@@ -51,9 +46,9 @@ const EmptyState = () => (
 const Campaigns = () => {
     const dispatch = useDispatch<AppDispatch>();
     const { campaigns, loading } = useSelector((s: RootState) => s.campaigns);
-    const navigate = useNavigate();
 
-    const [q, setQ] = useState("");
+
+    const [q,] = useState("");
 
     useEffect(() => {
         dispatch(getAllCampaigns());

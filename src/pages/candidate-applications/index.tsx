@@ -13,7 +13,7 @@ import { getAllCandidateApplications } from "../../features/candidate-applicatio
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import { Table, TableBody, TableCell, TableHeader, TableRow } from "../../components/ui/table";
 import { ArrowUpIcon, PencilIcon } from "../../icons";
-import { FaEye, FaSearch } from "react-icons/fa";
+import { FaEye, } from "react-icons/fa";
 import Button from "../../components/ui/button/Button";
 import ChangeStatusModal from "../../components/candidate-applications/ChangeStatusModal";
 import ViewApplicationModal from "../../components/candidate-applications/ViewApplicationModal";
@@ -63,7 +63,7 @@ const CandidateApplications = () => {
     const { applications, loading } = useSelector((s: RootState) => s.candidateApplications);
     const navigate = useNavigate();
 
-    const [q, setQ] = useState("");
+    const [q,] = useState("");
 
     useEffect(() => {
         dispatch(getAllCandidateApplications());

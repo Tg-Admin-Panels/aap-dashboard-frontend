@@ -1,4 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { toast } from "react-toastify";
 import {
   getAllStates,
   getAllDistricts,
@@ -63,8 +64,9 @@ const locationsSlice = createSlice({
         state.loading = false;
       })
       .addCase(getAllStates.rejected, (state, action) => {
-        state.error = action.payload as string;
+        state.error = String(action.payload) || "Failed to get states";
         state.loading = false;
+        toast.error(state.error);
       })
       .addCase(createState.pending, (state) => {
         state.loading = true;
@@ -73,10 +75,12 @@ const locationsSlice = createSlice({
       .addCase(createState.fulfilled, (state, action) => {
         state.states.push(action.payload.data);
         state.loading = false;
+        toast.success("State created successfully");
       })
       .addCase(createState.rejected, (state, action) => {
-        state.error = action.payload as string;
+        state.error = String(action.payload) || "Failed to create state";
         state.loading = false;
+        toast.error(state.error);
       })
       .addCase(getAllDistricts.pending, (state) => {
         state.loading = true;
@@ -87,8 +91,9 @@ const locationsSlice = createSlice({
         state.loading = false;
       })
       .addCase(getAllDistricts.rejected, (state, action) => {
-        state.error = action.payload as string;
+        state.error = String(action.payload) || "Failed to get districts";
         state.loading = false;
+        toast.error(state.error);
       })
       .addCase(createDistrict.pending, (state) => {
         state.loading = true;
@@ -97,10 +102,12 @@ const locationsSlice = createSlice({
       .addCase(createDistrict.fulfilled, (state, action) => {
         state.districts.push(action.payload.data);
         state.loading = false;
+        toast.success("District created successfully");
       })
       .addCase(createDistrict.rejected, (state, action) => {
-        state.error = action.payload as string;
+        state.error = String(action.payload) || "Failed to create district";
         state.loading = false;
+        toast.error(state.error);
       })
       .addCase(getAllLegislativeAssemblies.pending, (state) => {
         state.loading = true;
@@ -111,8 +118,9 @@ const locationsSlice = createSlice({
         state.loading = false;
       })
       .addCase(getAllLegislativeAssemblies.rejected, (state, action) => {
-        state.error = action.payload as string;
+        state.error = String(action.payload) || "Failed to get legislative assemblies";
         state.loading = false;
+        toast.error(state.error);
       })
       .addCase(createLegislativeAssembly.pending, (state) => {
         state.loading = true;
@@ -121,10 +129,12 @@ const locationsSlice = createSlice({
       .addCase(createLegislativeAssembly.fulfilled, (state, action) => {
         state.legislativeAssemblies.push(action.payload.data);
         state.loading = false;
+        toast.success("Legislative Assembly created successfully");
       })
       .addCase(createLegislativeAssembly.rejected, (state, action) => {
-        state.error = action.payload as string;
+        state.error = String(action.payload) || "Failed to create legislative assembly";
         state.loading = false;
+        toast.error(state.error);
       })
       .addCase(getAllBooths.pending, (state) => {
         state.loading = true;
@@ -135,8 +145,9 @@ const locationsSlice = createSlice({
         state.loading = false;
       })
       .addCase(getAllBooths.rejected, (state, action) => {
-        state.error = action.payload as string;
+        state.error = String(action.payload) || "Failed to get booths";
         state.loading = false;
+        toast.error(state.error);
       })
       .addCase(createBooth.pending, (state) => {
         state.loading = true;
@@ -145,10 +156,12 @@ const locationsSlice = createSlice({
       .addCase(createBooth.fulfilled, (state, action) => {
         state.booths.push(action.payload.data);
         state.loading = false;
+        toast.success("Booth created successfully");
       })
       .addCase(createBooth.rejected, (state, action) => {
-        state.error = action.payload as string;
+        state.error = String(action.payload) || "Failed to create booth";
         state.loading = false;
+        toast.error(state.error);
       });
   },
 });

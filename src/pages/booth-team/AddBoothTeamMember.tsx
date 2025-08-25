@@ -5,7 +5,7 @@ import { createBoothTeamMember } from "../../features/booth-team/boothTeamApi";
 import Form from "../../components/form/Form";
 import Label from "../../components/form/Label";
 import Input from "../../components/form/input/InputField";
-import Select from "react-select"; // Import react-select
+import Select from "react-select";
 import SpinnerOverlay from "../../components/ui/SpinnerOverlay";
 import { useNavigate } from "react-router-dom";
 import {
@@ -20,35 +20,58 @@ import {
   clearBooths,
 } from "../../features/locations/locations.slice";
 
+type Option = { value: string; label: string };
+
+type FormData = {
+  name: string;
+  phone: string;
+  email: string;
+  boothId: string;
+  boothName: string;
+  post: string;
+  padnaam: string;
+};
+
+type ErrorState = Partial<
+  Record<
+    keyof FormData | "state" | "district" | "legislativeAssembly",
+    string
+  >
+>;
+
 export default function AddBoothTeamMember() {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
-  const { loading, error } = useSelector((state: RootState) => state.boothTeam);
+  const { loading, error: apiError } = useSelector(
+    (state: RootState) => state.boothTeam
+  );
   const { states, districts, legislativeAssemblies, booths } = useSelector(
     (state: RootState) => state.locations
   );
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     name: "",
     phone: "",
     email: "",
-    boothId: "", // New field for booth ID
-    boothName: "", // To store the name of the selected booth
+    boothId: "",
+    boothName: "",
     post: "",
     padnaam: "",
   });
+
+  const [errors, setErrors] = useState<ErrorState>({});
 
   const [selectedState, setSelectedState] = useState<string | null>(null);
   const [selectedDistrict, setSelectedDistrict] = useState<string | null>(null);
   const [selectedLegislativeAssembly, setSelectedLegislativeAssembly] = useState<string | null>(null);
   const [selectedBooth, setSelectedBooth] = useState<string | null>(null);
 
-  // Fetch states on component mount
+  // Fetch states on mount
   useEffect(() => {
     dispatch(getAllStates());
   }, [dispatch]);
 
-  // Fetch districts when state changes
+  // Dependent fetches
   useEffect(() => {
     if (selectedState) {
       dispatch(getAllDistricts(selectedState));
@@ -57,7 +80,6 @@ export default function AddBoothTeamMember() {
     }
   }, [dispatch, selectedState]);
 
-  // Fetch legislative assemblies when district changes
   useEffect(() => {
     if (selectedDistrict) {
       dispatch(getAllLegislativeAssemblies(selectedDistrict));
@@ -66,7 +88,6 @@ export default function AddBoothTeamMember() {
     }
   }, [dispatch, selectedDistrict]);
 
-  // Fetch booths when legislative assembly changes
   useEffect(() => {
     if (selectedLegislativeAssembly) {
       dispatch(getAllBooths(selectedLegislativeAssembly));
@@ -76,47 +97,69 @@ export default function AddBoothTeamMember() {
   }, [dispatch, selectedLegislativeAssembly]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handlePostChange = (selectedOption: { value: string; label: string } | null) => {
-    setFormData({ ...formData, post: selectedOption ? selectedOption.value : "", padnaam: "" });
+  const handlePostChange = (opt: Option | null) => {
+    setFormData(prev => ({ ...prev, post: opt ? opt.value : "", padnaam: "" }));
   };
 
-  const handlePadnaamChange = (selectedOption: { value: string; label: string } | null) => {
-    setFormData({ ...formData, padnaam: selectedOption ? selectedOption.value : "" });
+  const handlePadnaamChange = (opt: Option | null) => {
+    setFormData(prev => ({ ...prev, padnaam: opt ? opt.value : "" }));
   };
 
-  const handleStateChange = (selectedOption: { value: string; label: string } | null) => {
-    setSelectedState(selectedOption ? selectedOption.value : null);
+  const handleStateChange = (opt: Option | null) => {
+    setSelectedState(opt ? opt.value : null);
     setSelectedDistrict(null);
     setSelectedLegislativeAssembly(null);
     setSelectedBooth(null);
-    setFormData({ ...formData, boothId: "", boothName: "" });
+    setFormData(prev => ({ ...prev, boothId: "", boothName: "" }));
   };
 
-  const handleDistrictChange = (selectedOption: { value: string; label: string } | null) => {
-    setSelectedDistrict(selectedOption ? selectedOption.value : null);
+  const handleDistrictChange = (opt: Option | null) => {
+    setSelectedDistrict(opt ? opt.value : null);
     setSelectedLegislativeAssembly(null);
     setSelectedBooth(null);
-    setFormData({ ...formData, boothId: "", boothName: "" });
+    setFormData(prev => ({ ...prev, boothId: "", boothName: "" }));
   };
 
-  const handleLegislativeAssemblyChange = (selectedOption: { value: string; label: string } | null) => {
-    setSelectedLegislativeAssembly(selectedOption ? selectedOption.value : null);
+  const handleLegislativeAssemblyChange = (opt: Option | null) => {
+    setSelectedLegislativeAssembly(opt ? opt.value : null);
     setSelectedBooth(null);
-    setFormData({ ...formData, boothId: "", boothName: "" });
+    setFormData(prev => ({ ...prev, boothId: "", boothName: "" }));
   };
 
-  const handleBoothChange = (selectedOption: { value: string; label: string } | null) => {
-    setSelectedBooth(selectedOption ? selectedOption.value : null);
-    setFormData({ ...formData, boothId: selectedOption ? selectedOption.value : "", boothName: selectedOption ? selectedOption.label : "" });
+  const handleBoothChange = (opt: Option | null) => {
+    setSelectedBooth(opt ? opt.value : null);
+    setFormData(prev => ({
+      ...prev,
+      boothId: opt ? opt.value : "",
+      boothName: opt ? opt.label : "",
+    }));
+  };
+
+  const validate = () => {
+    const newErrors: ErrorState = {};
+    if (!formData.name) newErrors.name = "Name is required.";
+    if (!formData.phone) newErrors.phone = "Phone number is required.";
+    else if (!/^\d{10}$/.test(formData.phone)) newErrors.phone = "Please enter a valid 10-digit phone number.";
+    if (!selectedState) newErrors.state = "State is required.";
+    if (!selectedDistrict) newErrors.district = "District is required.";
+    if (!selectedLegislativeAssembly) newErrors.legislativeAssembly = "Legislative Assembly is required.";
+    if (!formData.boothId) newErrors.boothId = "Booth is required.";
+    if (!formData.post) newErrors.post = "Post is required.";
+    if (!formData.padnaam) newErrors.padnaam = "Padnaam is required.";
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // Ensure boothName is set from the selected booth's label before dispatching
-    const finalFormData = { ...formData };
+    if (!validate()) return;
+
+    // Ensure boothName consistency
+    const finalFormData: FormData = { ...formData };
     if (selectedBooth) {
       const booth = booths.find(b => b._id === selectedBooth);
       if (booth) {
@@ -124,113 +167,100 @@ export default function AddBoothTeamMember() {
       }
     }
 
-    await dispatch(createBoothTeamMember(finalFormData));
-    if (!error) {
+    try {
+      await dispatch(createBoothTeamMember(finalFormData)).unwrap();
       navigate("/booth-team");
+    } catch (err) {
+      // Slice will already set apiError; optionally surface a local toast here.
+      console.error(err);
     }
   };
 
-  const postOptions = [
+  const postOptions: Option[] = [
     { value: "", label: "Select Post" },
     { value: "Prabhari", label: "Prabhari" },
     { value: "Adhyaksh", label: "Adhyaksh" },
   ];
 
-  const generatePadnaamOptions = () => {
+  const generatePadnaamOptions = (): Option[] => {
     if (formData.post === "Prabhari") {
-      return Array.from({ length: 10 }, (_, i) => ({ value: `Prabhari-${String(i + 1).padStart(2, '0')}`, label: `Prabhari-${String(i + 1).padStart(2, '0')}` }));
-    } else if (formData.post === "Adhyaksh") {
-      return Array.from({ length: 10 }, (_, i) => ({ value: `Adhyaksh-${String(i + 1).padStart(2, '0')}`, label: `Adhyaksh-${String(i + 1).padStart(2, '0')}` }));
+      return Array.from({ length: 10 }, (_, i) => {
+        const v = `Prabhari-${String(i + 1).padStart(2, "0")}`;
+        return { value: v, label: v };
+      });
+    }
+    if (formData.post === "Adhyaksh") {
+      return Array.from({ length: 10 }, (_, i) => {
+        const v = `Adhyaksh-${String(i + 1).padStart(2, "0")}`;
+        return { value: v, label: v };
+      });
     }
     return [];
   };
 
-  const padnaamOptions = [{ value: "", label: "Select Padnaam" }, ...generatePadnaamOptions()];
+  const padnaamOptions: Option[] = [{ value: "", label: "Select Padnaam" }, ...generatePadnaamOptions()];
 
-  const stateOptions = states.map((state) => ({
-    value: state._id,
-    label: state.name,
-  }));
-
-  const districtOptions = districts.map((district) => ({
-    value: district._id,
-    label: district.name,
-  }));
-
-  const legislativeAssemblyOptions = legislativeAssemblies.map((assembly) => ({
-    value: assembly._id,
-    label: assembly.name,
-  }));
-
-  const boothOptions = booths.map((booth) => ({
-    value: booth._id,
-    label: booth.name,
-  }));
+  const stateOptions: Option[] = states.map(s => ({ value: s._id, label: s.name }));
+  const districtOptions: Option[] = districts.map(d => ({ value: d._id, label: d.name }));
+  const legislativeAssemblyOptions: Option[] = legislativeAssemblies.map(a => ({ value: a._id, label: a.name }));
+  const boothOptions: Option[] = booths.map(b => ({ value: b._id, label: b.name }));
 
   const customStyles = {
-    control: (baseStyles: any) => ({
-      ...baseStyles,
-      backgroundColor: 'transparent',
-      borderColor: '#d1d5db', // gray-300
-      minHeight: '44px', // h-11
-      boxShadow: 'none',
-      '&:hover': {
-        borderColor: '#9ca3af', // gray-400
-      },
+    control: (base: any) => ({
+      ...base,
+      backgroundColor: "transparent",
+      borderColor: "#d1d5db",
+      minHeight: "44px",
+      boxShadow: "none",
+      "&:hover": { borderColor: "#9ca3af" },
     }),
-    singleValue: (baseStyles: any) => ({
-      ...baseStyles,
-      color: '#1f2937', // gray-900
-    }),
-    input: (baseStyles: any) => ({
-      ...baseStyles,
-      color: '#1f2937', // gray-900
-    }),
-    placeholder: (baseStyles: any) => ({
-      ...baseStyles,
-      color: '#9ca3af', // gray-400
-    }),
-    option: (baseStyles: any, state: any) => ({
-      ...baseStyles,
-      backgroundColor: state.isSelected ? '#3b82f6' : state.isFocused ? '#e0e7ff' : 'white', // blue-500, indigo-100
-      color: state.isSelected ? 'white' : '#1f2937', // white, gray-900
-      '&:active': {
-        backgroundColor: '#2563eb', // blue-600
-      },
+    singleValue: (base: any) => ({ ...base, color: "#1f2937" }),
+    input: (base: any) => ({ ...base, color: "#1f2937" }),
+    placeholder: (base: any) => ({ ...base, color: "#9ca3af" }),
+    option: (base: any, state: any) => ({
+      ...base,
+      backgroundColor: state.isSelected ? "#3b82f6" : state.isFocused ? "#e0e7ff" : "white",
+      color: state.isSelected ? "white" : "#1f2937",
+      "&:active": { backgroundColor: "#2563eb" },
     }),
   };
 
   return (
     <div className="p-6 rounded-lg shadow bg-white dark:bg-gray-900">
       <SpinnerOverlay loading={loading} />
-      <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-6">Add New Booth Team Member</h2>
-      {error && <p className="text-red-500 mb-4">Error: {error}</p>}
+      <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-6">
+        Add New Booth Team Member
+      </h2>
+      {apiError && <p className="text-red-500 mb-4">Error: {apiError}</p>}
+
       <Form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <Label htmlFor="name">Name</Label>
+            <Label htmlFor="name" required>Name</Label>
             <Input
-              type="text"
               id="name"
               name="name"
               value={formData.name}
               onChange={handleChange}
               placeholder="Enter name"
-              required
+              error={!!errors.name}
+              hint={errors.name}
             />
           </div>
+
           <div>
-            <Label htmlFor="phone">Phone</Label>
+            <Label htmlFor="phone" required>Phone</Label>
             <Input
-              type="text"
               id="phone"
               name="phone"
               value={formData.phone}
               onChange={handleChange}
               placeholder="Enter phone number"
-              required
+              error={!!errors.phone}
+              hint={errors.phone}
             />
           </div>
+
           <div>
             <Label htmlFor="email">Email</Label>
             <Input
@@ -242,93 +272,104 @@ export default function AddBoothTeamMember() {
               placeholder="Enter email (optional)"
             />
           </div>
-          {/* Dependent Dropdowns for Location */}
+
+          {/* Locations */}
           <div>
-            <Label htmlFor="state-select">State</Label>
+            <Label htmlFor="state-select" required>State</Label>
             <Select
-              id="state-select"
+              inputId="state-select"
               options={stateOptions}
               onChange={handleStateChange}
-              value={stateOptions.find(option => option.value === selectedState)}
+              value={stateOptions.find(o => o.value === selectedState) || null}
               placeholder="Select State"
               isClearable
               styles={customStyles}
             />
+            {errors.state && <p className="text-red-500 text-xs mt-1">{errors.state}</p>}
           </div>
+
           <div>
-            <Label htmlFor="district-select">District</Label>
+            <Label htmlFor="district-select" required>District</Label>
             <Select
-              id="district-select"
+              inputId="district-select"
               options={districtOptions}
               onChange={handleDistrictChange}
-              value={districtOptions.find(option => option.value === selectedDistrict)}
+              value={districtOptions.find(o => o.value === selectedDistrict) || null}
               placeholder="Select District"
               isClearable
               isDisabled={!selectedState}
               styles={customStyles}
             />
+            {errors.district && <p className="text-red-500 text-xs mt-1">{errors.district}</p>}
           </div>
+
           <div>
-            <Label htmlFor="legislative-assembly-select">Legislative Assembly</Label>
+            <Label htmlFor="legislative-assembly-select" required>Legislative Assembly</Label>
             <Select
-              id="legislative-assembly-select"
+              inputId="legislative-assembly-select"
               options={legislativeAssemblyOptions}
               onChange={handleLegislativeAssemblyChange}
-              value={legislativeAssemblyOptions.find(option => option.value === selectedLegislativeAssembly)}
+              value={legislativeAssemblyOptions.find(o => o.value === selectedLegislativeAssembly) || null}
               placeholder="Select Legislative Assembly"
               isClearable
               isDisabled={!selectedDistrict}
               styles={customStyles}
             />
+            {errors.legislativeAssembly && (
+              <p className="text-red-500 text-xs mt-1">{errors.legislativeAssembly}</p>
+            )}
           </div>
+
           <div>
-            <Label htmlFor="booth-select">Booth</Label>
+            <Label htmlFor="booth-select" required>Booth</Label>
             <Select
-              id="booth-select"
+              inputId="booth-select"
               options={boothOptions}
               onChange={handleBoothChange}
-              value={boothOptions.find(option => option.value === selectedBooth)}
+              value={boothOptions.find(o => o.value === selectedBooth) || null}
               placeholder="Select Booth"
               isClearable
               isDisabled={!selectedLegislativeAssembly}
               styles={customStyles}
             />
+            {errors.boothId && <p className="text-red-500 text-xs mt-1">{errors.boothId}</p>}
           </div>
-          {/* End Dependent Dropdowns */}
 
           <div>
-            <Label htmlFor="post">Post</Label>
+            <Label htmlFor="post" required>Post</Label>
             <Select
-              id="post"
+              inputId="post"
               name="post"
               options={postOptions}
               onChange={handlePostChange}
-              value={postOptions.find(option => option.value === formData.post)}
-              placeholder="Select post"
+              value={postOptions.find(o => o.value === formData.post) || null}
+              placeholder="Select Post"
               isClearable
               isSearchable
-              required
               styles={customStyles}
             />
+            {errors.post && <p className="text-red-500 text-xs mt-1">{errors.post}</p>}
           </div>
+
           {formData.post && (
             <div>
-              <Label htmlFor="padnaam">Padnaam</Label>
+              <Label htmlFor="padnaam" required>Padnaam</Label>
               <Select
-                id="padnaam"
+                inputId="padnaam"
                 name="padnaam"
                 options={padnaamOptions}
                 onChange={handlePadnaamChange}
-                value={padnaamOptions.find(option => option.value === formData.padnaam)}
+                value={padnaamOptions.find(o => o.value === formData.padnaam) || null}
                 placeholder="Select Padnaam"
                 isClearable
                 isSearchable
-                required
                 styles={customStyles}
               />
+              {errors.padnaam && <p className="text-red-500 text-xs mt-1">{errors.padnaam}</p>}
             </div>
           )}
         </div>
+
         <button
           type="submit"
           className="px-4 py-2 text-sm font-medium text-white bg-brand-500 rounded-md hover:bg-brand-600"

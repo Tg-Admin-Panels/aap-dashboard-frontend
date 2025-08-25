@@ -1,4 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { toast } from "react-toastify";
 import {
   getAllBoothTeamMembers,
   createBoothTeamMember,
@@ -51,8 +52,9 @@ const boothTeamSlice = createSlice({
         state.loading = false;
       })
       .addCase(getAllBoothTeamMembers.rejected, (state, action) => {
-        state.error = action.payload as string;
+        state.error = String(action.payload) || "Failed to get booth team members";
         state.loading = false;
+        toast.error(state.error);
       })
       .addCase(createBoothTeamMember.pending, (state) => {
         state.loading = true;
@@ -61,10 +63,12 @@ const boothTeamSlice = createSlice({
       .addCase(createBoothTeamMember.fulfilled, (state, action) => {
         state.members.push(action.payload.data);
         state.loading = false;
+        toast.success("Member created successfully");
       })
       .addCase(createBoothTeamMember.rejected, (state, action) => {
-        state.error = action.payload as string;
+        state.error = String(action.payload) || "Failed to create member";
         state.loading = false;
+        toast.error(state.error);
       })
       .addCase(deleteBoothTeamMember.pending, (state) => {
         state.loading = true;
@@ -75,10 +79,12 @@ const boothTeamSlice = createSlice({
           (member) => member._id !== action.payload
         );
         state.loading = false;
+        toast.success("Member deleted successfully");
       })
       .addCase(deleteBoothTeamMember.rejected, (state, action) => {
-        state.error = action.payload as string;
+        state.error = String(action.payload) || "Failed to delete member";
         state.loading = false;
+        toast.error(state.error);
       });
   },
 });

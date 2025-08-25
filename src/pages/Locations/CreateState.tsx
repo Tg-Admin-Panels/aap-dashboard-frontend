@@ -11,6 +11,8 @@ export default function CreateState() {
   const dispatch = useDispatch<AppDispatch>();
   const { loading, error } = useSelector((state: RootState) => state.locations);
 
+  const [errors, setErrors] = useState<Partial<Record<keyof typeof formData, string>>>({});
+
   const [formData, setFormData] = useState({
     name: "",
     code: "",
@@ -20,8 +22,18 @@ export default function CreateState() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const validate = () => {
+    const newErrors: Partial<Record<keyof typeof formData, string>> = {};
+    if (!formData.name) newErrors.name = "State name is required.";
+    if (!formData.code) newErrors.code = "State code is required.";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!validate()) return;
+
     await dispatch(createState(formData));
     setFormData({ name: "", code: "" }); // Clear form
   };
@@ -41,7 +53,8 @@ export default function CreateState() {
             value={formData.name}
             onChange={handleChange}
             placeholder="Enter state name"
-            required
+            error={!!errors.name}
+            hint={errors.name}
           />
         </div>
         <div>
@@ -53,7 +66,8 @@ export default function CreateState() {
             value={formData.code}
             onChange={handleChange}
             placeholder="Enter state code (e.g., BR)"
-            required
+            error={!!errors.code}
+            hint={errors.code}
           />
         </div>
         <button

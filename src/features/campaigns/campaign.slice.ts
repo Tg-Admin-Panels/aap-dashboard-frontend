@@ -8,7 +8,6 @@ import {
     getCampaignById,
     updateCampaign,
     deleteCampaign,
-    changeCampaignStatus,
     addComment,
     getComments,
     deleteComment,

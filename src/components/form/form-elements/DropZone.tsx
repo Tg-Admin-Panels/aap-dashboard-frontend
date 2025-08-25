@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import ComponentCard from "../../common/ComponentCard";
 import { useDropzone } from "react-dropzone";
 import axios from 'axios';
 
@@ -14,12 +13,12 @@ interface DropzoneProps {
 
 const DropzoneComponent: React.FC<DropzoneProps> = ({ accept, onDrop, multiple, onFileUploadSuccess }) => {
   const [uploadProgress, setUploadProgress] = useState<number>(0);
-  const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null);
+  const [, setUploadedImageUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
 
   useEffect(() => {
-    let timer: NodeJS.Timeout;
+    let timer: any;
     if (showSuccessPopup) {
       timer = setTimeout(() => {
         setShowSuccessPopup(false);

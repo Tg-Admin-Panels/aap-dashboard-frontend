@@ -1,5 +1,6 @@
 // src/features/members/membersSlice.ts
 import { createSlice } from "@reduxjs/toolkit";
+import { toast } from "react-toastify";
 import { getAllMembers, getMembersByVolunteer } from "./membersApi";
 
 interface VolunteerInfo {
@@ -49,7 +50,8 @@ const membersSlice = createSlice({
       })
       .addCase(getAllMembers.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
+        state.error = String(action.payload) || "Failed to get members";
+        toast.error(state.error);
       })
       .addCase(getMembersByVolunteer.pending, (state) => {
         state.loading = true;
@@ -61,7 +63,8 @@ const membersSlice = createSlice({
       })
       .addCase(getMembersByVolunteer.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
+        state.error = String(action.payload) || "Failed to get members for this volunteer";
+        toast.error(state.error);
       });
 
   },

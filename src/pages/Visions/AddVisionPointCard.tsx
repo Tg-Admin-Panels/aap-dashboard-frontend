@@ -33,7 +33,7 @@ const AddVisionPointCard: React.FC<AddVisionPointCardProps> = ({ vision, title, 
   });
 
   return (
-    <div className="bg-white dark:bg-[#101828] w-full p-6 rounded-2xl max-w-md dark:text-white space-y-5">
+    <div className="bg-white dark:bg-[#101828] w-full p-6 rounded-2xl  dark:text-white space-y-5">
       <h2 className="text-xl font-semibold">
         {title}
         <span className="text-blue-400 font-bold">{vision?.title}</span>

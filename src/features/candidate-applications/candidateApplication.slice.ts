@@ -39,6 +39,7 @@ interface CandidateApplicationState {
     showCreateModal: boolean;
     showUpdateModal: boolean;
     showStatusModal: boolean;
+    showViewModal: boolean;
 }
 
 const initialState: CandidateApplicationState = {
@@ -49,6 +50,7 @@ const initialState: CandidateApplicationState = {
     showCreateModal: false,
     showUpdateModal: false,
     showStatusModal: false,
+    showViewModal: false,
 };
 
 const candidateApplicationSlice = createSlice({

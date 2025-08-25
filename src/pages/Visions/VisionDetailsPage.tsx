@@ -5,14 +5,14 @@ import { AppDispatch, RootState } from "../../features/store";
 import { getVisionDetails, addPointToVision, removePointFromVision } from "../../features/visions/visionsApi";
 import SpinnerOverlay from "../../components/ui/SpinnerOverlay";
 import Modal from "../../components/modal/Modal";
-import { setShowAddPointModal, setSelectedPoint } from "../../features/visions/visions.slice";
+import { setShowAddPointModal } from "../../features/visions/visions.slice";
 import AddVisionPointCard from "./AddVisionPointCard";
 
 export default function VisionDetails() {
   const { id } = useParams();
   const dispatch = useDispatch<AppDispatch>();
 
-  const { selectedVision, loading, showAddPointModal, selectedPoint } = useSelector(
+  const { selectedVision, loading, showAddPointModal } = useSelector(
     (state: RootState) => state.visions
   );
 
@@ -56,7 +56,7 @@ export default function VisionDetails() {
           <div>
             <h3 className="text-2xl font-semibold text-gray-800 dark:text-white mb-4">Points</h3>
             <ul className="list-disc list-inside space-y-2">
-              {selectedVision.points.map((point, index) => (
+              {selectedVision.points?.map((point, index) => (
                 <li key={index} className="text-gray-600 dark:text-gray-300 flex justify-between items-center">
                   <span>{point}</span>
                   <button

@@ -5,7 +5,6 @@ import { AppDispatch, RootState } from "../../features/store";
 import { updateCandidateApplicationStatus } from "../../features/candidate-applications/candidateApplicationApi";
 import { setShowStatusModal } from "../../features/candidate-applications/candidateApplication.slice";
 import Modal from "../modal/Modal";
-import Button from "../ui/button/Button";
 
 const ChangeStatusModal = () => {
     const dispatch = useDispatch<AppDispatch>();

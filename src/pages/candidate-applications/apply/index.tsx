@@ -184,7 +184,7 @@ export default function ApplyForCandidacy() {
             <Form onSubmit={onSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <Label htmlFor="applicantName">Applicant Name</Label>
+                        <Label htmlFor="applicantName" required>Applicant Name</Label>
                         <Input
                             id="applicantName"
                             name="applicantName"
@@ -196,7 +196,7 @@ export default function ApplyForCandidacy() {
                     </div>
 
                     <div>
-                        <Label htmlFor="mobile">Mobile</Label>
+                        <Label htmlFor="mobile" required>Mobile</Label>
                         <Input
                             id="mobile"
                             name="mobile"
@@ -208,7 +208,7 @@ export default function ApplyForCandidacy() {
                     </div>
 
                     <div>
-                        <Label htmlFor="state">State</Label>
+                        <Label htmlFor="state" required>State</Label>
                         <Select
                             inputId="state"
                             options={states}
@@ -220,7 +220,7 @@ export default function ApplyForCandidacy() {
                     </div>
 
                     <div>
-                        <Label htmlFor="district">District</Label>
+                        <Label htmlFor="district" required>District</Label>
                         <Select
                             inputId="district"
                             options={districts}
@@ -233,7 +233,7 @@ export default function ApplyForCandidacy() {
                     </div>
 
                     <div>
-                        <Label htmlFor="legislativeAssembly">Legislative Assembly</Label>
+                        <Label htmlFor="legislativeAssembly" required>Legislative Assembly</Label>
                         <Select
                             inputId="legislativeAssembly"
                             options={legislativeAssemblies}
@@ -246,7 +246,7 @@ export default function ApplyForCandidacy() {
                     </div>
 
                     <div className="md:col-span-2">
-                        <Label htmlFor="address">Address</Label>
+                        <Label htmlFor="address" required>Address</Label>
                         <Input
                             id="address"
                             name="address"
@@ -258,7 +258,7 @@ export default function ApplyForCandidacy() {
                     </div>
 
                     <div>
-                        <Label htmlFor="harGharJhandaCount">Har Ghar Jhanda Count</Label>
+                        <Label htmlFor="harGharJhandaCount" required>Har Ghar Jhanda Count</Label>
                         <Input
                             type="number"
                             id="harGharJhandaCount"
@@ -271,7 +271,7 @@ export default function ApplyForCandidacy() {
                     </div>
 
                     <div>
-                        <Label htmlFor="janAakroshMeetingsCount">Jan Aakrosh Meetings Count</Label>
+                        <Label htmlFor="janAakroshMeetingsCount" required>Jan Aakrosh Meetings Count</Label>
                         <Input
                             type="number"
                             id="janAakroshMeetingsCount"
@@ -284,7 +284,7 @@ export default function ApplyForCandidacy() {
                     </div>
 
                     <div>
-                        <Label htmlFor="communityMeetingsCount">Community Meetings Count</Label>
+                        <Label htmlFor="communityMeetingsCount" required>Community Meetings Count</Label>
                         <Input
                             type="number"
                             id="communityMeetingsCount"
@@ -297,7 +297,7 @@ export default function ApplyForCandidacy() {
                     </div>
 
                     <div>
-                        <Label htmlFor="facebookFollowers">Facebook Followers</Label>
+                        <Label htmlFor="facebookFollowers" required>Facebook Followers</Label>
                         <Input
                             type="number"
                             id="facebookFollowers"
@@ -310,7 +310,7 @@ export default function ApplyForCandidacy() {
                     </div>
 
                     <div>
-                        <Label htmlFor="facebookPageLink">Facebook Page Link</Label>
+                        <Label htmlFor="facebookPageLink" required>Facebook Page Link</Label>
                         <Input
                             id="facebookPageLink"
                             name="facebookPageLink"
@@ -322,7 +322,7 @@ export default function ApplyForCandidacy() {
                     </div>
 
                     <div>
-                        <Label htmlFor="instagramFollowers">Instagram Followers</Label>
+                        <Label htmlFor="instagramFollowers" required>Instagram Followers</Label>
                         <Input
                             type="number"
                             id="instagramFollowers"
@@ -335,7 +335,7 @@ export default function ApplyForCandidacy() {
                     </div>
 
                     <div>
-                        <Label htmlFor="instagramLink">Instagram Link</Label>
+                        <Label htmlFor="instagramLink" required>Instagram Link</Label>
                         <Input
                             id="instagramLink"
                             name="instagramLink"
@@ -347,7 +347,7 @@ export default function ApplyForCandidacy() {
                     </div>
 
                     <div className="md:col-span-2">
-                        <Label htmlFor="biodataPdfUrl">Biodata (PDF)</Label>
+                        <Label htmlFor="biodataPdfUrl" required>Biodata (PDF)</Label>
                         <DropzoneComponent
                             accept={{ "application/pdf": [".pdf"] }}
                             onFileUploadSuccess={handleBiodataUploadSuccess}

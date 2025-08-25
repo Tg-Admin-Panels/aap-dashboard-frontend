@@ -12,6 +12,8 @@ export default function CreateLegislativeAssembly() {
   const dispatch = useDispatch<AppDispatch>();
   const { loading, error, districts } = useSelector((state: RootState) => state.locations);
 
+  const [errors, setErrors] = useState<Partial<Record<keyof typeof formData, string>>>({});
+
   const [formData, setFormData] = useState({
     name: "",
     code: "",
@@ -31,8 +33,19 @@ export default function CreateLegislativeAssembly() {
     setFormData({ ...formData, parentId: selectedOption ? selectedOption.value : "" });
   };
 
+  const validate = () => {
+    const newErrors: Partial<Record<keyof typeof formData, string>> = {};
+    if (!formData.parentId) newErrors.parentId = "Parent District is required.";
+    if (!formData.name) newErrors.name = "Assembly name is required.";
+    if (!formData.code) newErrors.code = "Assembly code is required.";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!validate()) return;
+
     await dispatch(createLegislativeAssembly(formData));
     setFormData({ name: "", code: "", parentId: "" }); // Clear form
   };
@@ -94,6 +107,7 @@ export default function CreateLegislativeAssembly() {
             required
             styles={customStyles}
           />
+          {errors.parentId && <p className="text-red-500 text-xs mt-1">{errors.parentId}</p>}
         </div>
         <div>
           <Label htmlFor="name">Assembly Name</Label>
@@ -104,7 +118,8 @@ export default function CreateLegislativeAssembly() {
             value={formData.name}
             onChange={handleChange}
             placeholder="Enter assembly name"
-            required
+            error={!!errors.name}
+            hint={errors.name}
           />
         </div>
         <div>
@@ -116,7 +131,8 @@ export default function CreateLegislativeAssembly() {
             value={formData.code}
             onChange={handleChange}
             placeholder="Enter assembly code (e.g., DGJ)"
-            required
+            error={!!errors.code}
+            hint={errors.code}
           />
         </div>
         <button

@@ -3,22 +3,7 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import DropzoneComponent from "../../components/form/form-elements/DropZone";
 import { CloseIcon } from "../../icons";
-
-interface Member {
-  _id: string;
-  name: string;
-  phone: string;
-  image: string;
-  role: string;
-  post: string;
-}
-
-interface Wings {
-  _id: string;
-  name: string;
-  leader: Member;
-  members: Member[];
-}
+import { Wings } from "../../features/wings/wings.slice";
 
 interface AddLeaderCardProps {
   wing: Wings | null;

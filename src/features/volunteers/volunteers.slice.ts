@@ -7,6 +7,7 @@ import {
   deleteVolunteer,
   updateVolunteerStatus,
 } from "./volunteersApi";
+import { toast } from "react-toastify";
 
 interface Volunteer {
   _id: string;
@@ -45,6 +46,10 @@ const initialState: VolunteerState = {
   error: null,
 };
 
+// small helper to extract error message safely
+const errMsg = (action: any, fallback: string) =>
+  (action?.payload as string) || action?.error?.message || fallback;
+
 const volunteerSlice = createSlice({
   name: "volunteers",
   initialState,
@@ -58,6 +63,7 @@ const volunteerSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      // CREATE
       .addCase(createVolunteer.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -68,10 +74,12 @@ const volunteerSlice = createSlice({
         state.loading = false;
       })
       .addCase(createVolunteer.rejected, (state, action) => {
-        state.error = action.payload as string;
         state.loading = false;
+        state.error = errMsg(action, "Failed to create volunteer");
+        toast.error(state.error);
       })
 
+      // GET ALL
       .addCase(getAllVolunteers.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -81,26 +89,68 @@ const volunteerSlice = createSlice({
         state.loading = false;
       })
       .addCase(getAllVolunteers.rejected, (state, action) => {
-        state.error = action.payload as string;
         state.loading = false;
+        state.error = errMsg(action, "Failed to fetch volunteers");
+        toast.error(state.error);
       })
 
+      // GET BY ID
+      .addCase(getVolunteerById.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
       .addCase(getVolunteerById.fulfilled, (state, action) => {
         state.selectedVolunteer = action.payload.data;
+        state.loading = false;
+      })
+      .addCase(getVolunteerById.rejected, (state, action) => {
+        state.loading = false;
+        state.error = errMsg(action, "Failed to fetch volunteer");
+        toast.error(state.error);
       })
 
+      // UPDATE
+      .addCase(updateVolunteer.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
       .addCase(updateVolunteer.fulfilled, (state, action) => {
         const updated = action.payload.data;
         state.volunteers = state.volunteers.map((v) =>
           v._id === updated._id ? updated : v
         );
         state.selectedVolunteer = updated;
+        state.loading = false;
+        toast.success("Updated Successfully");
+      })
+      .addCase(updateVolunteer.rejected, (state, action) => {
+        state.loading = false;
+        state.error = errMsg(action, "Failed to update volunteer");
+        toast.error(state.error);
       })
 
+      // DELETE
+      .addCase(deleteVolunteer.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
       .addCase(deleteVolunteer.fulfilled, (state, action) => {
         const id = action.payload.id;
         state.volunteers = state.volunteers.filter((v) => v._id !== id);
         state.selectedVolunteer = null;
+        state.loading = false;
+        toast.success("Deleted Successfully");
+      })
+      .addCase(deleteVolunteer.rejected, (state, action) => {
+        state.loading = false;
+        state.error = errMsg(action, "Failed to delete volunteer");
+        toast.error(state.error);
+      })
+
+      // UPDATE STATUS
+      .addCase(updateVolunteerStatus.pending, (state) => {
+        state.loading = true;
+        state.error = null;
       })
       .addCase(updateVolunteerStatus.fulfilled, (state, action) => {
         const updated = action.payload.data;
@@ -108,10 +158,16 @@ const volunteerSlice = createSlice({
         if (index !== -1) {
           state.volunteers[index].status = updated.status;
         }
+        state.loading = false;
+        toast.success("Status Updated Successfully");
+      })
+      .addCase(updateVolunteerStatus.rejected, (state, action) => {
+        state.loading = false;
+        state.error = errMsg(action, "Failed to update status");
+        toast.error(state.error);
       });
   },
 });
 
 export default volunteerSlice.reducer;
-export const { clearSelectedVolunteer, clearVolunteerError } =
-  volunteerSlice.actions;
+export const { clearSelectedVolunteer, clearVolunteerError } = volunteerSlice.actions;

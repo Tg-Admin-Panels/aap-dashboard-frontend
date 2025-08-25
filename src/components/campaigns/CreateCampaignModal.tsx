@@ -1,17 +1,18 @@
-import { useState, useEffect } from "react";
+import { useState, } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../features/store";
 import { createCampaign } from "../../features/campaigns/campaignApi";
 import Modal from "../modal/Modal";
 import Input from "../form/input/InputField";
 import Label from "../form/Label";
-import Button from "../ui/button/Button";
 import DropzoneComponent from "../form/form-elements/DropZone";
 import { setShowCreateModal } from "../../features/campaigns/campaign.slice";
 
 const CreateCampaignModal = () => {
     const dispatch = useDispatch<AppDispatch>();
-    const { loading, showCreateModal } = useSelector((state: RootState) => state.campaigns);
+    const { showCreateModal } = useSelector((state: RootState) => state.campaigns);
+
+    const [errors, setErrors] = useState<Partial<Record<keyof typeof formData, string>>>({});
 
     const [formData, setFormData] = useState({
         title: "",
@@ -27,7 +28,17 @@ const CreateCampaignModal = () => {
         setFormData({ ...formData, bannerImage: url });
     };
 
+    const validate = () => {
+        const newErrors: Partial<Record<keyof typeof formData, string>> = {};
+        if (!formData.title) newErrors.title = "Title is required.";
+        if (!formData.description) newErrors.description = "Description is required.";
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
     const handleSubmit = async () => {
+        if (!validate()) return;
+
         const campaignData = {
             ...formData,
         };
@@ -47,11 +58,11 @@ const CreateCampaignModal = () => {
         >
             <div className="p-6 space-y-4">
                 <div>
-                    <Label htmlFor="title">Title</Label>
-                    <Input id="title" name="title" value={formData.title} onChange={handleInputChange} />
+                    <Label htmlFor="title" required>Title</Label>
+                    <Input id="title" name="title" value={formData.title} onChange={handleInputChange} error={!!errors.title} hint={errors.title} />
                 </div>
                 <div>
-                    <Label htmlFor="description">Description</Label>
+                    <Label htmlFor="description" required>Description</Label>
                     <textarea
                         id="description"
                         name="description"
@@ -60,6 +71,7 @@ const CreateCampaignModal = () => {
                         rows={4}
                         className="w-full p-2 border border-gray-300 rounded-md focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-brand-500 dark:focus:border-brand-500"
                     ></textarea>
+                    {errors.description && <p className="text-red-500 text-xs mt-1">{errors.description}</p>}
                 </div>
                 <div className="md:col-span-2">
                     <Label htmlFor="bannerImage">Banner Image</Label>

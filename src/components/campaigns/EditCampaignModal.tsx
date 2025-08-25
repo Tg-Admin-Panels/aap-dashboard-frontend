@@ -5,13 +5,12 @@ import { updateCampaign } from "../../features/campaigns/campaignApi";
 import Modal from "../modal/Modal";
 import Input from "../form/input/InputField";
 import Label from "../form/Label";
-import Button from "../ui/button/Button";
 import DropzoneComponent from "../form/form-elements/DropZone";
 import { setShowEditModal } from "../../features/campaigns/campaign.slice";
 
 const EditCampaignModal = () => {
     const dispatch = useDispatch<AppDispatch>();
-    const { loading, showEditModal, selectedCampaign } = useSelector((state: RootState) => state.campaigns);
+    const { showEditModal, selectedCampaign } = useSelector((state: RootState) => state.campaigns);
 
     const [formData, setFormData] = useState({
         title: "",
