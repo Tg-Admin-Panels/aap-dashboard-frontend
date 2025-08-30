@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "./features/store";
 import SignIn from "./pages/AuthPages/SignIn";
@@ -31,6 +31,9 @@ import VisionDetails from "./pages/Visions/VisionDetailsPage";
 import CandidateApplications from "./pages/candidate-applications";
 import ApplyForCandidacy from "./pages/candidate-applications/apply";
 import Campaigns from "./pages/campaigns";
+import CreateMember from "./pages/members/CreateMember";
+import UpdateMember from "./pages/members/UpdateMember";
+import DetailMember from "./pages/members/DetailMember";
 
 export default function App() {
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
@@ -95,6 +98,9 @@ export default function App() {
               element={<VolunteerDetailsPage />}
             />
             <Route path="/members/" element={<MemberTable />} />
+            <Route path="/members/create" element={<CreateMember />} />
+            <Route path="/members/update/:id" element={<UpdateMember />} />
+            <Route path="/members/detail/:id" element={<DetailMember />} />
             <Route path="/booth-team" element={<BoothTeamList />} />
             <Route path="/booth-team/add" element={<AddBoothTeamMember />} />
             <Route path="/locations" element={<LocationDropdowns />} />

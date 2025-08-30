@@ -3,29 +3,6 @@ import { checkAuth, loginUser } from "./authApi";
 import { SerializedError } from "@reduxjs/toolkit";
 import Cookies from "js-cookie";
 
-// interface Volunteer {
-//   _id: string;
-//   fullName: string;
-//   dateOfBirth: string;
-//   age: number;
-//   gender: string;
-//   mobileNumber: string;
-//   religion?: string;
-//   profilePicture?: string;
-//   zone: string;
-//   district: string;
-//   block: string;
-//   wardNumber?: string;
-//   boothNumber?: string;
-//   pinCode?: string;
-//   postOffice?: string;
-//   cityName?: string;
-//   streetOrLocality?: string;
-//   panchayat?: string;
-//   villageName?: string;
-//   status: string;
-// }
-
 interface UserData {
   name: string;
   mobileNumber: string;

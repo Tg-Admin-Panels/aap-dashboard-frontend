@@ -6,7 +6,7 @@ import { useSelector } from "react-redux";
 
 export default function UserDropdown() {
   const [isOpen, setIsOpen] = useState(false);
-  const {user} = useSelector((state: RootState) => state.auth)
+  const { user } = useSelector((state: RootState) => state.auth)
   function toggleDropdown() {
     setIsOpen(!isOpen);
   }
@@ -22,16 +22,15 @@ export default function UserDropdown() {
       >
         <span className="mr-3 overflow-hidden rounded-full h-11 w-11 text-xl items-center justify-center flex border-2 border-gray-200 dark:border">
           {/* <img src="/images/user/owner.jpg" alt="User" /> */}
-         { user?.name?.charAt(0)}
+          {user?.name?.charAt(0)}
         </span>
 
         <span className="block mr-1 font-medium text-theme-sm">
           {user?.name}
         </span>
         <svg
-          className={`stroke-gray-500 dark:stroke-gray-400 transition-transform duration-200 ${
-            isOpen ? "rotate-180" : ""
-          }`}
+          className={`stroke-gray-500 dark:stroke-gray-400 transition-transform duration-200 ${isOpen ? "rotate-180" : ""
+            }`}
           width="18"
           height="20"
           viewBox="0 0 18 20"

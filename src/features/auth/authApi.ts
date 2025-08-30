@@ -34,3 +34,14 @@ export const checkAuth = createAsyncThunk(
   }
 )
 
+export const logoutUser = createAsyncThunk(
+  'users/logoutUser',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.post('/users/logout')
+      return response.data
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'An error occurred')
+    }
+  }
+)
