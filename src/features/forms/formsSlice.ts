@@ -1,3 +1,4 @@
+
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import {
     createFormDefinition,
@@ -33,52 +34,96 @@ const formsSlice = createSlice({
         clearError: (state) => {
             state.error = null;
         },
+        clearLoading: (state) => {
+            state.loading = false;
+        },
     },
     extraReducers: (builder) => {
         builder
-            // Handle fulfilled states specifically
+            // createFormDefinition
+            .addCase(createFormDefinition.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
             .addCase(createFormDefinition.fulfilled, (state) => {
                 state.loading = false;
+            })
+            .addCase(createFormDefinition.rejected, (state, action) => {
+                state.loading = false;
+                state.error = String(action.payload);
+            })
+
+            // fetchAllForms
+            .addCase(fetchAllForms.pending, (state) => {
+                state.loading = true;
+                state.error = null;
             })
             .addCase(fetchAllForms.fulfilled, (state, action: PayloadAction<any[]>) => {
                 state.loading = false;
                 state.formsList = action.payload;
             })
+            .addCase(fetchAllForms.rejected, (state, action) => {
+                state.loading = false;
+                state.error = String(action.payload) || 'error in fetching all form';
+            })
+
+            // fetchFormDefinition
+            .addCase(fetchFormDefinition.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
             .addCase(fetchFormDefinition.fulfilled, (state, action: PayloadAction<any>) => {
                 state.loading = false;
                 state.currentFormDefinition = action.payload;
+            })
+            .addCase(fetchFormDefinition.rejected, (state, action) => {
+                state.loading = false;
+                state.error = String(action.payload);
+            })
+
+            // fetchSubmissionsForForm
+            .addCase(fetchSubmissionsForForm.pending, (state) => {
+                state.loading = true;
+                state.error = null;
             })
             .addCase(fetchSubmissionsForForm.fulfilled, (state, action: PayloadAction<any>) => {
                 state.loading = false;
                 state.currentFormDefinition = action.payload.formDefinition;
                 state.submissions = action.payload.submissions;
             })
+            .addCase(fetchSubmissionsForForm.rejected, (state, action) => {
+                state.loading = false;
+                state.error = String(action.payload);
+            })
+
+            // submitFormData
+            .addCase(submitFormData.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
             .addCase(submitFormData.fulfilled, (state) => {
                 state.loading = false;
+            })
+            .addCase(submitFormData.rejected, (state, action) => {
+                state.loading = false;
+                state.error = String(action.payload);
+            })
+
+            // fetchSubmissionDetails
+            .addCase(fetchSubmissionDetails.pending, (state) => {
+                state.loading = true;
+                state.error = null;
             })
             .addCase(fetchSubmissionDetails.fulfilled, (state, action: PayloadAction<any>) => {
                 state.loading = false;
                 state.currentSubmission = action.payload;
             })
-
-            // Handle loading and error states generically using matchers
-            // These must come AFTER all addCase calls
-            .addMatcher(
-                (action) => action.type.endsWith('/pending'),
-                (state) => {
-                    state.loading = true;
-                    state.error = null;
-                }
-            )
-            .addMatcher(
-                (action) => action.type.endsWith('/rejected'),
-                (state, action: PayloadAction<string>) => {
-                    state.loading = false;
-                    state.error = action.payload;
-                }
-            );
+            .addCase(fetchSubmissionDetails.rejected, (state, action) => {
+                state.loading = false;
+                state.error = String(action.payload);
+            });
     },
 });
 
-export const { clearError } = formsSlice.actions;
+export const { clearError, clearLoading } = formsSlice.actions;
 export default formsSlice.reducer;

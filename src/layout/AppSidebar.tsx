@@ -11,6 +11,9 @@ import {
   WingIcon,
   GroupIcon,
   PlusIcon,
+  TaskIcon,
+  ChatIcon,
+  ListIcon,
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
 import { useSelector } from "react-redux";
@@ -83,7 +86,7 @@ const navItems: NavItem[] = [
     role: ["admin"]
   },
   {
-    icon: <PlusIcon />,
+    icon: <TaskIcon />,
     name: "Candidate Applications",
     subItems: [
       { name: "All Applications", path: "/candidate-applications", pro: false },
@@ -91,7 +94,7 @@ const navItems: NavItem[] = [
     role: ["admin"]
   },
   {
-    icon: <PlusIcon />,
+    icon: <ChatIcon />,
     name: "Campaigns",
     subItems: [
       { name: "All Campaigns", path: "/campaigns", pro: false },
@@ -99,7 +102,7 @@ const navItems: NavItem[] = [
     role: ["admin"]
   },
   {
-    icon: <PlusIcon />,
+    icon: <ListIcon />,
     name: "Form Generator",
     subItems: [
       { name: "Create Form", path: "/forms/create", pro: false },

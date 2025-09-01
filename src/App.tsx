@@ -1,3 +1,4 @@
+
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "./features/store";
@@ -34,31 +35,24 @@ import Campaigns from "./pages/campaigns";
 import CreateMember from "./pages/members/CreateMember";
 import UpdateMember from "./pages/members/UpdateMember";
 import DetailMember from "./pages/members/DetailMember";
+import SpinnerOverlay from "./components/ui/SpinnerOverlay";
 import CreateForm from "./pages/Forms/CreateForm";
 import ViewSubmissions from "./pages/Forms/ViewSubmissions";
 import SubmitForm from "./pages/Forms/SubmitForm";
 import SubmissionDetail from "./pages/Forms/SubmissionDetail";
 
 export default function App() {
-  const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
-
+  const { isAuthenticated, status } = useSelector((state: RootState) => state.auth);
   const dispatch = useDispatch<AppDispatch>();
 
-  console.log("isAuthenticated", isAuthenticated);
-
   useEffect(() => {
-    dispatch(checkAuth());
-  }, [dispatch]);
+    if (status === 'idle') {
+      dispatch(checkAuth());
+    }
+  }, [status, dispatch]);
 
-  if (isAuthenticated == null) {
-    return <div className="flex flex-col items-center justify-center h-screen bg-white text-gray-800">
-      <img
-        src="../images/logo/app-logo.png" // Replace with your logo path
-        alt="Logo"
-        className="h-24 mb-4 brightness-0 dark:brightness-100"
-      />
-      <p className="text-lg font-semibold">Loading...</p>
-    </div>
+  if (status === 'loading' || status === 'idle') {
+    return <SpinnerOverlay loading={true} />;
   }
 
   return (
@@ -78,7 +72,6 @@ export default function App() {
       />
       <ScrollToTop />
       <Routes>
-        {/* Prevent authenticated users from accessing SignIn or SignUp */}
         <Route
           path="/signin"
           element={isAuthenticated ? <Navigate to="/" /> : <SignIn />}
@@ -88,7 +81,6 @@ export default function App() {
           element={isAuthenticated ? <Navigate to="/" /> : <SignUp />}
         />
 
-        {/* Protected Routes */}
         <Route element={<ProtectedLayout />}>
           <Route element={<AppLayout />}>
             <Route index path="/" element={<Home />} />
@@ -127,8 +119,6 @@ export default function App() {
           </Route>
         </Route>
 
-
-        {/* Fallback Route */}
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>
