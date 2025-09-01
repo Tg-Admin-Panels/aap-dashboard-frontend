@@ -98,6 +98,15 @@ const navItems: NavItem[] = [
     ],
     role: ["admin"]
   },
+  {
+    icon: <PlusIcon />,
+    name: "Form Generator",
+    subItems: [
+      { name: "Create Form", path: "/forms/create", pro: false },
+      { name: "View Submissions", path: "/forms/view", pro: false },
+    ],
+    role: ["admin"]
+  },
   // {
   //   icon: <CalenderIcon />,
   //   name: "Calendar",

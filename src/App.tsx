@@ -34,6 +34,10 @@ import Campaigns from "./pages/campaigns";
 import CreateMember from "./pages/members/CreateMember";
 import UpdateMember from "./pages/members/UpdateMember";
 import DetailMember from "./pages/members/DetailMember";
+import CreateForm from "./pages/Forms/CreateForm";
+import ViewSubmissions from "./pages/Forms/ViewSubmissions";
+import SubmitForm from "./pages/Forms/SubmitForm";
+import SubmissionDetail from "./pages/Forms/SubmissionDetail";
 
 export default function App() {
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
@@ -114,8 +118,15 @@ export default function App() {
             <Route path="/candidate-applications" element={<CandidateApplications />} />
             <Route path="/candidate-applications/apply" element={<ApplyForCandidacy />} />
             <Route path="/campaigns" element={<Campaigns />} />
+
+            {/* Dynamic Form Routes */}
+            <Route path="/forms/create" element={<CreateForm />} />
+            <Route path="/forms/view" element={<ViewSubmissions />} />
+            <Route path="/forms/submit/:formId" element={<SubmitForm />} />
+            <Route path="/submissions/:submissionId" element={<SubmissionDetail />} />
           </Route>
         </Route>
+
 
         {/* Fallback Route */}
         <Route path="*" element={<NotFound />} />
