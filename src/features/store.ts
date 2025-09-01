@@ -12,6 +12,7 @@ import locationsReducer from "./locations/locations.slice"
 import visionsReducer from "./visions/visions.slice"
 import candidateApplicationReducer from "./candidate-applications/candidateApplication.slice"
 import campaignReducer from "./campaigns/campaign.slice"
+import formsReducer from "./forms/formsSlice"
 
 const store = configureStore({
   reducer: {
@@ -27,6 +28,7 @@ const store = configureStore({
     visions: visionsReducer,
     candidateApplications: candidateApplicationReducer,
     campaigns: campaignReducer,
+    forms: formsReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(authMiddleware),

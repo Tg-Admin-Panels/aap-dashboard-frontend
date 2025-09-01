@@ -1,64 +1,34 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Select from 'react-select';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '../../features/store';
+import { fetchFormDefinition, submitFormData } from '../../features/forms/formsApi';
 import DropzoneComponent from '../../components/form/form-elements/DropZone';
 import Form from '../../components/form/Form';
 import Label from '../../components/form/Label';
 import Input from '../../components/form/input/InputField';
-
-// API functions
-const fetchFormDefinition = async (formId: string) => {
-    const response = await fetch(`http://localhost:8000/api/v1/forms/${formId}`);
-    if (!response.ok) throw new Error('Form not found');
-    return response.json();
-};
-
-const submitFormData = async (formId: string, data: any) => {
-    const response = await fetch(`http://localhost:8000/api/v1/forms/${formId}/submissions`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-    });
-    if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to submit form');
-    }
-    return response.json();
-};
+import SpinnerOverlay from '../../components/ui/SpinnerOverlay';
 
 // Custom styles for react-select
 const customSelectStyles = {
     control: (baseStyles: any) => ({ ...baseStyles, backgroundColor: 'transparent', borderColor: '#d1d5db', minHeight: '44px', boxShadow: 'none', '&:hover': { borderColor: '#9ca3af' } }),
-    singleValue: (baseStyles: any) => ({ ...baseStyles, color: '#1f2937' }),
-    input: (baseStyles: any) => ({ ...baseStyles, color: '#1f2937' }),
-    placeholder: (baseStyles: any) => ({ ...baseStyles, color: '#9ca3af' }),
-    option: (baseStyles: any, state: any) => ({ ...baseStyles, backgroundColor: state.isSelected ? '#3b82f6' : state.isFocused ? '#e0e7ff' : 'white', color: state.isSelected ? 'white' : '#1f2937', '&:active': { backgroundColor: '#2563eb' } }),
+    // Add other styles if needed
 };
 
 const SubmitForm = () => {
     const { formId } = useParams<{ formId: string }>();
     const navigate = useNavigate();
-    const [formDefinition, setFormDefinition] = useState<any>(null);
+    const dispatch = useDispatch<AppDispatch>();
+
+    const { currentFormDefinition, loading, error } = useSelector((state: RootState) => state.forms);
     const [formData, setFormData] = useState<Record<string, any>>({});
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-    const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
-        if (!formId) return;
-        const loadForm = async () => {
-            try {
-                const response = await fetchFormDefinition(formId);
-                setFormDefinition(response.data);
-            } catch (err: any) {
-                setError(err.message);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-        loadForm();
-    }, [formId]);
+        if (formId) {
+            dispatch(fetchFormDefinition(formId));
+        }
+    }, [formId, dispatch]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -75,30 +45,32 @@ const SubmitForm = () => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setIsSubmitting(true);
-        setError(null);
-        try {
-            await submitFormData(formId!, formData);
-            alert('Form submitted successfully!');
-            navigate('/forms/view');
-        } catch (err: any) {
-            setError(err.message);
-        } finally {
-            setIsSubmitting(false);
-        }
+        if (!formId) return;
+
+        dispatch(submitFormData({ formId, data: formData }))
+            .unwrap()
+            .then(() => {
+                alert('Form submitted successfully!');
+                navigate('/forms/view');
+            })
+            .catch((err) => {
+                console.error("Failed to submit form: ", err);
+                alert(`Error: ${err}`); // Show error alert
+            });
     };
 
     const isImageUrl = (url: string) => url && url.match(/\.(jpeg|jpg|gif|png|webp)$/) != null;
 
-    if (isLoading) return <div className="p-6">Loading form...</div>;
+    if (loading && !currentFormDefinition) return <SpinnerOverlay loading={true} />;
     if (error) return <div className="p-6 text-red-500 bg-red-100 rounded-lg">Error: {error}</div>;
 
     return (
         <div className="p-6 rounded-lg shadow bg-white dark:bg-gray-900">
-            {formDefinition && (
+            <SpinnerOverlay loading={loading} />
+            {currentFormDefinition && (
                 <Form onSubmit={handleSubmit}>
-                    <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-6">{formDefinition.formName}</h2>
-                    {formDefinition.fields.map((field: any) => (
+                    <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-6">{currentFormDefinition.formName}</h2>
+                    {currentFormDefinition.fields.map((field: any) => (
                         <div key={field.name} className="mb-4">
                             <Label htmlFor={field.name}>{field.label}{field.required && <span className="text-red-500">*</span>}</Label>
                             {(() => {
@@ -130,8 +102,8 @@ const SubmitForm = () => {
                             })()}
                         </div>
                     ))}
-                    <button type="submit" disabled={isSubmitting} className="px-4 py-2 text-sm font-medium text-white bg-brand-500 rounded-md hover:bg-brand-600 disabled:bg-gray-400">
-                        {isSubmitting ? 'Submitting...' : 'Submit'}
+                    <button type="submit" disabled={loading} className="px-4 py-2 text-sm font-medium text-white bg-brand-500 rounded-md hover:bg-brand-600 disabled:bg-gray-400">
+                        {loading ? 'Submitting...' : 'Submit'}
                     </button>
                 </Form>
             )}
