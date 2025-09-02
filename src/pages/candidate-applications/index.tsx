@@ -96,7 +96,7 @@ const CandidateApplications = () => {
 
     return (
         <div>
-            <PageBreadcrumb pageTitle="Candidate Applications" />
+
 
             <div className="bg-white rounded-xl shadow-sm border border-gray-100">
                 {/* Card header */}

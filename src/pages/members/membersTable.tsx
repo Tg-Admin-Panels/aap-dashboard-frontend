@@ -54,14 +54,8 @@ export default function MemberTable() {
   return (
     <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
       <SpinnerOverlay loading={loading} />
-      <div className="flex justify-between items-center p-4">
-        <SearchBar
-          onSearch={(query) => {
-            if (user?.role === "admin") dispatch(getAllMembers(query));
-            else if (user?.role === "volunteer" && user.volunteer)
-              dispatch(getMembersByVolunteer({ volunteerId: user.volunteer, search: query }));
-          }}
-        />
+      <div className="flex justify-end items-center p-4">
+
         {(user?.role === "admin" || user?.role === "volunteer") && (
           <Link to="/members/create">
             <button className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">

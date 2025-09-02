@@ -2,39 +2,42 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
 import {
     Campaign,
-    Comment,
+    FeedbackForm,
     createCampaign,
     getAllCampaigns,
     getCampaignById,
     updateCampaign,
     deleteCampaign,
-    addComment,
-    getComments,
-    deleteComment,
+    addFeedbackForm,
+    getFeedbackForms,
+    deleteFeedbackForm,
+    getFeedbackFormById,
 } from "./campaignApi";
 
 interface CampaignState {
     campaigns: Campaign[];
     selectedCampaign: Campaign | null;
-    comments: Comment[];
+    feedbackForms: FeedbackForm[];
+    selectedFeedbackForm: FeedbackForm | null; // New state for single feedback form
     loading: boolean;
     error: string | null;
     showCreateModal: boolean;
     showEditModal: boolean;
     showStatusModal: boolean;
-    showCommentsModal: boolean;
+    showFeedbackFormModal: boolean;
 }
 
 const initialState: CampaignState = {
     campaigns: [],
     selectedCampaign: null,
-    comments: [],
+    feedbackForms: [],
+    selectedFeedbackForm: null, // Initialize new state
     loading: false,
     error: null,
     showCreateModal: false,
     showEditModal: false,
     showStatusModal: false,
-    showCommentsModal: false,
+    showFeedbackFormModal: false,
 };
 
 const campaignSlice = createSlice({
@@ -56,8 +59,8 @@ const campaignSlice = createSlice({
         setShowStatusModal: (state, action: PayloadAction<boolean>) => {
             state.showStatusModal = action.payload;
         },
-        setShowCommentsModal: (state, action: PayloadAction<boolean>) => {
-            state.showCommentsModal = action.payload;
+        setShowFeedbackFormModal: (state, action: PayloadAction<boolean>) => {
+            state.showFeedbackFormModal = action.payload;
         },
     },
     extraReducers: (builder) => {
@@ -145,48 +148,65 @@ const campaignSlice = createSlice({
                 toast.error(state.error);
             })
 
-            // Add Comment
-            .addCase(addComment.pending, (state) => {
+            // Add Feedback Form
+            .addCase(addFeedbackForm.pending, (state) => {
                 state.loading = true;
                 state.error = null;
             })
-            .addCase(addComment.fulfilled, (state, action) => {
+            .addCase(addFeedbackForm.fulfilled, (state, action) => {
                 state.loading = false;
-                state.comments.push(action.payload.data);
-                toast.success("Comment added successfully");
+                state.feedbackForms.push(action.payload.data);
+                toast.success("Feedback form added successfully");
             })
-            .addCase(addComment.rejected, (state, action) => {
+            .addCase(addFeedbackForm.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.payload as string;
                 toast.error(state.error);
             })
 
-            // Get Comments
-            .addCase(getComments.pending, (state) => {
+            // Get Feedback Forms
+            .addCase(getFeedbackForms.pending, (state) => {
                 state.loading = true;
                 state.error = null;
             })
-            .addCase(getComments.fulfilled, (state, action) => {
+            .addCase(getFeedbackForms.fulfilled, (state, action) => {
                 state.loading = false;
-                state.comments = action.payload.data;
+                state.feedbackForms = action.payload.data;
             })
-            .addCase(getComments.rejected, (state, action) => {
+            .addCase(getFeedbackForms.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.payload as string;
                 toast.error(state.error);
             })
 
-            // Delete Comment
-            .addCase(deleteComment.pending, (state) => {
+            // Get Single Feedback Form by ID
+            .addCase(getFeedbackFormById.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+                state.selectedFeedbackForm = null; // Clear previous selection
+            })
+            .addCase(getFeedbackFormById.fulfilled, (state, action) => {
+                state.loading = false;
+                state.selectedFeedbackForm = action.payload.data;
+            })
+            .addCase(getFeedbackFormById.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload as string;
+                state.selectedFeedbackForm = null;
+                toast.error(state.error);
+            })
+
+            // Delete Feedback Form
+            .addCase(deleteFeedbackForm.pending, (state) => {
                 state.loading = true;
                 state.error = null;
             })
-            .addCase(deleteComment.fulfilled, (state, action) => {
+            .addCase(deleteFeedbackForm.fulfilled, (state, action) => {
                 state.loading = false;
-                state.comments = state.comments.filter(comment => comment._id !== action.payload);
-                toast.success("Comment deleted successfully");
+                state.feedbackForms = state.feedbackForms.filter(form => form._id !== action.payload);
+                toast.success("Feedback form deleted successfully");
             })
-            .addCase(deleteComment.rejected, (state, action) => {
+            .addCase(deleteFeedbackForm.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.payload as string;
                 toast.error(state.error);
@@ -199,7 +219,8 @@ export const {
     setErrorToNull,
     setShowCreateModal,
     setShowEditModal,
-    setShowCommentsModal,
+    setShowStatusModal,
+    setShowFeedbackFormModal,
 } = campaignSlice.actions;
 
 export default campaignSlice.reducer;

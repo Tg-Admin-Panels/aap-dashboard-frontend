@@ -51,7 +51,7 @@ export default function VolunteerTable() {
   return (
     <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
       <SpinnerOverlay loading={loading} />
-      <SearchBar onSearch={(query: string) => dispatch(getAllVolunteers(query))} />
+      {/* <SearchBar onSearch={(query: string) => dispatch(getAllVolunteers(query))} /> */}
 
       <div className="max-w-full overflow-x-auto">
         <table className="w-full text-left border-collapse">

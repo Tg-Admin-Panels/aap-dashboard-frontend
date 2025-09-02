@@ -5,7 +5,7 @@ import {
     setSelectedCampaign,
     setShowCreateModal,
     setShowEditModal,
-    setShowCommentsModal,
+    // setShowFeedbackFormModal, // Removed
 } from "../../features/campaigns/campaign.slice";
 import { Campaign, getAllCampaigns } from "../../features/campaigns/campaignApi";
 
@@ -16,7 +16,8 @@ import { FaEye, } from "react-icons/fa";
 import Button from "../../components/ui/button/Button";
 import CreateCampaignModal from "../../components/campaigns/CreateCampaignModal";
 import EditCampaignModal from "../../components/campaigns/EditCampaignModal";
-import ViewCampaignCommentsModal from "../../components/campaigns/ViewCampaignCommentsModal";
+// import ViewCampaignFeedbackFormsModal from "../../components/campaigns/ViewCampaignFeedbackFormsModal"; // Removed
+import { useNavigate } from "react-router-dom"; // New import
 
 
 const SkeletonRow = () => (
@@ -45,6 +46,7 @@ const EmptyState = () => (
 
 const Campaigns = () => {
     const dispatch = useDispatch<AppDispatch>();
+    const navigate = useNavigate(); // New
     const { campaigns, loading } = useSelector((s: RootState) => s.campaigns);
 
 
@@ -59,9 +61,8 @@ const Campaigns = () => {
         dispatch(setShowEditModal(true));
     };
 
-    const handleViewCommentsClick = (campaign: Campaign) => {
-        dispatch(setSelectedCampaign(campaign));
-        dispatch(setShowCommentsModal(true));
+    const handleViewFeedbackFormsClick = (campaign: Campaign) => { // Modified
+        navigate(`/campaigns/${campaign._id}/feedback-forms`);
     };
 
     const filtered = useMemo(() => {
@@ -76,7 +77,7 @@ const Campaigns = () => {
 
     return (
         <div>
-            <PageBreadcrumb pageTitle="Campaigns" />
+
 
             <div className="bg-white rounded-xl shadow-sm border border-gray-100">
                 {/* Card header */}
@@ -136,9 +137,9 @@ const Campaigns = () => {
                                             <div className="flex justify-center gap-2">
                                                 <button
                                                     className="inline-flex items-center gap-1.5 rounded-md border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50"
-                                                    onClick={() => handleViewCommentsClick(campaign)}
+                                                    onClick={() => handleViewFeedbackFormsClick(campaign)}
                                                 >
-                                                    <FaEye className="w-4 h-4" /> Comments
+                                                    <FaEye className="w-4 h-4" /> Feedback Forms
                                                 </button>
                                                 <button
                                                     className="inline-flex items-center gap-1.5 rounded-md border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50"
@@ -157,7 +158,7 @@ const Campaigns = () => {
             {/* Modals will be rendered here */}
             <CreateCampaignModal />
             <EditCampaignModal />
-            <ViewCampaignCommentsModal />
+            {/* <ViewCampaignFeedbackFormsModal /> Removed */}
         </div>
     );
 };

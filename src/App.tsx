@@ -1,4 +1,3 @@
-
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "./features/store";
@@ -36,6 +35,8 @@ import CreateMember from "./pages/members/CreateMember";
 import UpdateMember from "./pages/members/UpdateMember";
 import DetailMember from "./pages/members/DetailMember";
 import SpinnerOverlay from "./components/ui/SpinnerOverlay";
+import FeedbackList from "./pages/campaigns/FeedbackList"; // New import
+import FeedbackDetail from "./pages/campaigns/FeedbackDetail"; // New import
 import CreateForm from "./pages/Forms/CreateForm";
 import ViewSubmissions from "./pages/Forms/ViewSubmissions";
 import SubmitForm from "./pages/Forms/SubmitForm";
@@ -110,6 +111,10 @@ export default function App() {
             <Route path="/candidate-applications" element={<CandidateApplications />} />
             <Route path="/candidate-applications/apply" element={<ApplyForCandidacy />} />
             <Route path="/campaigns" element={<Campaigns />} />
+
+            {/* Feedback Form Routes */}
+            <Route path="/campaigns/:campaignId/feedback-forms" element={<FeedbackList />} />
+            <Route path="/campaigns/:campaignId/feedback-forms/:feedbackFormId" element={<FeedbackDetail />} />
 
             {/* Dynamic Form Routes */}
             <Route path="/forms/create" element={<CreateForm />} />

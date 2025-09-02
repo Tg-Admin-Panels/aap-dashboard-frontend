@@ -6,6 +6,7 @@ interface User {
   username: string;
   email: string;
   role: string;
+  volunteer: string
 }
 
 interface AuthState {
@@ -47,7 +48,7 @@ const userSlice = createSlice({
         state.loading = true;
       })
       .addCase(loginUser.fulfilled, (state, action) => {
-        state.user = action.payload.user;
+        state.user = action.payload.data;
         state.isAuthenticated = true;
         state.loading = false;
       })
