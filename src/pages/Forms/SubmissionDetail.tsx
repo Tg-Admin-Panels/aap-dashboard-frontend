@@ -133,7 +133,7 @@ const SubmissionDetail = () => {
 
     return (
         <div className="p-6 rounded-lg shadow bg-white dark:bg-gray-900">
-            <div className="bg-white dark:bg-gray-900 p-8 rounded-lg shadow-xl">
+            <div className="bg-white dark:bg-gray-900 p-8 rounded-lg">
                 <h1 className="text-3xl font-bold mb-2 text-gray-900 dark:text-white">
                     {currentSubmission.formId.formName}
                 </h1>

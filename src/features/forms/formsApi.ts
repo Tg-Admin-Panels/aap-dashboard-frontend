@@ -78,3 +78,16 @@ export const fetchSubmissionDetails = createAsyncThunk(
         }
     }
 );
+
+// Thunk to delete a form definition by ID
+export const deleteForm = createAsyncThunk(
+    'forms/delete',
+    async ({ formId, keepSubmissions }: { formId: string, keepSubmissions: boolean }, { rejectWithValue }) => {
+        try {
+            await axiosInstance.delete(`/api/v1/forms/${formId}?keepSubmissions=${keepSubmissions}`);
+            return formId;
+        } catch (error: any) {
+            return rejectWithValue(error.response?.data?.message || error.message);
+        }
+    }
+);

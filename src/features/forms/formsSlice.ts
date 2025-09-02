@@ -1,12 +1,14 @@
 
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+
 import {
     createFormDefinition,
     fetchAllForms,
     fetchFormDefinition,
     fetchSubmissionsForForm,
     submitFormData,
-    fetchSubmissionDetails
+    fetchSubmissionDetails,
+    deleteForm
 } from './formsApi';
 
 interface FormsState {
@@ -119,6 +121,19 @@ const formsSlice = createSlice({
                 state.currentSubmission = action.payload;
             })
             .addCase(fetchSubmissionDetails.rejected, (state, action) => {
+                state.loading = false;
+                state.error = String(action.payload);
+            })
+            // deleteForm
+            .addCase(deleteForm.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(deleteForm.fulfilled, (state, action: PayloadAction<any>) => {
+                state.loading = false;
+                state.formsList = state.formsList.filter(form => form._id !== action.payload);
+            })
+            .addCase(deleteForm.rejected, (state, action) => {
                 state.loading = false;
                 state.error = String(action.payload);
             });

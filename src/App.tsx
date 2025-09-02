@@ -41,6 +41,7 @@ import CreateForm from "./pages/Forms/CreateForm";
 import ViewSubmissions from "./pages/Forms/ViewSubmissions";
 import SubmitForm from "./pages/Forms/SubmitForm";
 import SubmissionDetail from "./pages/Forms/SubmissionDetail";
+import ViewForm from "./pages/Forms/ViewForm";
 
 export default function App() {
   const { isAuthenticated, status } = useSelector((state: RootState) => state.auth);
@@ -118,7 +119,8 @@ export default function App() {
 
             {/* Dynamic Form Routes */}
             <Route path="/forms/create" element={<CreateForm />} />
-            <Route path="/forms/view" element={<ViewSubmissions />} />
+            <Route path="/forms/list" element={<ViewForm />} />
+            <Route path="/forms/submissions" element={<ViewSubmissions />} />
             <Route path="/forms/submit/:formId" element={<SubmitForm />} />
             <Route path="/submissions/:submissionId" element={<SubmissionDetail />} />
           </Route>

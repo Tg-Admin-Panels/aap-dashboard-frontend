@@ -113,7 +113,8 @@ const navItems: NavItem[] = [
     name: "Data Fill",
     subItems: [
       { name: "Create Form", path: "/forms/create", pro: false, role: ["admin",] },
-      { name: "View Submissions", path: "/forms/view", pro: false, role: ["admin", "volunteer"] },
+      { name: "All Forms", path: "/forms/list", pro: false, role: ["admin"] },
+      { name: "View Submissions", path: "/forms/submissions", pro: false, role: ["admin", "volunteer"] },
     ],
     role: ["admin", "volunteer"],
   },

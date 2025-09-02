@@ -92,12 +92,12 @@ const CreateForm = () => {
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
         const formattedFields = fields.map(field => ({ ...field, options: field.type === 'select' ? field.options.filter(opt => opt.trim() !== '') : undefined }));
-        
+
         dispatch(createFormDefinition({ formName, fields: formattedFields }))
             .unwrap()
             .then(() => {
                 alert('Form created successfully!');
-                navigate('/forms/view');
+                navigate('/forms/submissions');
             })
             .catch((err) => {
                 // Error is already handled by the slice, but you can add component-specific error logic here if needed

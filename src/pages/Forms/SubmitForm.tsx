@@ -51,7 +51,7 @@ const SubmitForm = () => {
             .unwrap()
             .then(() => {
                 alert('Form submitted successfully!');
-                navigate('/forms/view');
+                navigate('/forms/submissions');
             })
             .catch((err) => {
                 console.error("Failed to submit form: ", err);
