@@ -1,10 +1,12 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { checkAuth, loginUser, logoutUser } from "./authApi";
+import Cookies from "js-cookie";
 
 interface User {
   _id: string;
-  username: string;
+  name: string;
   email: string;
+  mobileNumber: string;
   role: string;
   volunteer: string
 }
@@ -35,6 +37,8 @@ const userSlice = createSlice({
       state.user = null;
       state.isAuthenticated = false;
       state.status = 'idle';
+      console.log("logout ----- ")
+      Cookies.remove('token')
     },
     clearUser: (state) => {
       state.user = null;
@@ -51,6 +55,7 @@ const userSlice = createSlice({
         state.user = action.payload.data;
         state.isAuthenticated = true;
         state.loading = false;
+        Cookies.set('token', action.payload.data.token)
       })
       .addCase(loginUser.rejected, (state) => {
         state.user = null;
