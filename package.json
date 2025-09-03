@@ -38,6 +38,7 @@
     "js-cookie": "^3.0.5",
     "jspdf": "^3.0.1",
     "jspdf-autotable": "^5.0.2",
+    "papaparse": "^5.5.3",
     "react": "^18.3.1",
     "react-apexcharts": "^1.7.0",
     "react-dnd": "^16.0.1",
@@ -56,11 +57,13 @@
     "swiper": "^11.2.3",
     "tailwind-merge": "^3.0.1",
     "uninstall": "^0.0.0",
+    "xlsx": "^0.18.5",
     "yup": "^1.6.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.19.0",
     "@tailwindcss/postcss": "^4.0.8",
+    "@types/papaparse": "^5.3.16",
     "@types/react": "^19.0.8",
     "@types/react-dom": "^19.0.3",
     "@types/react-flatpickr": "^3.8.11",

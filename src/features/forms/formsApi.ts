@@ -43,9 +43,9 @@ export const fetchFormDefinition = createAsyncThunk(
 // Thunk to fetch all submissions for a specific form
 export const fetchSubmissionsForForm = createAsyncThunk(
     'forms/fetchSubmissions',
-    async (formId: string, { rejectWithValue }) => {
+    async ({ formId, page = 1, limit = 10 }: { formId: string, page?: number, limit?: number }, { rejectWithValue }) => {
         try {
-            const response = await axiosInstance.get(`/api/v1/forms/${formId}/submissions`);
+            const response = await axiosInstance.get(`/api/v1/forms/${formId}/submissions?page=${page}&limit=${limit}`);
             return response.data.data;
         } catch (error: any) {
             return rejectWithValue(error.response?.data?.message || error.message);
@@ -86,6 +86,32 @@ export const deleteForm = createAsyncThunk(
         try {
             await axiosInstance.delete(`/api/v1/forms/${formId}?keepSubmissions=${keepSubmissions}`);
             return formId;
+        } catch (error: any) {
+            return rejectWithValue(error.response?.data?.message || error.message);
+        }
+    }
+);
+
+// Thunk to upload submissions from a CSV file
+export const uploadSubmissionsFromCSV = createAsyncThunk(
+    'forms/uploadCSV',
+    async ({ formId, submissions }: { formId: string, submissions: any[] }, { rejectWithValue }) => {
+        try {
+            const response = await axiosInstance.post(`/api/v1/forms/${formId}/submissions/bulk`, { submissions });
+            return response.data.data;
+        } catch (error: any) {
+            return rejectWithValue(error.response?.data?.message || error.message);
+        }
+    }
+);
+
+// Thunk to delete a submission by ID
+export const deleteSubmission = createAsyncThunk(
+    'forms/deleteSubmission',
+    async (submissionId: string, { rejectWithValue }) => {
+        try {
+            await axiosInstance.delete(`/api/v1/forms/submissions/${submissionId}`);
+            return submissionId;
         } catch (error: any) {
             return rejectWithValue(error.response?.data?.message || error.message);
         }

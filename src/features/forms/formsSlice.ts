@@ -1,4 +1,3 @@
-
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 import {
@@ -8,13 +7,16 @@ import {
     fetchSubmissionsForForm,
     submitFormData,
     fetchSubmissionDetails,
-    deleteForm
+    deleteForm,
+    uploadSubmissionsFromCSV,
+    deleteSubmission
 } from './formsApi';
 
 interface FormsState {
     formsList: any[];
     currentFormDefinition: any | null;
     submissions: any[];
+    pagination: any | null;
     currentSubmission: any | null;
     loading: boolean;
     error: string | null;
@@ -24,6 +26,7 @@ const initialState: FormsState = {
     formsList: [],
     currentFormDefinition: null,
     submissions: [],
+    pagination: null,
     currentSubmission: null,
     loading: false,
     error: null,
@@ -92,6 +95,7 @@ const formsSlice = createSlice({
                 state.loading = false;
                 state.currentFormDefinition = action.payload.formDefinition;
                 state.submissions = action.payload.submissions;
+                state.pagination = action.payload.pagination;
             })
             .addCase(fetchSubmissionsForForm.rejected, (state, action) => {
                 state.loading = false;
@@ -134,6 +138,31 @@ const formsSlice = createSlice({
                 state.formsList = state.formsList.filter(form => form._id !== action.payload);
             })
             .addCase(deleteForm.rejected, (state, action) => {
+                state.loading = false;
+                state.error = String(action.payload);
+            })
+            // uploadSubmissionsFromCSV
+            .addCase(uploadSubmissionsFromCSV.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(uploadSubmissionsFromCSV.fulfilled, (state) => {
+                state.loading = false;
+            })
+            .addCase(uploadSubmissionsFromCSV.rejected, (state, action) => {
+                state.loading = false;
+                state.error = String(action.payload);
+            })
+            // deleteSubmission
+            .addCase(deleteSubmission.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(deleteSubmission.fulfilled, (state, action: PayloadAction<string>) => {
+                state.loading = false;
+                state.submissions = state.submissions.filter(sub => sub._id !== action.payload);
+            })
+            .addCase(deleteSubmission.rejected, (state, action) => {
                 state.loading = false;
                 state.error = String(action.payload);
             });
