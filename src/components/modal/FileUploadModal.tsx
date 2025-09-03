@@ -82,34 +82,57 @@ const FileUploadModal: React.FC<FileUploadModalProps> = ({ isOpen, onClose, onUp
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center">
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg w-full max-w-lg">
-                {/* <SpinnerOverlay loading={loading && uploadProgress < 100} /> */}
-                <h2 className="text-xl font-semibold mb-4">Upload File</h2>
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-80 flex justify-center items-center">
+            <div className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-2xl w-full max-w-lg relative transform transition-all sm:align-middle sm:max-w-lg sm:w-full">
+                <div className="flex justify-between items-center mb-4">
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Upload File</h2>
+                    <button
+                        onClick={onClose}
+                        className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors duration-200"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
 
-                <div {...getRootProps()} className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer ${isDragActive ? 'border-blue-500' : 'border-gray-300'}`}>
+                <div {...getRootProps()} className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors duration-200 ${isDragActive ? 'border-blue-500 bg-blue-50 dark:bg-blue-900' : 'border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700'}`}>
                     <input {...getInputProps()} />
-                    {file ? (
-                        <p>{file.name}</p>
-                    ) : (
-                        isDragActive ?
-                            <p>Drop the files here ...</p> :
-                            <p>Drag 'n' drop a file here, or click to select one</p>
-                    )}
+                    <div className="text-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v6" />
+                        </svg>
+                        {file ? (
+                            <p className="mt-2 text-sm text-gray-900 dark:text-gray-200">Selected file: <span className="font-medium">{file.name}</span></p>
+                        ) : (
+                            isDragActive ?
+                                <p className="mt-2 text-sm text-blue-700 dark:text-blue-300">Drop the files here ...</p> :
+                                <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">Drag 'n' drop a file here, or click to select one</p>
+                        )}
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">(CSV or XLSX files only)</p>
+                    </div>
                 </div>
 
                 {uploadProgress > 0 && (
-                    <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700 mt-4">
-                        <div className="bg-blue-600 h-2.5 rounded-full" style={{ width: `${uploadProgress}%` }}></div>
+                    <div className="mt-4">
+                        <div className="flex justify-between mb-1">
+                            <span className="text-base font-medium text-blue-700 dark:text-white">Uploading...</span>
+                            <span className="text-sm font-medium text-blue-700 dark:text-white">{uploadProgress}%</span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                            <div className="bg-blue-600 h-2.5 rounded-full transition-all duration-500 ease-out" style={{ width: `${uploadProgress}%` }}></div>
+                        </div>
                     </div>
                 )}
 
-                {error && <p className="text-red-500 mt-4">{error}</p>}
+                {error && <p className="text-red-500 text-sm mt-4 p-2 bg-red-100 dark:bg-red-900 rounded-md border border-red-300 dark:border-red-700">Error: {error}</p>}
 
-                <div className="mt-6 flex justify-end gap-4">
-                    <button onClick={onClose} className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300">Cancel</button>
-                    <button onClick={handleSubmit} className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600" disabled={!file || loading}>
-                        {loading ? `Uploading... ${uploadProgress}%` : 'Submit'}
+                <div className="mt-6 flex justify-end gap-3">
+                    <button onClick={onClose} className="px-5 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 transition duration-200 ease-in-out">
+                        Cancel
+                    </button>
+                    <button onClick={handleSubmit} className="px-5 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition duration-200 ease-in-out" disabled={!file || loading}>
+                        {loading ? `Uploading... ${uploadProgress}%` : 'Upload'}
                     </button>
                 </div>
             </div>
