@@ -45,6 +45,10 @@ const FileUploadModal: React.FC<FileUploadModalProps> = ({ isOpen, onClose, onUp
             const data = JSON.parse(event.data);
             console.log("SSE Message:", data);
             if (data.status === "processing") {
+                const perc = file && file.size > 0
+                    ? Math.min(100, Math.max(0, (data.processedBytes / file.size) * 100))
+                    : 0;
+                setUploadProgress(perc)
                 setProcessedRows(data.processedRows);
                 // For now, progress is based on processed rows.
                 // If total rows were known, we could calculate a percentage.
@@ -91,8 +95,6 @@ const FileUploadModal: React.FC<FileUploadModalProps> = ({ isOpen, onClose, onUp
                             });
 
                             chunkIndex++;
-                            // Update upload progress based on chunks sent (initial upload progress)
-                            setUploadProgress(Math.round((chunkIndex / totalChunks) * 50)); // First 50% for upload
                             resolve();
                         } catch (err: any) {
                             setError(err.response?.data?.message || "Chunk upload failed.");
@@ -109,7 +111,7 @@ const FileUploadModal: React.FC<FileUploadModalProps> = ({ isOpen, onClose, onUp
             await axiosInstance.post(`/api/v1/forms/${formId}/submissions/upload-complete`, {
                 originalname: fileToUpload.name,
             });
-            setUploadProgress(50); // Indicate upload is done, now waiting for processing
+
 
         } catch (uploadErr: any) {
             setError(uploadErr.response?.data?.message || "File upload failed.");
