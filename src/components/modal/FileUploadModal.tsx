@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from '../../features/store';
@@ -19,6 +19,8 @@ const FileUploadModal: React.FC<FileUploadModalProps> = ({ isOpen, onClose, onUp
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [uploadProgress, setUploadProgress] = useState(0);
+    const [processedRows, setProcessedRows] = useState(0);
+    const [eventSource, setEventSource] = useState<EventSource | null>(null);
 
     const onDrop = useCallback((acceptedFiles: File[]) => {
         if (acceptedFiles.length > 0) {
@@ -31,42 +33,94 @@ const FileUploadModal: React.FC<FileUploadModalProps> = ({ isOpen, onClose, onUp
 
     const uploadFileInChunks = async (fileToUpload: File) => {
         setLoading(true);
+        setError(null);
+        setUploadProgress(0);
+        setProcessedRows(0);
+
+        // 1. Establish SSE connection
+        const es = new EventSource(`${import.meta.env.VITE_BASE_URL}/api/v1/forms/${formId}/submissions/events`);
+        setEventSource(es);
+
+        es.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            console.log("SSE Message:", data);
+            if (data.status === "processing") {
+                setProcessedRows(data.processedRows);
+                // For now, progress is based on processed rows.
+                // If total rows were known, we could calculate a percentage.
+                // Since total is unknown, we'll just show processed count.
+                // We can set a dummy progress or infer from processedRows later.
+                // For now, let's just update processedRows and let the UI handle it.
+            } else if (data.status === "completed") {
+                setProcessedRows(data.processedRows);
+                setUploadProgress(100); // Set to 100% on completion
+                es.close();
+                setEventSource(null);
+                onUploadSuccess(); // Call success callback
+            }
+        };
+
+        es.onerror = (err) => {
+            console.error("SSE Error:", err);
+            setError("SSE connection error. Progress updates may be unavailable.");
+            es.close();
+            setEventSource(null);
+        };
+
         const chunkSize = 1024 * 1024; // 1MB chunks
         const totalChunks = Math.ceil(fileToUpload.size / chunkSize);
         let chunkIndex = 0;
-        console.log(fileToUpload.size)
+        console.log(`File size: ${fileToUpload.size} bytes, Total chunks: ${totalChunks}`);
 
-        for (let i = 0; i < fileToUpload.size; i += chunkSize) {
-            const chunk = fileToUpload.slice(i, i + chunkSize);
-            const reader = new FileReader();
+        try {
+            for (let i = 0; i < fileToUpload.size; i += chunkSize) {
+                const chunk = fileToUpload.slice(i, i + chunkSize);
+                const reader = new FileReader();
 
-            const chunkPromise = new Promise<void>((resolve, reject) => {
-                reader.onload = async (e) => {
-                    try {
-                        const base64Chunk = (e.target?.result as string).split(',')[1];
-                        const isLastChunk = (chunkIndex + 1) === totalChunks;
+                const chunkPromise = new Promise<void>((resolve, reject) => {
+                    reader.onload = async (e) => {
+                        try {
+                            const base64Chunk = (e.target?.result as string).split(',')[1];
+                            const isLastChunk = (chunkIndex + 1) === totalChunks;
 
-                        await axiosInstance.post(`/api/v1/forms/${formId}/submissions/upload-chunk`, {
-                            chunk: base64Chunk,
-                            isLastChunk: isLastChunk.toString(),
-                            originalname: fileToUpload.name,
-                        });
+                            console.log(`Sending chunk ${chunkIndex + 1}/${totalChunks}, isLastChunk: ${isLastChunk}`);
+                            await axiosInstance.post(`/api/v1/forms/${formId}/submissions/upload-chunk`, {
+                                chunk: base64Chunk,
+                                isLastChunk: isLastChunk.toString(),
+                                originalname: fileToUpload.name,
+                            });
 
-                        chunkIndex++;
-                        setUploadProgress(Math.round((chunkIndex / totalChunks) * 100));
-                        resolve();
-                    } catch (err: any) {
-                        setError(err.response?.data?.message || "Chunk upload failed.");
-                        reject(err);
-                    }
-                };
-                reader.readAsDataURL(chunk);
+                            chunkIndex++;
+                            // Update upload progress based on chunks sent (initial upload progress)
+                            setUploadProgress(Math.round((chunkIndex / totalChunks) * 50)); // First 50% for upload
+                            resolve();
+                        } catch (err: any) {
+                            setError(err.response?.data?.message || "Chunk upload failed.");
+                            reject(err);
+                        }
+                    };
+                    reader.readAsDataURL(chunk);
+                });
+                await chunkPromise;
+            }
+
+            // 2. Call /upload-complete after all chunks are sent
+            console.log("All chunks sent. Calling /upload-complete.");
+            await axiosInstance.post(`/api/v1/forms/${formId}/submissions/upload-complete`, {
+                originalname: fileToUpload.name,
             });
-            await chunkPromise;
-        }
+            setUploadProgress(50); // Indicate upload is done, now waiting for processing
 
-        setLoading(false);
-        onUploadSuccess();
+        } catch (uploadErr: any) {
+            setError(uploadErr.response?.data?.message || "File upload failed.");
+            if (es) {
+                es.close();
+                setEventSource(null);
+            }
+        } finally {
+            setLoading(false);
+            // onUploadSuccess() is now called by SSE "completed" event
+        }
     };
 
     const handleSubmit = async () => {
@@ -78,6 +132,14 @@ const FileUploadModal: React.FC<FileUploadModalProps> = ({ isOpen, onClose, onUp
     };
 
     const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
+
+    useEffect(() => {
+        if (!isOpen && eventSource) {
+            console.log("Modal closed, closing SSE connection.");
+            eventSource.close();
+            setEventSource(null);
+        }
+    }, [isOpen, eventSource]);
 
     if (!isOpen) return null;
 
@@ -113,11 +175,16 @@ const FileUploadModal: React.FC<FileUploadModalProps> = ({ isOpen, onClose, onUp
                     </div>
                 </div>
 
-                {uploadProgress > 0 && (
+                {(uploadProgress > 0 || processedRows > 0) && (
                     <div className="mt-4">
                         <div className="flex justify-between mb-1">
-                            <span className="text-base font-medium text-blue-700 dark:text-white">Uploading...</span>
-                            <span className="text-sm font-medium text-blue-700 dark:text-white">{uploadProgress}%</span>
+                            <span className="text-base font-medium text-blue-700 dark:text-white">
+                                {uploadProgress < 100 ? `Uploading & Processing...` : `Completed!`}
+                            </span>
+                            <span className="text-sm font-medium text-blue-700 dark:text-white">
+                                {uploadProgress < 100 ? `${uploadProgress}%` : `100%`}
+                                {processedRows > 0 && ` (${processedRows} rows processed)`}
+                            </span>
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
                             <div className="bg-blue-600 h-2.5 rounded-full transition-all duration-500 ease-out" style={{ width: `${uploadProgress}%` }}></div>
