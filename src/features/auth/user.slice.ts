@@ -33,13 +33,7 @@ const userSlice = createSlice({
       state.user = action.payload;
       state.isAuthenticated = !!action.payload;
     },
-    logout: (state) => {
-      state.user = null;
-      state.isAuthenticated = false;
-      state.status = 'idle';
-      console.log("logout ----- ")
-      Cookies.remove('token')
-    },
+
     clearUser: (state) => {
       state.user = null;
       state.isAuthenticated = false;
@@ -55,7 +49,11 @@ const userSlice = createSlice({
         state.user = action.payload.data;
         state.isAuthenticated = true;
         state.loading = false;
-        Cookies.set('token', action.payload.data.token)
+        Cookies.set('token', action.payload.data.token, {
+          path: '/',
+          sameSite: 'Lax',
+          // secure: window.location.protocol === 'https:',
+        });
       })
       .addCase(loginUser.rejected, (state) => {
         state.user = null;
@@ -66,7 +64,7 @@ const userSlice = createSlice({
         state.user = null;
         state.isAuthenticated = false;
         state.loading = false;
-        state.status = 'idle'; // Reset status on logout
+        state.status = 'idle';
       })
       .addCase(checkAuth.pending, (state) => {
         state.status = 'loading';
@@ -74,7 +72,7 @@ const userSlice = createSlice({
       })
       .addCase(checkAuth.fulfilled, (state, action) => {
         state.isAuthenticated = true;
-        state.user = action.payload.data; // Corrected to .data
+        state.user = action.payload.data;
         state.loading = false;
         state.status = 'succeeded';
       })
@@ -87,5 +85,6 @@ const userSlice = createSlice({
   },
 });
 
-export const { setUser, clearUser, logout } = userSlice.actions;
+
+export const { setUser, clearUser } = userSlice.actions;
 export default userSlice.reducer;

@@ -7,18 +7,23 @@ import AppSidebar from "./AppSidebar";
 const LayoutContent: React.FC = () => {
   const { isExpanded, isHovered, isMobileOpen } = useSidebar();
 
+  // sidebar width (expanded vs collapsed)
+  const sidebarWidth = isExpanded || isHovered ? "w-[20%]" : "w-[8%]";
+  const mobileSidebar = isMobileOpen ? "w-full" : sidebarWidth;
+
+
   return (
-    <div className="min-h-screen xl:flex">
-      <div>
+    <div className="flex w-screen min-h-screen">
+      {/* Sidebar */}
+      <div className={`${mobileSidebar} transition-all duration-300 ease-in-out`}>
         <AppSidebar />
         <Backdrop />
       </div>
-      <div
-        className={`flex-1 transition-all duration-300 ease-in-out ${isExpanded || isHovered ? "lg:ml-[290px]" : "lg:ml-[90px]"
-          } ${isMobileOpen ? "ml-0" : ""}`}
-      >
+
+      {/* Main content */}
+      <div className={`flex-1 ${isMobileOpen ? 'w-full' : 'w-[80%]'}  bg-gray-50 dark:bg-gray-900 transition-all duration-300 ease-in-out`}>
         <AppHeader />
-        <div className="p-4 mx-auto max-w-(--breakpoint-2xl) md:p-6">
+        <div className="p-4 md:p-6">
           <Outlet />
         </div>
       </div>

@@ -1,6 +1,7 @@
 import { Middleware, createAction } from '@reduxjs/toolkit';
-import { logout, setUser } from '../auth/user.slice';
+import { setUser } from '../auth/user.slice';
 import axiosInstance from '../../utils/axiosInstance';
+import { logoutUser } from '../auth/authApi';
 
 // Create a type-safe action
 export const checkAuth = createAction('auth/checkAuth');
@@ -14,7 +15,7 @@ const authMiddleware: Middleware = (store) => (next) => async (action) => {
       store.dispatch(setUser(response.data));
     } catch (error: any) {
       console.error('Failed to authenticate user:', error?.response?.data?.message);
-      store.dispatch(logout());
+      store.dispatch({ type: "users/logoutUser" });
     }
   }
 

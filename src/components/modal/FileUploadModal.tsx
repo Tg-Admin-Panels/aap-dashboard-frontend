@@ -146,7 +146,7 @@ const FileUploadModal: React.FC<FileUploadModalProps> = ({ isOpen, onClose, onUp
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-80 flex justify-center items-center">
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-90 flex justify-center items-center">
             <div className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-2xl w-full max-w-lg relative transform transition-all sm:align-middle sm:max-w-lg sm:w-full">
                 <div className="flex justify-between items-center mb-4">
                     <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Upload File</h2>
