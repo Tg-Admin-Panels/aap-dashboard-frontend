@@ -20,6 +20,7 @@ const toCamelCase = (str: string) => {
 const fieldTypeOptions = [
     { value: "text", label: "Text" },
     { value: "email", label: "Email" },
+    { value: "checkbox", label: "checkbox" },
     { value: "password", label: "Password" },
     { value: "number", label: "Number" },
     { value: "date", label: "Date" },
@@ -97,7 +98,7 @@ const CreateForm = () => {
             .unwrap()
             .then(() => {
                 alert('Form created successfully!');
-                navigate('/forms/submissions');
+                navigate(-1);
             })
             .catch((err) => {
                 // Error is already handled by the slice, but you can add component-specific error logic here if needed

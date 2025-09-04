@@ -16,6 +16,7 @@ import {
 import { useSidebar } from "../context/SidebarContext";
 import { useSelector } from "react-redux";
 import { RootState } from "../features/store";
+import { FormDefinition } from "../features/forms/formsSlice";
 
 type Role = "admin" | "volunteer" | string;
 
@@ -38,93 +39,14 @@ type NavItem = {
 const canSee = (allowed: Role[] | undefined, userRole?: Role) =>
   !allowed || allowed.length === 0 || !!userRole && allowed.includes(userRole);
 
-const navItems: NavItem[] = [
-  {
-    icon: <GridIcon />,
-    name: "Dashboard",
-    subItems: [{ name: "Home", path: "/", pro: false, role: [] }],
-    role: ["admin", "volunteer"],
-  },
-  {
-    icon: <WingIcon />,
-    name: "Wing",
-    subItems: [
-      { name: "Create Wing", path: "/wing/add", pro: false, role: ["admin"] },
-      { name: "All Wings", path: "/wing/list", pro: false, role: ["admin"] },
-    ],
-    role: ["admin"],
-  },
-  {
-    icon: <PlusIcon />,
-    name: "Visions",
-    subItems: [
-      { name: "Create Vision", path: "/visions/add", pro: false, role: ["admin"] },
-      { name: "All Visions", path: "/visions/list", pro: false, role: ["admin"] },
-    ],
-    role: ["admin"],
-  },
-  {
-    icon: <VolunteerIcon />,
-    name: "Volunteers",
-    subItems: [
-      { name: "All Volunteers", path: "/volunteers/", pro: false, role: ["admin"] },
-      { name: "Create Volunteer", path: "/volunteers/add", pro: false, role: ["admin"] },
-    ],
-    role: ["admin"],
-  },
-  {
-    icon: <MemberIcon />,
-    name: "Members",
-    subItems: [{ name: "All Members", path: "/members/", pro: false, role: [] }],
-    role: ["admin", "volunteer"],
-  },
-  {
-    icon: <GroupIcon />,
-    name: "Booth Team",
-    subItems: [{ name: "All Booth Team", path: "/booth-team", pro: false, role: ["admin"] }],
-    role: ["admin"],
-  },
-  {
-    icon: <GridIcon />,
-    name: "Locations",
-    subItems: [
-      { name: "All Locations", path: "/locations", pro: false, role: ["admin"] },
-      { name: "Create State", path: "/locations/create-state", pro: false, role: ["admin"] },
-      { name: "Create District", path: "/locations/create-district", pro: false, role: ["admin"] },
-      { name: "Create Legislative Assembly", path: "/locations/create-assembly", pro: false, role: ["admin"] },
-      { name: "Create Booth", path: "/locations/create-booth", pro: false, role: ["admin"] },
-    ],
-    role: ["admin"],
-  },
-  {
-    icon: <TaskIcon />,
-    name: "Candidate Applications",
-    subItems: [{ name: "All Applications", path: "/candidate-applications", pro: false, role: ["admin"] }],
-    role: ["admin"],
-  },
-  {
-    icon: <ChatIcon />,
-    name: "Campaigns",
-    subItems: [{ name: "All Campaigns", path: "/campaigns", pro: false, role: ["admin"] }],
-    role: ["admin"],
-  },
-  {
-    icon: <ListIcon />,
-    name: "Data Fill",
-    subItems: [
-      { name: "Create Form", path: "/forms/create", pro: false, role: ["admin",] },
-      { name: "All Forms", path: "/forms/list", pro: false, role: ["admin"] },
-      { name: "View Submissions", path: "/forms/submissions", pro: false, role: ["admin", "volunteer"] },
-    ],
-    role: ["admin", "volunteer"],
-  },
-];
+
 
 const othersItems: NavItem[] = [];
 
 const AppSidebar: React.FC = () => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
   const location = useLocation();
+  const [dynamicForm, setDynamicForm] = useState<FormDefinition[]>([])
   const { user } = useSelector((state: RootState) => state.auth);
   const userRole = user?.role as Role | undefined;
 
@@ -178,12 +100,108 @@ const AppSidebar: React.FC = () => {
     }
   }, [openSubmenu]);
 
+  const { formsList, loading, error } =
+    useSelector((state: RootState) => state.forms);
+  useEffect(() => {
+    setDynamicForm(formsList)
+  }, [formsList])
+
+
   const handleSubmenuToggle = (index: number, menuType: "main" | "others") => {
     setOpenSubmenu((prev) => {
       if (prev && prev.type === menuType && prev.index === index) return null;
       return { type: menuType, index };
     });
   };
+
+
+  const navItems: NavItem[] = [
+    {
+      icon: <GridIcon />,
+      name: "Dashboard",
+      subItems: [{ name: "Home", path: "/", pro: false, role: [] }],
+      role: ["admin", "volunteer"],
+    },
+    {
+      icon: <TaskIcon />,
+      name: "All Forms Submission",
+      subItems: [...dynamicForm.map(form => ({ name: form.formName, path: `/forms/submissions/${form._id}`, pro: false, role: ["admin", "volunteer"] }))],
+      role: ["admin", "volunteer"],
+    },
+    {
+      icon: <WingIcon />,
+      name: "Wing",
+      subItems: [
+        { name: "Create Wing", path: "/wing/add", pro: false, role: ["admin"] },
+        { name: "All Wings", path: "/wing/list", pro: false, role: ["admin"] },
+      ],
+      role: ["admin"],
+    },
+    {
+      icon: <PlusIcon />,
+      name: "Visions",
+      subItems: [
+        { name: "Create Vision", path: "/visions/add", pro: false, role: ["admin"] },
+        { name: "All Visions", path: "/visions/list", pro: false, role: ["admin"] },
+      ],
+      role: ["admin"],
+    },
+    {
+      icon: <VolunteerIcon />,
+      name: "Volunteers",
+      subItems: [
+        { name: "All Volunteers", path: "/volunteers/", pro: false, role: ["admin"] },
+        { name: "Create Volunteer", path: "/volunteers/add", pro: false, role: ["admin"] },
+      ],
+      role: ["admin"],
+    },
+    {
+      icon: <MemberIcon />,
+      name: "Members",
+      subItems: [{ name: "All Members", path: "/members/", pro: false, role: [] }],
+      role: ["admin", "volunteer"],
+    },
+    {
+      icon: <GroupIcon />,
+      name: "Booth Team",
+      subItems: [{ name: "All Booth Team", path: "/booth-team", pro: false, role: ["admin"] }],
+      role: ["admin"],
+    },
+    {
+      icon: <GridIcon />,
+      name: "Locations",
+      subItems: [
+        { name: "All Locations", path: "/locations", pro: false, role: ["admin"] },
+        { name: "Create State", path: "/locations/create-state", pro: false, role: ["admin"] },
+        { name: "Create District", path: "/locations/create-district", pro: false, role: ["admin"] },
+        { name: "Create Legislative Assembly", path: "/locations/create-assembly", pro: false, role: ["admin"] },
+        { name: "Create Booth", path: "/locations/create-booth", pro: false, role: ["admin"] },
+      ],
+      role: ["admin"],
+    },
+    {
+      icon: <TaskIcon />,
+      name: "Candidate Applications",
+      subItems: [{ name: "All Applications", path: "/candidate-applications", pro: false, role: ["admin"] }],
+      role: ["admin"],
+    },
+    {
+      icon: <ChatIcon />,
+      name: "Campaigns",
+      subItems: [{ name: "All Campaigns", path: "/campaigns", pro: false, role: ["admin"] }],
+      role: ["admin"],
+    },
+    {
+      icon: <ListIcon />,
+      name: "Data Fill",
+      subItems: [
+        { name: "Create Form", path: "/forms/create", pro: false, role: ["admin",] },
+        { name: "All Forms", path: "/forms/list", pro: false, role: ["admin"] },
+        // { name: "View Submissions", path: "/forms/submissions", pro: false, role: ["admin", "volunteer"] },
+      ],
+      role: ["admin", "volunteer"],
+    },
+  ];
 
   const renderMenuItems = (items: NavItem[], menuType: "main" | "others") => (
     <ul className="flex flex-col gap-4">

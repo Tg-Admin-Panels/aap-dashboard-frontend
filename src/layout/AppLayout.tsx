@@ -3,6 +3,11 @@ import { Outlet } from "react-router";
 import AppHeader from "./AppHeader";
 import Backdrop from "./Backdrop";
 import AppSidebar from "./AppSidebar";
+import packageInfo from '../../package.json';
+import { useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { fetchAllForms } from "../features/forms/formsApi";
+import { AppDispatch } from "../features/store";
 
 const LayoutContent: React.FC = () => {
   const { isExpanded, isHovered, isMobileOpen } = useSidebar();
@@ -10,6 +15,11 @@ const LayoutContent: React.FC = () => {
   // sidebar width (expanded vs collapsed)
   const sidebarWidth = isExpanded || isHovered ? "w-[20%]" : "w-[8%]";
   const mobileSidebar = isMobileOpen ? "w-full" : sidebarWidth;
+  const dispatch = useDispatch<AppDispatch>();
+  // Load all forms (once)
+  useEffect(() => {
+    dispatch(fetchAllForms());
+  }, [dispatch]);
 
 
   return (
@@ -25,6 +35,9 @@ const LayoutContent: React.FC = () => {
         <AppHeader />
         <div className="p-4 md:p-6">
           <Outlet />
+        </div>
+        <div className="text-right mr-5 text-xs text-gray-500 dark:text-gray-400 py-4 border-t border-gray-200 dark:border-gray-700">
+          Version {packageInfo.version}
         </div>
       </div>
     </div>

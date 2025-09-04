@@ -12,9 +12,14 @@ import {
     deleteSubmission
 } from './formsApi';
 
+export interface FormDefinition {
+    _id: string;
+    formName: string;
+    fields: any[]
+}
 interface FormsState {
-    formsList: any[];
-    currentFormDefinition: any | null;
+    formsList: FormDefinition[];
+    currentFormDefinition: FormDefinition | null;
     submissions: any[];
     pagination: any | null;
     currentSubmission: any | null;

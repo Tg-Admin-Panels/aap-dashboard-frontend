@@ -120,7 +120,7 @@ export default function App() {
             {/* Dynamic Form Routes */}
             <Route path="/forms/create" element={<CreateForm />} />
             <Route path="/forms/list" element={<ViewForm />} />
-            <Route path="/forms/submissions" element={<ViewSubmissions />} />
+            <Route path="/forms/submissions/:formId" element={<ViewSubmissions />} />
             <Route path="/forms/submit/:formId" element={<SubmitForm />} />
             <Route path="/submissions/:submissionId" element={<SubmissionDetail />} />
           </Route>

@@ -51,7 +51,7 @@ const SubmitForm = () => {
             .unwrap()
             .then(() => {
                 alert('Form submitted successfully!');
-                navigate('/forms/submissions');
+                navigate(-1);
             })
             .catch((err) => {
                 console.error("Failed to submit form: ", err);
@@ -70,38 +70,99 @@ const SubmitForm = () => {
             {currentFormDefinition && (
                 <Form onSubmit={handleSubmit}>
                     <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-6">{currentFormDefinition.formName}</h2>
-                    {currentFormDefinition.fields.map((field: any) => (
-                        <div key={field.name} className="mb-4">
-                            <Label htmlFor={field.name}>{field.label}{field.required && <span className="text-red-500">*</span>}</Label>
-                            {(() => {
-                                switch (field.type) {
-                                    case 'textarea':
-                                        return <Input as="textarea" id={field.name} name={field.name} onChange={handleChange} required={field.required} placeholder={`Enter ${field.label}`} rows={4} />;
-                                    case 'select':
-                                        const options = field.options.map((opt: string) => ({ value: opt, label: opt }));
-                                        return <Select id={field.name} name={field.name} options={options} onChange={(option) => handleSelectChange(field.name, option)} required={field.required} styles={customSelectStyles} placeholder={`Select ${field.label}`} />;
-                                    case 'file':
-                                        return (
-                                            <div>
-                                                <DropzoneComponent accept={{ '*/*': [] }} multiple={false} onFileUploadSuccess={(url) => handleFileChange(field.name, url)} />
-                                                {formData[field.name] && (
-                                                    <div className="mt-4">
-                                                        <h4 className="font-semibold text-sm text-gray-600">Uploaded File Preview:</h4>
-                                                        {isImageUrl(formData[field.name]) ? (
-                                                            <img src={formData[field.name]} alt="Preview" className="mt-2 h-32 w-auto rounded shadow-md" />
-                                                        ) : (
-                                                            <a href={formData[field.name]} target="_blank" rel="noopener noreferrer" className="text-brand-500 underline">View Uploaded File</a>
-                                                        )}
-                                                    </div>
-                                                )}
-                                            </div>
-                                        );
-                                    default:
-                                        return <Input id={field.name} name={field.name} type={field.type} onChange={handleChange} required={field.required} placeholder={`Enter ${field.label}`} />;
-                                }
-                            })()}
-                        </div>
-                    ))}
+                    <div className='grid grid-cols-1 sm:grid-cols-2 gap-5'>
+                        {currentFormDefinition.fields.map((field: any) => (
+                            <div key={field.name} className="mb-4">
+                                <Label htmlFor={field.name}>{field.label}{field.required && <span className="text-red-500">*</span>}</Label>
+                                {(() => {
+                                    switch (field.type) {
+                                        case 'textarea':
+                                            return (
+                                                <Input
+                                                    as="textarea"
+                                                    id={field.name}
+                                                    name={field.name}
+                                                    onChange={handleChange}
+                                                    required={field.required}
+                                                    placeholder={`Enter ${field.label}`}
+                                                    rows={4}
+                                                />
+                                            );
+                                        case 'select':
+                                            const options = field.options.map((opt: string) => ({ value: opt, label: opt }));
+                                            return (
+                                                <Select
+                                                    id={field.name}
+                                                    name={field.name}
+                                                    options={options}
+                                                    onChange={(option) => handleSelectChange(field.name, option)}
+                                                    required={field.required}
+                                                    styles={customSelectStyles}
+                                                    placeholder={`Select ${field.label}`}
+                                                />
+                                            );
+                                        case 'file':
+                                            return (
+                                                <div>
+                                                    <DropzoneComponent
+                                                        accept={{ '*/*': [] }}
+                                                        multiple={false}
+                                                        onFileUploadSuccess={(url) => handleFileChange(field.name, url)}
+                                                    />
+                                                    {formData[field.name] && (
+                                                        <div className="mt-4">
+                                                            <h4 className="font-semibold text-sm text-gray-600">Uploaded File Preview:</h4>
+                                                            {isImageUrl(formData[field.name]) ? (
+                                                                <img src={formData[field.name]} alt="Preview" className="mt-2 h-32 w-auto rounded shadow-md" />
+                                                            ) : (
+                                                                <a
+                                                                    href={formData[field.name]}
+                                                                    target="_blank"
+                                                                    rel="noopener noreferrer"
+                                                                    className="text-brand-500 underline"
+                                                                >
+                                                                    View Uploaded File
+                                                                </a>
+                                                            )}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            );
+                                        case 'checkbox':
+                                            return (
+                                                <div className="flex items-center gap-2">
+                                                    <input
+                                                        id={field.name}
+                                                        name={field.name}
+                                                        type="checkbox"
+                                                        checked={!!formData[field.name]}
+                                                        onChange={(e) =>
+                                                            setFormData((prev) => ({ ...prev, [field.name]: e.target.checked }))
+                                                        }
+                                                        className="h-4 w-4 text-brand-600 border-gray-300 rounded"
+                                                    />
+                                                    <label htmlFor={field.name} className="text-sm text-gray-700 dark:text-gray-300">
+                                                        {field.label}
+                                                    </label>
+                                                </div>
+                                            );
+                                        default:
+                                            return (
+                                                <Input
+                                                    id={field.name}
+                                                    name={field.name}
+                                                    type={field.type}
+                                                    onChange={handleChange}
+                                                    // required={field.required}
+                                                    placeholder={`Enter ${field.label}`}
+                                                />
+                                            );
+                                    }
+
+                                })()}
+                            </div>
+                        ))}
+                    </div>
                     <button type="submit" disabled={loading} className="px-4 py-2 text-sm font-medium text-white bg-brand-500 rounded-md hover:bg-brand-600 disabled:bg-gray-400">
                         {loading ? 'Submitting...' : 'Submit'}
                     </button>
