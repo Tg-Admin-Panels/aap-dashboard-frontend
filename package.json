@@ -9,10 +9,11 @@
     "build:dev": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "release": "standard-version",
-    "release:minor": "standard-version --release-as minor",
-    "release:patch": "standard-version --release-as patch",
-    "release:major": "standard-version --release-as major"
+    "release": "standard-version && node scripts/generate-version-details.js",
+    "release:minor": "standard-version --release-as minor && node scripts/generate-version-details.js",
+    "release:patch": "standard-version --release-as patch && node scripts/generate-version-details.js",
+    "release:major": "standard-version --release-as major && node scripts/generate-version-details.js",
+    "commit-guide": "code COMMIT_GUIDE.md"
   },
   "dependencies": {
     "@faker-js/faker": "^9.6.0",
