@@ -6,6 +6,8 @@ import { Link } from 'react-router-dom';
 import SpinnerOverlay from '../../components/ui/SpinnerOverlay';
 import { Vision } from '../../features/visions/visions.slice';
 import UpdateVisionModal from './UpdateVisionModal';
+import { PencilIcon, TrashBinIcon } from '../../icons';
+import { FaExternalLinkAlt } from 'react-icons/fa';
 
 export default function VisionTable() {
   const dispatch = useDispatch<AppDispatch>();
@@ -52,71 +54,13 @@ export default function VisionTable() {
                 </td>
                 <td className="px-5 py-4 text-start flex items-center gap-2">
                   <Link to={`/visions/${vision._id}/details`}>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="20px"
-                      height="20px"
-                      viewBox="0 0 16 16"
-                      fill="none"
-                    >
-                      <path
-                        d="M10 0L9 1L11.2929 3.29289L6.2929 8.29289L7.70711 9.70711L12.7071 4.7071L15 7L16 6V0H10Z"
-                        fill="#465FFF"
-                      />
-                      <path d="M1 2H6V4H3V13H12V10H14V15H1V2Z" fill="#465FFF" />
-                    </svg>
+                    <FaExternalLinkAlt className='cursor-pointer' />
                   </Link>
                   <button onClick={() => setSelectedVision(vision)}>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="20px"
-                      height="20px"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                    >
-                      <path
-                        d="M11 2H9V4H7V6H5V8H3V10H2V14H3V16H5V18H7V20H9V22H11V20H13V18H15V16H17V14H18V10H17V8H15V6H13V4H11V2Z"
-                        fill="#465FFF"
-                      />
-                      <path
-                        d="M11 4H13V6H15V8H17V10H18V14H17V16H15V18H13V20H11V22H9V20H7V18H5V16H3V14H2V10H3V8H5V6H7V4H9V2H11V4Z"
-                        fill="#465FFF"
-                      />
-                    </svg>
+                    <PencilIcon />
                   </button>
                   <button onClick={() => handleDelete(vision._id)}>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="20px"
-                      height="20px"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                    >
-                      <path
-                        d="M10 2H14V4H10V2Z"
-                        fill="#FF4646"
-                      />
-                      <path
-                        d="M4 6H20V8H4V6Z"
-                        fill="#FF4646"
-                      />
-                      <path
-                        d="M6 10H8V20H6V10Z"
-                        fill="#FF4646"
-                      />
-                      <path
-                        d="M10 10H14V20H10V10Z"
-                        fill="#FF4646"
-                      />
-                      <path
-                        d="M16 10H18V20H16V10Z"
-                        fill="#FF4646"
-                      />
-                      <path
-                        d="M4 22H20V24H4V22Z"
-                        fill="#FF4646"
-                      />
-                    </svg>
+                    <TrashBinIcon />
                   </button>
                 </td>
               </tr>
