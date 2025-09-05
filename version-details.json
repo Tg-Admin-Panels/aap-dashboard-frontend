@@ -1,4 +1,4 @@
 {
-  "version": "2.0.8",
-  "lastCommit": "🐛 fix layout responsive issue\\nfix icon in vision\\n"
+  "version": "2.0.9",
+  "lastCommit": "🐛 when upload will complte or error occur the state will reset when we close the file upload model"
 }
