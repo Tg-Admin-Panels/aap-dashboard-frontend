@@ -11,13 +11,44 @@ const __dirname = dirname(__filename);
 // Read the package.json
 const packageJson = JSON.parse(readFileSync(join(__dirname, '../package.json'), 'utf-8'));
 
-// Get the latest commit message
-const lastCommit = execSync('git log -1 --pretty=%B').toString().trim();
+// Read CHANGELOG.md to get the latest changes
+const changelogPath = join(__dirname, '../CHANGELOG.md');
+let releaseNotes = '';
+
+if (existsSync(changelogPath)) {
+    const changelog = readFileSync(changelogPath, 'utf-8');
+    // Get content between the first two ## headers (latest release)
+    const matches = changelog.match(/##[^#]+/);
+    if (matches) {
+        const latestSection = matches[0];
+        // Extract all features, fixes, and breaking changes
+        const changes = latestSection.split('\n')
+            .filter(line => line.startsWith('* ') || line.startsWith('### '))
+            .map(line => line.replace(/^\* /, '').replace(/^### /, ''))
+            .filter(line => !line.includes('chore(release)'))
+            .join('\n');
+        releaseNotes = changes || 'No detailed changes available';
+    }
+}
+
+// If no changes found in changelog, get commits since last tag
+if (!releaseNotes) {
+    try {
+        const commits = execSync('git log $(git describe --tags --abbrev=0)..HEAD --pretty=format:"%s"')
+            .toString()
+            .split('\n')
+            .filter(msg => !msg.startsWith('chore(release)'))
+            .join('\n');
+        releaseNotes = commits || 'No changes recorded';
+    } catch (error) {
+        releaseNotes = 'Initial release';
+    }
+}
 
 // Create version details object
 const versionDetails = {
     version: packageJson.version,
-    lastCommit: lastCommit
+    lastCommit: releaseNotes
 };
 
 // Create the public directory if it doesn't exist
