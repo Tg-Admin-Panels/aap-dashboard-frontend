@@ -10,8 +10,9 @@ lerna-debug.log*
 
 node_modules
 
-
-
+# Generated files
+public/version-details.json
+dist
 *.local
 
 # Editor directories and files
