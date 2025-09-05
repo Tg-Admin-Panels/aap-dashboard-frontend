@@ -1,17 +1,18 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from '../../features/store';
-import axiosInstance from '../../utils/axiosInstance'; // Import axiosInstance
+import axiosInstance from '../../utils/axiosInstance';
 import SpinnerOverlay from '../ui/SpinnerOverlay';
 
 interface FileUploadModalProps {
-    isOpen: boolean;
-    onClose: () => void;
-    onUploadSuccess: () => void;
-    formId: string;
-    formFields: any[]; // This is no longer needed for the modal itself, but kept for simplicity
+    isOpen: boolean;                      // Whether the modal is currently visible
+    onClose: () => void;                 // Function to close the modal
+    onUploadSuccess: () => void;         // Callback triggered after successful upload
+    formId: string;                      // ID of the form to associate uploaded file with
+    formFields?: any[];                  // (Optional) Form fields schema, not used internally
 }
+
 
 const FileUploadModal: React.FC<FileUploadModalProps> = ({ isOpen, onClose, onUploadSuccess, formId }) => {
     const dispatch = useDispatch<AppDispatch>();
@@ -20,7 +21,25 @@ const FileUploadModal: React.FC<FileUploadModalProps> = ({ isOpen, onClose, onUp
     const [error, setError] = useState<string | null>(null);
     const [uploadProgress, setUploadProgress] = useState(0);
     const [processedRows, setProcessedRows] = useState(0);
-    const [eventSource, setEventSource] = useState<EventSource | null>(null);
+
+    // Use a ref for SSE so cleanup works even with stale closures
+    const eventSourceRef = useRef<EventSource | null>(null);
+
+    const closeSSE = useCallback(() => {
+        if (eventSourceRef.current) {
+            try { eventSourceRef.current.close(); } catch { }
+            eventSourceRef.current = null;
+        }
+    }, []);
+
+    const reset = useCallback(() => {
+        closeSSE();
+        setFile(null);
+        setLoading(false);
+        setError(null);
+        setUploadProgress(0);
+        setProcessedRows(0);
+    }, [closeSSE]);
 
     const onDrop = useCallback((acceptedFiles: File[]) => {
         if (acceptedFiles.length > 0) {
@@ -28,6 +47,7 @@ const FileUploadModal: React.FC<FileUploadModalProps> = ({ isOpen, onClose, onUp
             setFile(selectedFile);
             setError(null);
             setUploadProgress(0);
+            setProcessedRows(0);
         }
     }, []);
 
@@ -37,44 +57,40 @@ const FileUploadModal: React.FC<FileUploadModalProps> = ({ isOpen, onClose, onUp
         setUploadProgress(0);
         setProcessedRows(0);
 
-        // 1. Establish SSE connection
+        // 1) Establish SSE connection
         const es = new EventSource(`${import.meta.env.VITE_BASE_URL}/api/v1/forms/${formId}/submissions/events`);
-        setEventSource(es);
+        eventSourceRef.current = es;
 
         es.onmessage = (event) => {
             const data = JSON.parse(event.data);
-            console.log("SSE Message:", data);
             if (data.status === "processing") {
-                const perc = file && file.size > 0
-                    ? Math.min(100, Math.max(0, (data.processedBytes / file.size) * 100))
+                // use fileToUpload.size to avoid stale 'file'
+                const perc = fileToUpload.size > 0
+                    ? Math.min(100, Math.max(0, (data.processedBytes / fileToUpload.size) * 100))
                     : 0;
-                setUploadProgress(perc)
-                setProcessedRows(data.processedRows);
-                // For now, progress is based on processed rows.
-                // If total rows were known, we could calculate a percentage.
-                // Since total is unknown, we'll just show processed count.
-                // We can set a dummy progress or infer from processedRows later.
-                // For now, let's just update processedRows and let the UI handle it.
+                setUploadProgress(perc);
+                setProcessedRows(data.processedRows || 0);
             } else if (data.status === "completed") {
-                setProcessedRows(data.processedRows);
-                setUploadProgress(100); // Set to 100% on completion
-                es.close();
-                setEventSource(null);
-                onUploadSuccess(); // Call success callback
+                setProcessedRows(data.processedRows || 0);
+                setUploadProgress(100);
+                closeSSE();
+                onUploadSuccess();
+                // Optional: auto reset after short delay, or let user close manually
+                // setTimeout(reset, 800);
+            } else if (data.status === "error") {
+                setError(data.message || "Processing failed.");
+                closeSSE();
             }
         };
 
-        es.onerror = (err) => {
-            console.error("SSE Error:", err);
+        es.onerror = () => {
             setError("SSE connection error. Progress updates may be unavailable.");
-            es.close();
-            setEventSource(null);
+            closeSSE();
         };
 
-        const chunkSize = 1024 * 1024; // 1MB chunks
+        const chunkSize = 1024 * 1024; // 1MB
         const totalChunks = Math.ceil(fileToUpload.size / chunkSize);
         let chunkIndex = 0;
-        console.log(`File size: ${fileToUpload.size} bytes, Total chunks: ${totalChunks}`);
 
         try {
             for (let i = 0; i < fileToUpload.size; i += chunkSize) {
@@ -87,7 +103,6 @@ const FileUploadModal: React.FC<FileUploadModalProps> = ({ isOpen, onClose, onUp
                             const base64Chunk = (e.target?.result as string).split(',')[1];
                             const isLastChunk = (chunkIndex + 1) === totalChunks;
 
-                            console.log(`Sending chunk ${chunkIndex + 1}/${totalChunks}, isLastChunk: ${isLastChunk}`);
                             await axiosInstance.post(`/api/v1/forms/${formId}/submissions/upload-chunk`, {
                                 chunk: base64Chunk,
                                 isLastChunk: isLastChunk.toString(),
@@ -106,22 +121,16 @@ const FileUploadModal: React.FC<FileUploadModalProps> = ({ isOpen, onClose, onUp
                 await chunkPromise;
             }
 
-            // 2. Call /upload-complete after all chunks are sent
-            console.log("All chunks sent. Calling /upload-complete.");
+            // 2) upload-complete
             await axiosInstance.post(`/api/v1/forms/${formId}/submissions/upload-complete`, {
                 originalname: fileToUpload.name,
             });
 
-
         } catch (uploadErr: any) {
-            setError(uploadErr.response?.data?.message || "File upload failed.");
-            if (es) {
-                es.close();
-                setEventSource(null);
-            }
+            setError(uploadErr?.response?.data?.message || "File upload failed.");
+            closeSSE();
         } finally {
             setLoading(false);
-            // onUploadSuccess() is now called by SSE "completed" event
         }
     };
 
@@ -135,23 +144,30 @@ const FileUploadModal: React.FC<FileUploadModalProps> = ({ isOpen, onClose, onUp
 
     const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
 
+    // ✅ Modal close → reset (also covers when parent toggles isOpen=false)
     useEffect(() => {
-        if (!isOpen && eventSource) {
-            console.log("Modal closed, closing SSE connection.");
-            eventSource.close();
-            setEventSource(null);
+        if (!isOpen) {
+            reset();
         }
-    }, [isOpen, eventSource]);
+    }, [isOpen, reset]);
+
+    // ✅ Unmount cleanup (page change/navigation) → close SSE + reset
+    useEffect(() => {
+        return () => {
+            reset();
+        };
+    }, [reset]);
 
     if (!isOpen) return null;
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-90 flex justify-center items-center">
             <div className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-2xl w-full max-w-lg relative transform transition-all sm:align-middle sm:max-w-lg sm:w-full">
+                {/* header */}
                 <div className="flex justify-between items-center mb-4">
                     <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Upload File</h2>
                     <button
-                        onClick={onClose}
+                        onClick={() => { reset(); onClose(); }}
                         className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors duration-200"
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -160,6 +176,7 @@ const FileUploadModal: React.FC<FileUploadModalProps> = ({ isOpen, onClose, onUp
                     </button>
                 </div>
 
+                {/* dropzone */}
                 <div {...getRootProps()} className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors duration-200 ${isDragActive ? 'border-blue-500 bg-blue-50 dark:bg-blue-900' : 'border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700'}`}>
                     <input {...getInputProps()} />
                     <div className="text-center">
@@ -184,7 +201,7 @@ const FileUploadModal: React.FC<FileUploadModalProps> = ({ isOpen, onClose, onUp
                                 {uploadProgress < 100 ? `Uploading & Processing...` : `Completed!`}
                             </span>
                             <span className="text-sm font-medium text-blue-700 dark:text-white">
-                                {uploadProgress < 100 ? `${uploadProgress}%` : `100%`}
+                                {uploadProgress < 100 ? `${Math.floor(uploadProgress)}%` : `100%`}
                                 {processedRows > 0 && ` (${processedRows} rows processed)`}
                             </span>
                         </div>
@@ -197,11 +214,18 @@ const FileUploadModal: React.FC<FileUploadModalProps> = ({ isOpen, onClose, onUp
                 {error && <p className="text-red-500 text-sm mt-4 p-2 bg-red-100 dark:bg-red-900 rounded-md border border-red-300 dark:border-red-700">Error: {error}</p>}
 
                 <div className="mt-6 flex justify-end gap-3">
-                    <button onClick={onClose} className="px-5 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 transition duration-200 ease-in-out">
+                    <button
+                        onClick={() => { reset(); onClose(); }}
+                        className="px-5 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 transition duration-200 ease-in-out"
+                    >
                         Cancel
                     </button>
-                    <button onClick={handleSubmit} className="px-5 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition duration-200 ease-in-out" disabled={!file || loading}>
-                        {loading ? `Uploading... ${uploadProgress}%` : 'Upload'}
+                    <button
+                        onClick={handleSubmit}
+                        className="px-5 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition duration-200 ease-in-out"
+                        disabled={!file || loading}
+                    >
+                        {loading ? `Uploading... ${Math.floor(uploadProgress)}%` : 'Upload'}
                     </button>
                 </div>
             </div>
