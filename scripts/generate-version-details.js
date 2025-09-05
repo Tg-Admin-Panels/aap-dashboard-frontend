@@ -11,39 +11,31 @@ const __dirname = dirname(__filename);
 // Read the package.json
 const packageJson = JSON.parse(readFileSync(join(__dirname, '../package.json'), 'utf-8'));
 
-// Read CHANGELOG.md to get the latest changes
-const changelogPath = join(__dirname, '../CHANGELOG.md');
-let releaseNotes = '';
-
-if (existsSync(changelogPath)) {
-    const changelog = readFileSync(changelogPath, 'utf-8');
-    // Get content between the first two ## headers (latest release)
-    const matches = changelog.match(/##[^#]+/);
-    if (matches) {
-        const latestSection = matches[0];
-        // Extract all features, fixes, and breaking changes
-        const changes = latestSection.split('\n')
-            .filter(line => line.startsWith('* ') || line.startsWith('### '))
-            .map(line => line.replace(/^\* /, '').replace(/^### /, ''))
-            .filter(line => !line.includes('chore(release)'))
-            .join('\n');
-        releaseNotes = changes || 'No detailed changes available';
-    }
-}
-
-// If no changes found in changelog, get commits since last tag
-if (!releaseNotes) {
+// Get the last real commit (not a version bump commit)
+function getLastMeaningfulCommit() {
     try {
-        const commits = execSync('git log $(git describe --tags --abbrev=0)..HEAD --pretty=format:"%s"')
-            .toString()
+        const commits = execSync('git log -10 --pretty=format:"%s"').toString()
             .split('\n')
-            .filter(msg => !msg.startsWith('chore(release)'))
-            .join('\n');
-        releaseNotes = commits || 'No changes recorded';
+            .map(msg => msg.trim())
+            .filter(msg => !msg.startsWith('chore(release)'));
+
+        const lastCommit = commits[0];
+        if (lastCommit.startsWith('feat:')) return `✨ ${lastCommit.substring(5).trim()}`;
+        if (lastCommit.startsWith('fix:')) return `🐛 ${lastCommit.substring(4).trim()}`;
+        if (lastCommit.startsWith('docs:')) return `📚 ${lastCommit.substring(5).trim()}`;
+        if (lastCommit.startsWith('style:')) return `💅 ${lastCommit.substring(6).trim()}`;
+        if (lastCommit.startsWith('refactor:')) return `♻️ ${lastCommit.substring(9).trim()}`;
+        if (lastCommit.startsWith('perf:')) return `⚡️ ${lastCommit.substring(5).trim()}`;
+        if (lastCommit.startsWith('test:')) return `✅ ${lastCommit.substring(5).trim()}`;
+        return lastCommit;
     } catch (error) {
-        releaseNotes = 'Initial release';
+        console.error('Error getting commit:', error);
+        return 'Unable to fetch commit message';
     }
 }
+
+// Get the changes
+const releaseNotes = getLastMeaningfulCommit();
 
 // Create version details object
 const versionDetails = {
