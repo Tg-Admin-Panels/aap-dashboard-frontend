@@ -57,78 +57,76 @@ const FileUploadModal: React.FC<FileUploadModalProps> = ({ isOpen, onClose, onUp
         setUploadProgress(0);
         setProcessedRows(0);
 
-        // 1) Establish SSE connection
-        const es = new EventSource(`${import.meta.env.VITE_BASE_URL}/api/v1/forms/${formId}/submissions/events`);
-        eventSourceRef.current = es;
-
-        es.onmessage = (event) => {
-            const data = JSON.parse(event.data);
-            if (data.status === "processing") {
-                // use fileToUpload.size to avoid stale 'file'
-                const perc = fileToUpload.size > 0
-                    ? Math.min(100, Math.max(0, (data.processedBytes / fileToUpload.size) * 100))
-                    : 0;
-                setUploadProgress(perc);
-                setProcessedRows(data.processedRows || 0);
-            } else if (data.status === "completed") {
-                setProcessedRows(data.processedRows || 0);
-                setUploadProgress(100);
-                closeSSE();
-                onUploadSuccess();
-                // Optional: auto reset after short delay, or let user close manually
-                // setTimeout(reset, 800);
-            } else if (data.status === "error") {
-                setError(data.message || "Processing failed.");
-                closeSSE();
-            }
-        };
-
-        es.onerror = () => {
-            setError("SSE connection error. Progress updates may be unavailable.");
-            closeSSE();
-        };
-
-        const chunkSize = 1024 * 1024; // 1MB
-        const totalChunks = Math.ceil(fileToUpload.size / chunkSize);
-        let chunkIndex = 0;
+        let jobId: string | null = null;
 
         try {
-            for (let i = 0; i < fileToUpload.size; i += chunkSize) {
-                const chunk = fileToUpload.slice(i, i + chunkSize);
-                const reader = new FileReader();
+            // 1) Upload the file using FormData
+            const formData = new FormData();
+            formData.append('file', fileToUpload);
+            // originalname is automatically handled by multer from the file field
+            // chunk and isLastChunk are no longer needed
 
-                const chunkPromise = new Promise<void>((resolve, reject) => {
-                    reader.onload = async (e) => {
-                        try {
-                            const base64Chunk = (e.target?.result as string).split(',')[1];
-                            const isLastChunk = (chunkIndex + 1) === totalChunks;
+            const uploadResponse = await axiosInstance.post(
+                `/api/v1/uploads/${formId}/submissions/upload-chunk`,
+                formData,
+                {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                    onUploadProgress: (progressEvent) => {
+                        const percentCompleted = Math.round((progressEvent.loaded * 100) / (progressEvent.total || fileToUpload.size));
+                        setUploadProgress(percentCompleted);
+                    },
+                }
+            );
 
-                            await axiosInstance.post(`/api/v1/forms/${formId}/submissions/upload-chunk`, {
-                                chunk: base64Chunk,
-                                isLastChunk: isLastChunk.toString(),
-                                originalname: fileToUpload.name,
-                            });
+            jobId = uploadResponse.data.data.jobId;
+            console.log("Upload successful, jobId:", jobId);
 
-                            chunkIndex++;
-                            resolve();
-                        } catch (err: any) {
-                            setError(err.response?.data?.message || "Chunk upload failed.");
-                            reject(err);
-                        }
-                    };
-                    reader.readAsDataURL(chunk);
-                });
-                await chunkPromise;
-            }
+            // 2) Establish SSE connection using the received jobId
+            const es = new EventSource(`${import.meta.env.VITE_BASE_URL}/api/v1/uploads/${formId}/submissions/events?jobId=${jobId}`);
+            eventSourceRef.current = es;
 
-            // 2) upload-complete
-            await axiosInstance.post(`/api/v1/forms/${formId}/submissions/upload-complete`, {
-                originalname: fileToUpload.name,
-            });
+            es.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                // The SSE data now includes jobId, originalname, and status
+                if (data.jobId !== jobId) { // Ensure we're processing events for the correct job
+                    return;
+                }
+
+                if (data.status === "processing") {
+                    // Progress is now based on processed rows, not bytes
+                    // We can't get a percentage from processedRows alone without totalRows
+                    // The backend worker will send processedRows and totalRows
+                    setProcessedRows(data.processedRows || 0);
+                    // If totalRows is available, calculate percentage
+                    if (data.totalRows) {
+                        const perc = Math.min(100, Math.max(0, (data.processedRows / data.totalRows) * 100));
+                        setUploadProgress(perc);
+                    } else {
+                        // If totalRows is not available yet, show a generic progress or just processedRows
+                        setUploadProgress(0); // Reset upload progress as this is processing progress
+                    }
+                } else if (data.status === "completed") {
+                    setProcessedRows(data.processedRows || 0);
+                    setUploadProgress(100);
+                    closeSSE();
+                    onUploadSuccess();
+                } else if (data.status === "failed") {
+                    setError(data.error || "Processing failed.");
+                    closeSSE();
+                }
+            };
+
+            es.onerror = (err) => {
+                console.error("SSE connection error:", err);
+                setError("SSE connection error. Progress updates may be unavailable.");
+                closeSSE();
+            };
 
         } catch (uploadErr: any) {
-            setError(uploadErr?.response?.data?.message || "File upload failed.");
-            closeSSE();
+            setError(uploadErr.response?.data?.message || "File upload failed.");
+            closeSSE(); // Ensure SSE is closed on upload error
         } finally {
             setLoading(false);
         }

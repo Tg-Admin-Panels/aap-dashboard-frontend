@@ -36,7 +36,29 @@ const SubmitForm = () => {
     };
 
     const handleSelectChange = (fieldName: string, selectedOption: any) => {
-        setFormData(prev => ({ ...prev, [fieldName]: selectedOption ? selectedOption.value : '' }));
+        const value = selectedOption ? selectedOption.value : null;
+        setFormData(prev => {
+            const newState = { ...prev, [fieldName]: value };
+
+            const fieldsToReset = new Set<string>();
+            let fieldsToCheck = [fieldName];
+
+            while (fieldsToCheck.length > 0) {
+                const currentFieldName = fieldsToCheck.shift();
+                currentFormDefinition?.fields.forEach(field => {
+                    if (field.dependsOn === currentFieldName) {
+                        fieldsToReset.add(field.name);
+                        fieldsToCheck.push(field.name);
+                    }
+                });
+            }
+
+            fieldsToReset.forEach(name => {
+                newState[name] = null;
+            });
+
+            return newState;
+        });
     };
 
     const handleFileChange = (fieldName: string, url: string) => {
@@ -65,7 +87,7 @@ const SubmitForm = () => {
     if (error) return <div className="p-6 text-red-500 bg-red-100 rounded-lg">Error: {error}</div>;
 
     return (
-        <div className="p-6 rounded-lg shadow bg-white dark:bg-gray-900">
+        <div className="min-h-[550px] p-6 rounded-lg shadow bg-white dark:bg-gray-900">
             <SpinnerOverlay loading={loading} />
             {currentFormDefinition && (
                 <Form onSubmit={handleSubmit}>
@@ -89,14 +111,29 @@ const SubmitForm = () => {
                                                 />
                                             );
                                         case 'select':
-                                            const options = field.options.map((opt: string) => ({ value: opt, label: opt }));
+                                            let options: { value: string; label: string; }[] = [];
+                                            let isDisabled = false;
+
+                                            if (field.dependsOn) {
+                                                const parentValue = formData[field.dependsOn];
+                                                if (parentValue && field.options[parentValue]) {
+                                                    options = field.options[parentValue].map((opt: string) => ({ value: opt, label: opt }));
+                                                } else {
+                                                    isDisabled = true;
+                                                }
+                                            } else if (field.options) {
+                                                options = (field.options as string[]).map((opt: string) => ({ value: opt, label: opt }));
+                                            }
+
                                             return (
                                                 <Select
                                                     id={field.name}
                                                     name={field.name}
                                                     options={options}
+                                                    value={formData[field.name] ? options.find(opt => opt.value === formData[field.name]) : null}
                                                     onChange={(option) => handleSelectChange(field.name, option)}
                                                     required={field.required}
+                                                    isDisabled={isDisabled}
                                                     styles={customSelectStyles}
                                                     placeholder={`Select ${field.label}`}
                                                 />
