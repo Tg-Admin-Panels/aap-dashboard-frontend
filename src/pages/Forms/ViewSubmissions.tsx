@@ -58,7 +58,7 @@ const ViewSubmissions: React.FC = () => {
     const handleDelete = async (submissionId: string) => {
         if (!window.confirm('Delete this submission?')) return;
         await dispatch(deleteSubmission(submissionId));
-        const result = await dispatch(fetchSubmissionsForForm({ formId, page: 1, limit: DEFAULT_LIMIT }));
+        const result = await dispatch(fetchSubmissionsForForm({ formId: formId!, page: 1, limit: DEFAULT_LIMIT }));
         if (fetchSubmissionsForForm.fulfilled.match(result)) {
             const { submissions: newData, pagination } = result.payload;
             setSubmissions(newData);
@@ -79,7 +79,10 @@ const ViewSubmissions: React.FC = () => {
     const handleUploadFile = () => setIsUploadModalOpen(true);
 
     const handleUploadSuccess = async () => {
-        // setIsUploadModalOpen(false);
+        setTimeout(() => {
+            setIsUploadModalOpen(false);
+
+        }, 5000);
         if (!formId) return;
         setIsLoading(true);
         const result = await dispatch(fetchSubmissionsForForm({ formId, page: 1, limit: DEFAULT_LIMIT }));
@@ -214,7 +217,7 @@ const ViewSubmissions: React.FC = () => {
                 isOpen={isUploadModalOpen}
                 onClose={() => setIsUploadModalOpen(false)}
                 onUploadSuccess={handleUploadSuccess}
-                formId={formId}
+                formId={formId!}
                 formFields={currentFormDefinition?.fields || []}
             />
         </div>
