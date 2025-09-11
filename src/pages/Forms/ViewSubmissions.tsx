@@ -79,7 +79,7 @@ const ViewSubmissions: React.FC = () => {
     const handleUploadFile = () => setIsUploadModalOpen(true);
 
     const handleUploadSuccess = async () => {
-        setIsUploadModalOpen(false);
+        // setIsUploadModalOpen(false);
         if (!formId) return;
         setIsLoading(true);
         const result = await dispatch(fetchSubmissionsForForm({ formId, page: 1, limit: DEFAULT_LIMIT }));
