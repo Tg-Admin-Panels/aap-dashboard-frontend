@@ -37,8 +37,8 @@ const Dashboard = () => {
   return (
     <>
       <PageMeta
-        title="React.js Ecommerce Dashboard | TailAdmin - React.js Admin Dashboard Template"
-        description="This is React.js Ecommerce Dashboard page for TailAdmin - React.js Tailwind CSS Admin Dashboard Template"
+        title="AAP Bihar|Dashboard"
+        description="Admin Panel Dashboard"
       />
 
       <div className="p-6 bg-gray-50 min-h-screen dark:bg-gray-900 text-gray-800 dark:text-white">

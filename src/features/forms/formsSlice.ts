@@ -55,8 +55,9 @@ const formsSlice = createSlice({
                 state.loading = true;
                 state.error = null;
             })
-            .addCase(createFormDefinition.fulfilled, (state) => {
+            .addCase(createFormDefinition.fulfilled, (state, action) => {
                 state.loading = false;
+                state.formsList.push(action.payload);
             })
             .addCase(createFormDefinition.rejected, (state, action) => {
                 state.loading = false;

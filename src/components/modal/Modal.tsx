@@ -52,7 +52,7 @@ const Modal: React.FC<ModalProps> = ({
         <div className="flex-shrink-0 p-5">
           {title && <h2 className="mb-2 text-lg font-semibold">{title}</h2>}
 
-          <div className="absolute top-0 right-0 mb-3 text-lg cursor-pointer">
+          <div className="absolute top-3 right-3 mb-3 text-lg cursor-pointer bg-gray-200 dark:bg-gray-700 rounded-full p-1 hover:bg-gray-200 dark:hover:bg-gray-600 transition">
             <FontAwesomeIcon
               icon={faTimes}
               onClick={onCancel}

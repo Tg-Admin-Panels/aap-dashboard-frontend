@@ -15,12 +15,18 @@ interface AddLeaderCardProps {
     phone: string;
     image: string;
     post: string;
+    fbLink: string;
+    instaLink: string;
+    xLink: string;
   } | null;
   onSubmit: (data: {
     name: string;
     phone: string;
     image: string;
     post: string;
+    fbLink: string;
+    instaLink: string;
+    xLink: string;
   }) => void;
 }
 
@@ -34,7 +40,6 @@ const AddWingMemberCard: React.FC<AddLeaderCardProps> = ({
   const { loading } = useSelector((state: RootState) => state.wings);
 
   useEffect(() => {
-    // Show existing image if editing
     if (initialValues?.image) setImagePreview(initialValues.image);
   }, [initialValues?.image]);
 
@@ -45,6 +50,9 @@ const AddWingMemberCard: React.FC<AddLeaderCardProps> = ({
         phone: "",
         image: "",
         post: "",
+        fbLink: "",
+        instaLink: "",
+        xLink: "",
       },
     validationSchema: Yup.object({
       name: Yup.string()
@@ -53,10 +61,13 @@ const AddWingMemberCard: React.FC<AddLeaderCardProps> = ({
       phone: Yup.string()
         .matches(/^\d{10}$/, "Phone must be 10 digits")
         .required("Phone is required"),
-      image: Yup.string(), // optional
+      image: Yup.string(),
       post: Yup.string()
         .required("Post is required")
         .matches(/^[A-Za-z\s-]+$/, "Only alphabets, spaces, and dashes are allowed"),
+      fbLink: Yup.string().url("Must be a valid URL").nullable(),
+      instaLink: Yup.string().url("Must be a valid URL").nullable(),
+      xLink: Yup.string().url("Must be a valid URL").nullable(),
     }),
     onSubmit: (values) => onSubmit(values),
   });
@@ -67,13 +78,13 @@ const AddWingMemberCard: React.FC<AddLeaderCardProps> = ({
   };
 
   return (
-    <div className="bg-white dark:bg-[#101828] w-full p-6 rounded-2xl max-w-2xl dark:text-white space-y-5">
+    <div className="bg-white dark:bg-[#101828] w-full p-6 rounded-2xl dark:text-white space-y-5">
       <h2 className="text-xl font-semibold">
         {title} <span className="text-blue-400 font-bold">{wing?.name}</span>
       </h2>
 
       <form onSubmit={formik.handleSubmit} className="space-y-5">
-        {/* Inputs on one line (responsive: stack on small screens) */}
+        {/* Basic Info */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {/* Name */}
           <div>
@@ -126,7 +137,61 @@ const AddWingMemberCard: React.FC<AddLeaderCardProps> = ({
           </div>
         </div>
 
-        {/* Dropzone BELOW the inputs, full width */}
+        {/* Social Links */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {/* FB */}
+          <div>
+            <label className="block mb-1 text-sm">Facebook Link</label>
+            <input
+              type="url"
+              name="fbLink"
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              value={formik.values.fbLink}
+              placeholder="https://facebook.com/..."
+              className="w-full px-3 py-2 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            {formik.touched.fbLink && formik.errors.fbLink && (
+              <p className="text-red-500 text-sm mt-1">{formik.errors.fbLink}</p>
+            )}
+          </div>
+
+          {/* Insta */}
+          <div>
+            <label className="block mb-1 text-sm">Instagram Link</label>
+            <input
+              type="url"
+              name="instaLink"
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              value={formik.values.instaLink}
+              placeholder="https://instagram.com/..."
+              className="w-full px-3 py-2 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            {formik.touched.instaLink && formik.errors.instaLink && (
+              <p className="text-red-500 text-sm mt-1">{formik.errors.instaLink}</p>
+            )}
+          </div>
+
+          {/* X/Twitter */}
+          <div>
+            <label className="block mb-1 text-sm">X (Twitter) Link</label>
+            <input
+              type="url"
+              name="xLink"
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              value={formik.values.xLink}
+              placeholder="https://x.com/..."
+              className="w-full px-3 py-2 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            {formik.touched.xLink && formik.errors.xLink && (
+              <p className="text-red-500 text-sm mt-1">{formik.errors.xLink}</p>
+            )}
+          </div>
+        </div>
+
+        {/* Dropzone */}
         <div>
           <label className="block mb-2 text-sm">Upload Image</label>
           <DropzoneComponent
@@ -135,7 +200,6 @@ const AddWingMemberCard: React.FC<AddLeaderCardProps> = ({
             multiple={false}
           />
 
-          {/* Preview */}
           {(imagePreview || initialValues?.image) && (
             <div className="relative mt-4 w-fit">
               <img
@@ -166,7 +230,6 @@ const AddWingMemberCard: React.FC<AddLeaderCardProps> = ({
           <button
             type="submit"
             className="w-full py-2 mt-2 bg-blue-600 hover:bg-blue-700 rounded-md text-white font-medium transition disabled:opacity-50"
-          // disabled={!formik.isValid || formik.isSubmitting}
           >
             {loading ? "Submitting..." : "Submit"}
           </button>

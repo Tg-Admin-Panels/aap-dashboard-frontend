@@ -9,6 +9,7 @@ import Form from '../../components/form/Form';
 import Label from '../../components/form/Label';
 import Input from '../../components/form/input/InputField';
 import SpinnerOverlay from '../../components/ui/SpinnerOverlay';
+import TextArea from '../../components/form/input/TextArea';
 
 // Custom styles for react-select
 const customSelectStyles = {
@@ -100,15 +101,16 @@ const SubmitForm = () => {
                                     switch (field.type) {
                                         case 'textarea':
                                             return (
-                                                <Input
-                                                    as="textarea"
+                                                <textarea
+                                                    className="w-full rounded-lg border px-4 py-2.5 text-sm shadow-theme-xs focus:outline-hidden bg-transparent text-gray-900 dark:text-gray-300 text-gray-900 border-gray-300 focus:border-brand-300 focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:focus:border-brand-800"
+                                                    value={formData[field.name] || ''}
                                                     id={field.name}
                                                     name={field.name}
                                                     onChange={handleChange}
                                                     required={field.required}
                                                     placeholder={`Enter ${field.label}`}
                                                     rows={4}
-                                                />
+                                                ></textarea>
                                             );
                                         case 'select':
                                             let options: { value: string; label: string; }[] = [];
