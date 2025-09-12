@@ -17,6 +17,7 @@ import { useSidebar } from "../context/SidebarContext";
 import { useSelector } from "react-redux";
 import { RootState } from "../features/store";
 import { FormDefinition } from "../features/forms/formsSlice";
+import VersionInfo from "../components/version";
 
 type Role = "admin" | "volunteer" | string;
 
@@ -380,6 +381,9 @@ const AppSidebar: React.FC = () => {
           </div>
         </nav>
       </div>
+
+
+      <VersionInfo />
     </aside>
   );
 };

@@ -2,23 +2,20 @@ import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Select from "react-select";
 import { AppDispatch, RootState } from "../../features/store";
-import { createDistrict, getAllStates } from "../../features/locations/locationsApi";
+import { createDistrict, getAllStates, bulkUploadDistricts } from "../../features/locations/locationsApi";
 import Form from "../../components/form/Form";
 import Label from "../../components/form/Label";
 import Input from "../../components/form/input/InputField";
 import SpinnerOverlay from "../../components/ui/SpinnerOverlay";
+import { downloadCSV } from "../../utils/downloadCSV";
 
 export default function CreateDistrict() {
   const dispatch = useDispatch<AppDispatch>();
-  const { loading, error, states } = useSelector((state: RootState) => state.locations);
+  const { loading, error, states, districts } = useSelector((state: RootState) => state.locations);
 
   const [errors, setErrors] = useState<Partial<Record<keyof typeof formData, string>>>({});
-
-  const [formData, setFormData] = useState({
-    name: "",
-    code: "",
-    parentId: "",
-  });
+  const [formData, setFormData] = useState({ name: "", code: "", parentId: "" });
+  const [file, setFile] = useState<File | null>(null);
 
   useEffect(() => {
     dispatch(getAllStates());
@@ -44,55 +41,40 @@ export default function CreateDistrict() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!validate()) return;
-
     await dispatch(createDistrict(formData));
-    setFormData({ name: "", code: "", parentId: "" }); // Clear form
+    setFormData({ name: "", code: "", parentId: "" });
   };
 
-  const stateOptions = states.map((state) => ({
-    value: state._id,
-    label: state.name,
-  }));
-
-  const customStyles = {
-    control: (baseStyles: any) => ({
-      ...baseStyles,
-      backgroundColor: 'transparent',
-      borderColor: '#d1d5db', // gray-300
-      minHeight: '44px', // h-11
-      boxShadow: 'none',
-      '&:hover': {
-        borderColor: '#9ca3af', // gray-400
-      },
-    }),
-    singleValue: (baseStyles: any) => ({
-      ...baseStyles,
-      color: '#1f2937', // gray-900
-    }),
-    input: (baseStyles: any) => ({
-      ...baseStyles,
-      color: '#1f2937', // gray-900
-    }),
-    placeholder: (baseStyles: any) => ({
-      ...baseStyles,
-      color: '#9ca3af', // gray-400
-    }),
-    option: (baseStyles: any, state: any) => ({
-      ...baseStyles,
-      backgroundColor: state.isSelected ? '#3b82f6' : state.isFocused ? '#e0e7ff' : 'white', // blue-500, indigo-100
-      color: state.isSelected ? 'white' : '#1f2937', // white, gray-900
-      '&:active': {
-        backgroundColor: '#2563eb', // blue-600
-      },
-    }),
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files?.length) {
+      setFile(e.target.files[0]);
+    }
   };
+
+  const handleBulkUpload = async () => {
+    if (!file) return alert("Please select a file first.");
+    const fd = new FormData();
+    fd.append("file", file);
+    await dispatch(bulkUploadDistricts({ fd, parentId: formData.parentId }));
+    setFile(null);
+  };
+
+  const handleDownloadCSV = () => {
+    downloadCSV(districts, "districts.csv", ["name", "code", "parentId"]);
+  };
+
+  const stateOptions = states.map((state) => ({ value: state._id, label: state.name }));
 
   return (
     <div className="p-6 rounded-lg shadow bg-white dark:bg-gray-900">
       <SpinnerOverlay loading={loading} />
-      <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-6">Create New District</h2>
+      <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-6">
+        Create / Bulk Upload Districts
+      </h2>
       {error && <p className="text-red-500 mb-4">Error: {error}</p>}
-      <Form onSubmit={handleSubmit} className="space-y-4">
+
+      {/* Single Create Form */}
+      <Form onSubmit={handleSubmit} className="space-y-4 mb-6">
         <div>
           <Label htmlFor="parentId">Parent State</Label>
           <Select
@@ -100,18 +82,15 @@ export default function CreateDistrict() {
             name="parentId"
             options={stateOptions}
             onChange={handleParentChange}
-            value={stateOptions.find(option => option.value === formData.parentId)}
+            value={stateOptions.find((o) => o.value === formData.parentId)}
             placeholder="Select State"
             isClearable
-            required
-            styles={customStyles}
           />
           {errors.parentId && <p className="text-red-500 text-xs mt-1">{errors.parentId}</p>}
         </div>
         <div>
           <Label htmlFor="name">District Name</Label>
           <Input
-            type="text"
             id="name"
             name="name"
             value={formData.name}
@@ -124,23 +103,41 @@ export default function CreateDistrict() {
         <div>
           <Label htmlFor="code">District Code</Label>
           <Input
-            type="text"
             id="code"
             name="code"
             value={formData.code}
             onChange={handleChange}
-            placeholder="Enter district code (e.g., PTN)"
+            placeholder="Enter district code"
             error={!!errors.code}
             hint={errors.code}
           />
         </div>
-        <button
-          type="submit"
-          className="px-4 py-2 text-sm font-medium text-white bg-brand-500 rounded-md hover:bg-brand-600"
-        >
+        <button type="submit" className="px-4 py-2 text-sm font-medium text-white bg-brand-500 rounded-md">
           Create District
         </button>
       </Form>
+
+      {/* Bulk Upload Section */}
+      <div className="border-t pt-4">
+        <h3 className="text-lg font-medium mb-2">Bulk Upload</h3>
+        <input type="file" accept=".csv,.xlsx" onChange={handleFileChange} />
+        <div className="mt-2 flex gap-2">
+          <button
+            onClick={handleBulkUpload}
+            disabled={!file}
+            className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md disabled:opacity-50"
+          >
+            Upload File
+          </button>
+          <button
+            onClick={handleDownloadCSV}
+            className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md"
+          >
+            Download CSV
+          </button>
+        </div>
+        {file && <p className="mt-2 text-sm text-gray-600">Selected: {file.name}</p>}
+      </div>
     </div>
   );
 }

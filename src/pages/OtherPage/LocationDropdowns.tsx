@@ -14,6 +14,7 @@ import {
   clearLegislativeAssemblies,
   clearBooths,
 } from "../../features/locations/locations.slice";
+import SpinnerOverlay from "../../components/ui/SpinnerOverlay";
 
 export default function LocationDropdowns() {
   const dispatch = useDispatch<AppDispatch>();
@@ -112,7 +113,7 @@ export default function LocationDropdowns() {
       <PageMeta title="Dependent Dropdowns" description="Dependent dropdowns for locations" />
       <div className="p-6 rounded-lg shadow bg-white dark:bg-gray-900">
         <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-6">Dependent Location Dropdowns</h2>
-        {loading && <p>Loading...</p>}
+        <SpinnerOverlay loading={loading} />
         {error && <p className="text-red-500">Error: {error}</p>}
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">

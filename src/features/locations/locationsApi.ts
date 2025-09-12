@@ -1,5 +1,6 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "../../utils/axiosInstance";
+import axiosFormInstance from "../../utils/axiosFormInstance";
 
 export const getAllStates = createAsyncThunk(
   "locations/getAllStates",
@@ -26,6 +27,14 @@ export const createState = createAsyncThunk(
         error.response?.data?.message || "Failed to create state"
       );
     }
+  }
+);
+
+export const bulkUploadStates = createAsyncThunk(
+  "locations/bulkUploadStates",
+  async (formData: FormData) => {
+    const response = await axiosFormInstance.post(`/states/bulk-upload`, formData);
+    return response.data;
   }
 );
 
@@ -110,5 +119,36 @@ export const createBooth = createAsyncThunk(
         error.response?.data?.message || "Failed to create booth"
       );
     }
+  }
+);
+
+// Bulk upload Districts
+export const bulkUploadDistricts = createAsyncThunk(
+  "locations/bulkUploadDistricts",
+  async ({ fd, parentId }: { fd: FormData, parentId: string }) => {
+    const response = await axiosFormInstance.post(`/districts/bulk-upload?parentId=${parentId}`, fd,);
+    return response.data;
+  }
+);
+
+// Bulk upload Legislative Assemblies
+export const bulkUploadLegislativeAssemblies = createAsyncThunk(
+  "locations/bulkUploadLegislativeAssemblies",
+  async ({ fd, parentId }: { fd: FormData, parentId: string }) => {
+    const response = await axiosFormInstance.post(`/legislative-assemblies/bulk-upload?parentId=${parentId}`, fd, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return response.data;
+  }
+);
+
+// Bulk upload Booths
+export const bulkUploadBooths = createAsyncThunk(
+  "locations/bulkUploadBooths",
+  async ({ fd, parentId }: { fd: FormData, parentId: string }) => {
+    const response = await axiosFormInstance.post(`/booths/bulk-upload?parentId=${parentId}`, fd, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return response.data;
   }
 );

@@ -42,8 +42,8 @@ const fieldTypeOptions = [
 const customSelectStyles = {
     control: (base: any) => ({
         ...base,
-        zIndex: '99',
-        backgroundColor: 'transparent',
+
+        backgroundColor: 'white',
         borderColor: '#d1d5db',
         minHeight: '44px',
         boxShadow: 'none',

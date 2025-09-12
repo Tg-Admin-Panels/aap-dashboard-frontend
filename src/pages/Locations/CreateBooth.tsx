@@ -2,40 +2,54 @@ import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Select from "react-select";
 import { AppDispatch, RootState } from "../../features/store";
-import { createBooth, getAllLegislativeAssemblies } from "../../features/locations/locationsApi";
+import {
+  createBooth,
+  getAllLegislativeAssemblies,
+  bulkUploadBooths,
+} from "../../features/locations/locationsApi";
 import Form from "../../components/form/Form";
 import Label from "../../components/form/Label";
 import Input from "../../components/form/input/InputField";
 import SpinnerOverlay from "../../components/ui/SpinnerOverlay";
+import { downloadCSV } from "../../utils/downloadCSV";
 
 export default function CreateBooth() {
   const dispatch = useDispatch<AppDispatch>();
-  const { loading, error, legislativeAssemblies } = useSelector((state: RootState) => state.locations);
+  const { loading, error, legislativeAssemblies, booths } = useSelector(
+    (state: RootState) => state.locations
+  );
 
-  const [errors, setErrors] = useState<Partial<Record<keyof typeof formData, string>>>({});
-
+  const [errors, setErrors] = useState<
+    Partial<Record<keyof typeof formData, string>>
+  >({});
   const [formData, setFormData] = useState({
     name: "",
     code: "",
     parentId: "",
   });
+  const [file, setFile] = useState<File | null>(null);
 
   useEffect(() => {
-    // Fetch all legislative assemblies (or filter by selected district if you add district selection here)
-    dispatch(getAllLegislativeAssemblies("")); // Pass empty string to get all assemblies for now
+    dispatch(getAllLegislativeAssemblies(""));
   }, [dispatch]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleParentChange = (selectedOption: { value: string; label: string } | null) => {
-    setFormData({ ...formData, parentId: selectedOption ? selectedOption.value : "" });
+  const handleParentChange = (
+    selectedOption: { value: string; label: string } | null
+  ) => {
+    setFormData({
+      ...formData,
+      parentId: selectedOption ? selectedOption.value : "",
+    });
   };
 
   const validate = () => {
     const newErrors: Partial<Record<keyof typeof formData, string>> = {};
-    if (!formData.parentId) newErrors.parentId = "Parent Legislative Assembly is required.";
+    if (!formData.parentId)
+      newErrors.parentId = "Parent Legislative Assembly is required.";
     if (!formData.name) newErrors.name = "Booth name is required.";
     if (!formData.code) newErrors.code = "Booth code is required.";
     setErrors(newErrors);
@@ -45,74 +59,61 @@ export default function CreateBooth() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!validate()) return;
-
     await dispatch(createBooth(formData));
-    setFormData({ name: "", code: "", parentId: "" }); // Clear form
+    setFormData({ name: "", code: "", parentId: "" });
   };
 
-  const legislativeAssemblyOptions = legislativeAssemblies.map((assembly) => ({
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files?.length) {
+      setFile(e.target.files[0]);
+    }
+  };
+
+  const handleBulkUpload = async () => {
+    if (!file) return alert("Please select a file first.");
+    const fd = new FormData();
+    fd.append("file", file);
+    await dispatch(bulkUploadBooths({ fd, parentId: formData.parentId }));
+    setFile(null);
+  };
+
+  const handleDownloadCSV = () => {
+    downloadCSV(booths, "booths.csv", ["name", "code", "parentId"]);
+  };
+
+  const legislativeOptions = legislativeAssemblies.map((assembly) => ({
     value: assembly._id,
     label: assembly.name,
   }));
 
-  const customStyles = {
-    control: (baseStyles: any) => ({
-      ...baseStyles,
-      backgroundColor: 'transparent',
-      borderColor: '#d1d5db', // gray-300
-      minHeight: '44px', // h-11
-      boxShadow: 'none',
-      '&:hover': {
-        borderColor: '#9ca3af', // gray-400
-      },
-    }),
-    singleValue: (baseStyles: any) => ({
-      ...baseStyles,
-      color: '#1f2937', // gray-900
-    }),
-    input: (baseStyles: any) => ({
-      ...baseStyles,
-      color: '#1f2937', // gray-900
-    }),
-    placeholder: (baseStyles: any) => ({
-      ...baseStyles,
-      color: '#9ca3af', // gray-400
-    }),
-    option: (baseStyles: any, state: any) => ({
-      ...baseStyles,
-      backgroundColor: state.isSelected ? '#3b82f6' : state.isFocused ? '#e0e7ff' : 'white', // blue-500, indigo-100
-      color: state.isSelected ? 'white' : '#1f2937', // white, gray-900
-      '&:active': {
-        backgroundColor: '#2563eb', // blue-600
-      },
-    }),
-  };
-
   return (
     <div className="p-6 rounded-lg shadow bg-white dark:bg-gray-900">
       <SpinnerOverlay loading={loading} />
-      <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-6">Create New Booth</h2>
+      <h2 className="text-2xl font-semibold mb-6">
+        Create / Bulk Upload Booths
+      </h2>
       {error && <p className="text-red-500 mb-4">Error: {error}</p>}
-      <Form onSubmit={handleSubmit} className="space-y-4">
+
+      {/* Single Form */}
+      <Form onSubmit={handleSubmit} className="space-y-4 mb-6">
         <div>
           <Label htmlFor="parentId">Parent Legislative Assembly</Label>
           <Select
             id="parentId"
             name="parentId"
-            options={legislativeAssemblyOptions}
+            options={legislativeOptions}
             onChange={handleParentChange}
-            value={legislativeAssemblyOptions.find(option => option.value === formData.parentId)}
-            placeholder="Select Legislative Assembly"
+            value={legislativeOptions.find((o) => o.value === formData.parentId)}
+            placeholder="Select Assembly"
             isClearable
-            required
-            styles={customStyles}
           />
-          {errors.parentId && <p className="text-red-500 text-xs mt-1">{errors.parentId}</p>}
+          {errors.parentId && (
+            <p className="text-red-500 text-xs mt-1">{errors.parentId}</p>
+          )}
         </div>
         <div>
           <Label htmlFor="name">Booth Name</Label>
           <Input
-            type="text"
             id="name"
             name="name"
             value={formData.name}
@@ -125,23 +126,43 @@ export default function CreateBooth() {
         <div>
           <Label htmlFor="code">Booth Code</Label>
           <Input
-            type="text"
             id="code"
             name="code"
             value={formData.code}
             onChange={handleChange}
-            placeholder="Enter booth code (e.g., B1A)"
+            placeholder="Enter booth code"
             error={!!errors.code}
             hint={errors.code}
           />
         </div>
         <button
           type="submit"
-          className="px-4 py-2 text-sm font-medium text-white bg-brand-500 rounded-md hover:bg-brand-600"
+          className="px-4 py-2 text-sm font-medium text-white bg-brand-500 rounded-md"
         >
           Create Booth
         </button>
       </Form>
+
+      {/* Bulk Upload Section */}
+      <div className="border-t pt-4">
+        <h3 className="text-lg font-medium mb-2">Bulk Upload</h3>
+        <input type="file" accept=".csv,.xlsx" onChange={handleFileChange} />
+        <div className="mt-2 flex gap-2">
+          <button
+            onClick={handleBulkUpload}
+            disabled={!file}
+            className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md disabled:opacity-50"
+          >
+            Upload File
+          </button>
+          <button
+            onClick={handleDownloadCSV}
+            className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md"
+          >
+            Download CSV
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

@@ -2,35 +2,48 @@ import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Select from "react-select";
 import { AppDispatch, RootState } from "../../features/store";
-import { createLegislativeAssembly, getAllDistricts } from "../../features/locations/locationsApi";
+import {
+  createLegislativeAssembly,
+  getAllDistricts,
+  bulkUploadLegislativeAssemblies,
+} from "../../features/locations/locationsApi";
 import Form from "../../components/form/Form";
 import Label from "../../components/form/Label";
 import Input from "../../components/form/input/InputField";
 import SpinnerOverlay from "../../components/ui/SpinnerOverlay";
+import { downloadCSV } from "../../utils/downloadCSV";
 
 export default function CreateLegislativeAssembly() {
   const dispatch = useDispatch<AppDispatch>();
-  const { loading, error, districts } = useSelector((state: RootState) => state.locations);
+  const { loading, error, districts, legislativeAssemblies } = useSelector(
+    (state: RootState) => state.locations
+  );
 
-  const [errors, setErrors] = useState<Partial<Record<keyof typeof formData, string>>>({});
-
+  const [errors, setErrors] = useState<
+    Partial<Record<keyof typeof formData, string>>
+  >({});
   const [formData, setFormData] = useState({
     name: "",
     code: "",
     parentId: "",
   });
+  const [file, setFile] = useState<File | null>(null);
 
   useEffect(() => {
-    // Fetch all districts (or filter by selected state if you add state selection here)
-    dispatch(getAllDistricts("")); // Pass empty string to get all districts for now
+    dispatch(getAllDistricts(""));
   }, [dispatch]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleParentChange = (selectedOption: { value: string; label: string } | null) => {
-    setFormData({ ...formData, parentId: selectedOption ? selectedOption.value : "" });
+  const handleParentChange = (
+    selectedOption: { value: string; label: string } | null
+  ) => {
+    setFormData({
+      ...formData,
+      parentId: selectedOption ? selectedOption.value : "",
+    });
   };
 
   const validate = () => {
@@ -45,9 +58,30 @@ export default function CreateLegislativeAssembly() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!validate()) return;
-
     await dispatch(createLegislativeAssembly(formData));
-    setFormData({ name: "", code: "", parentId: "" }); // Clear form
+    setFormData({ name: "", code: "", parentId: "" });
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files?.length) {
+      setFile(e.target.files[0]);
+    }
+  };
+
+  const handleBulkUpload = async () => {
+    if (!file) return alert("Please select a file first.");
+    const fd = new FormData();
+    fd.append("file", file);
+    await dispatch(bulkUploadLegislativeAssemblies({ fd, parentId: formData.parentId }));
+    setFile(null);
+  };
+
+  const handleDownloadCSV = () => {
+    downloadCSV(
+      legislativeAssemblies,
+      "legislative_assemblies.csv",
+      ["name", "code",]
+    );
   };
 
   const districtOptions = districts.map((district) => ({
@@ -55,45 +89,16 @@ export default function CreateLegislativeAssembly() {
     label: district.name,
   }));
 
-  const customStyles = {
-    control: (baseStyles: any) => ({
-      ...baseStyles,
-      backgroundColor: 'transparent',
-      borderColor: '#d1d5db', // gray-300
-      minHeight: '44px', // h-11
-      boxShadow: 'none',
-      '&:hover': {
-        borderColor: '#9ca3af', // gray-400
-      },
-    }),
-    singleValue: (baseStyles: any) => ({
-      ...baseStyles,
-      color: '#1f2937', // gray-900
-    }),
-    input: (baseStyles: any) => ({
-      ...baseStyles,
-      color: '#1f2937', // gray-900
-    }),
-    placeholder: (baseStyles: any) => ({
-      ...baseStyles,
-      color: '#9ca3af', // gray-400
-    }),
-    option: (baseStyles: any, state: any) => ({
-      ...baseStyles,
-      backgroundColor: state.isSelected ? '#3b82f6' : state.isFocused ? '#e0e7ff' : 'white', // blue-500, indigo-100
-      color: state.isSelected ? 'white' : '#1f2937', // white, gray-900
-      '&:active': {
-        backgroundColor: '#2563eb', // blue-600
-      },
-    }),
-  };
-
   return (
     <div className="p-6 rounded-lg shadow bg-white dark:bg-gray-900">
       <SpinnerOverlay loading={loading} />
-      <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-6">Create New Legislative Assembly</h2>
+      <h2 className="text-2xl font-semibold mb-6">
+        Create / Bulk Upload Legislative Assemblies
+      </h2>
       {error && <p className="text-red-500 mb-4">Error: {error}</p>}
-      <Form onSubmit={handleSubmit} className="space-y-4">
+
+      {/* Single Form */}
+      <Form onSubmit={handleSubmit} className="space-y-4 mb-6">
         <div>
           <Label htmlFor="parentId">Parent District</Label>
           <Select
@@ -101,18 +106,17 @@ export default function CreateLegislativeAssembly() {
             name="parentId"
             options={districtOptions}
             onChange={handleParentChange}
-            value={districtOptions.find(option => option.value === formData.parentId)}
+            value={districtOptions.find((o) => o.value === formData.parentId)}
             placeholder="Select District"
             isClearable
-            required
-            styles={customStyles}
           />
-          {errors.parentId && <p className="text-red-500 text-xs mt-1">{errors.parentId}</p>}
+          {errors.parentId && (
+            <p className="text-red-500 text-xs mt-1">{errors.parentId}</p>
+          )}
         </div>
         <div>
           <Label htmlFor="name">Assembly Name</Label>
           <Input
-            type="text"
             id="name"
             name="name"
             value={formData.name}
@@ -125,7 +129,6 @@ export default function CreateLegislativeAssembly() {
         <div>
           <Label htmlFor="code">Assembly Code</Label>
           <Input
-            type="text"
             id="code"
             name="code"
             value={formData.code}
@@ -137,11 +140,32 @@ export default function CreateLegislativeAssembly() {
         </div>
         <button
           type="submit"
-          className="px-4 py-2 text-sm font-medium text-white bg-brand-500 rounded-md hover:bg-brand-600"
+          className="px-4 py-2 text-sm font-medium text-white bg-brand-500 rounded-md"
         >
-          Create Legislative Assembly
+          Create Assembly
         </button>
       </Form>
+
+      {/* Bulk Upload Section */}
+      <div className="border-t pt-4">
+        <h3 className="text-lg font-medium mb-2">Bulk Upload</h3>
+        <input type="file" accept=".csv,.xlsx" onChange={handleFileChange} />
+        <div className="mt-2 flex gap-2">
+          <button
+            onClick={handleBulkUpload}
+            disabled={!file}
+            className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md disabled:opacity-50"
+          >
+            Upload File
+          </button>
+          <button
+            onClick={handleDownloadCSV}
+            className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md"
+          >
+            Download CSV
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
