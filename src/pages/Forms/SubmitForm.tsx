@@ -9,12 +9,17 @@ import Form from '../../components/form/Form';
 import Label from '../../components/form/Label';
 import Input from '../../components/form/input/InputField';
 import SpinnerOverlay from '../../components/ui/SpinnerOverlay';
-import TextArea from '../../components/form/input/TextArea';
 
-// Custom styles for react-select
+// react-select custom styles
 const customSelectStyles = {
-    control: (baseStyles: any) => ({ ...baseStyles, backgroundColor: 'transparent', borderColor: '#d1d5db', minHeight: '44px', boxShadow: 'none', '&:hover': { borderColor: '#9ca3af' } }),
-    // Add other styles if needed
+    control: (baseStyles: any) => ({
+        ...baseStyles,
+        backgroundColor: 'transparent',
+        borderColor: '#d1d5db',
+        minHeight: '44px',
+        boxShadow: 'none',
+        '&:hover': { borderColor: '#9ca3af' },
+    }),
 };
 
 const SubmitForm = () => {
@@ -33,20 +38,21 @@ const SubmitForm = () => {
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
+        setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
     const handleSelectChange = (fieldName: string, selectedOption: any) => {
         const value = selectedOption ? selectedOption.value : null;
-        setFormData(prev => {
+        setFormData((prev) => {
             const newState = { ...prev, [fieldName]: value };
 
+            // Reset dependent children when parent changes
             const fieldsToReset = new Set<string>();
             let fieldsToCheck = [fieldName];
 
             while (fieldsToCheck.length > 0) {
                 const currentFieldName = fieldsToCheck.shift();
-                currentFormDefinition?.fields.forEach(field => {
+                currentFormDefinition?.fields.forEach((field: any) => {
                     if (field.dependsOn === currentFieldName) {
                         fieldsToReset.add(field.name);
                         fieldsToCheck.push(field.name);
@@ -54,7 +60,7 @@ const SubmitForm = () => {
                 });
             }
 
-            fieldsToReset.forEach(name => {
+            fieldsToReset.forEach((name) => {
                 newState[name] = null;
             });
 
@@ -63,7 +69,7 @@ const SubmitForm = () => {
     };
 
     const handleFileChange = (fieldName: string, url: string) => {
-        setFormData(prev => ({ ...prev, [fieldName]: url }));
+        setFormData((prev) => ({ ...prev, [fieldName]: url }));
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -77,12 +83,13 @@ const SubmitForm = () => {
                 navigate(-1);
             })
             .catch((err) => {
-                console.error("Failed to submit form: ", err);
-                alert(`Error: ${err}`); // Show error alert
+                console.error('Failed to submit form: ', err);
+                alert(`Error: ${err}`);
             });
     };
 
-    const isImageUrl = (url: string) => url && url.match(/\.(jpeg|jpg|gif|png|webp)$/) != null;
+    const isImageUrl = (url: string) =>
+        url && url.match(/\.(jpeg|jpg|gif|png|webp)$/) != null;
 
     if (loading && !currentFormDefinition) return <SpinnerOverlay loading={true} />;
     if (error) return <div className="p-6 text-red-500 bg-red-100 rounded-lg">Error: {error}</div>;
@@ -92,117 +99,132 @@ const SubmitForm = () => {
             <SpinnerOverlay loading={loading} />
             {currentFormDefinition && (
                 <Form onSubmit={handleSubmit}>
-                    <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-6">{currentFormDefinition.formName}</h2>
-                    <div className='grid grid-cols-1 sm:grid-cols-2 gap-5'>
-                        {currentFormDefinition.fields.map((field: any) => (
-                            <div key={field.name} className="mb-4">
-                                <Label htmlFor={field.name}>{field.label}{field.required && <span className="text-red-500">*</span>}</Label>
-                                {(() => {
-                                    switch (field.type) {
-                                        case 'textarea':
-                                            return (
-                                                <textarea
-                                                    className="w-full rounded-lg border px-4 py-2.5 text-sm shadow-theme-xs focus:outline-hidden bg-transparent text-gray-900 dark:text-gray-300 text-gray-900 border-gray-300 focus:border-brand-300 focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:focus:border-brand-800"
-                                                    value={formData[field.name] || ''}
-                                                    id={field.name}
-                                                    name={field.name}
-                                                    onChange={handleChange}
-                                                    required={field.required}
-                                                    placeholder={`Enter ${field.label}`}
-                                                    rows={4}
-                                                ></textarea>
-                                            );
-                                        case 'select':
-                                            let options: { value: string; label: string; }[] = [];
-                                            let isDisabled = false;
+                    <h2 className="text-2xl font-semibold mb-6">{currentFormDefinition.formName}</h2>
 
-                                            if (field.dependsOn) {
-                                                const parentValue = formData[field.dependsOn];
-                                                if (parentValue && field.options[parentValue]) {
-                                                    options = field.options[parentValue].map((opt: string) => ({ value: opt, label: opt }));
-                                                } else {
-                                                    isDisabled = true;
-                                                }
-                                            } else if (field.options) {
-                                                options = (field.options as string[]).map((opt: string) => ({ value: opt, label: opt }));
-                                            }
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                        {currentFormDefinition.fields.map((field: any) => {
+                            switch (field.type) {
+                                case 'textarea':
+                                    return (
+                                        <div key={field.name} className="mb-4">
+                                            <Label htmlFor={field.name}>
+                                                {field.label}
+                                                {field.required && <span className="text-red-500">*</span>}
+                                            </Label>
+                                            <textarea
+                                                id={field.name}
+                                                name={field.name}
+                                                value={formData[field.name] || ''}
+                                                onChange={handleChange}
+                                                rows={4}
+                                                required={field.required}
+                                                placeholder={`Enter ${field.label}`}
+                                                className="w-full rounded-lg border px-4 py-2.5 text-sm bg-transparent border-gray-300 dark:border-gray-700"
+                                            />
+                                        </div>
+                                    );
 
-                                            return (
-                                                <Select
-                                                    id={field.name}
-                                                    name={field.name}
-                                                    options={options}
-                                                    value={formData[field.name] ? options.find(opt => opt.value === formData[field.name]) : null}
-                                                    onChange={(option) => handleSelectChange(field.name, option)}
-                                                    required={field.required}
-                                                    isDisabled={isDisabled}
-                                                    styles={customSelectStyles}
-                                                    placeholder={`Select ${field.label}`}
-                                                />
-                                            );
-                                        case 'file':
-                                            return (
-                                                <div>
-                                                    <DropzoneComponent
-                                                        accept={{ '*/*': [] }}
-                                                        multiple={false}
-                                                        onFileUploadSuccess={(url) => handleFileChange(field.name, url)}
-                                                    />
-                                                    {formData[field.name] && (
-                                                        <div className="mt-4">
-                                                            <h4 className="font-semibold text-sm text-gray-600">Uploaded File Preview:</h4>
-                                                            {isImageUrl(formData[field.name]) ? (
-                                                                <img src={formData[field.name]} alt="Preview" className="mt-2 h-32 w-auto rounded shadow-md" />
-                                                            ) : (
-                                                                <a
-                                                                    href={formData[field.name]}
-                                                                    target="_blank"
-                                                                    rel="noopener noreferrer"
-                                                                    className="text-brand-500 underline"
-                                                                >
-                                                                    View Uploaded File
-                                                                </a>
-                                                            )}
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            );
-                                        case 'checkbox':
-                                            return (
-                                                <div className="flex items-center gap-2">
-                                                    <input
-                                                        id={field.name}
-                                                        name={field.name}
-                                                        type="checkbox"
-                                                        checked={!!formData[field.name]}
-                                                        onChange={(e) =>
-                                                            setFormData((prev) => ({ ...prev, [field.name]: e.target.checked }))
-                                                        }
-                                                        className="h-4 w-4 text-brand-600 border-gray-300 rounded"
-                                                    />
-                                                    <label htmlFor={field.name} className="text-sm text-gray-700 dark:text-gray-300">
-                                                        {field.label}
-                                                    </label>
-                                                </div>
-                                            );
-                                        default:
-                                            return (
-                                                <Input
-                                                    id={field.name}
-                                                    name={field.name}
-                                                    type={field.type}
-                                                    onChange={handleChange}
-                                                    // required={field.required}
-                                                    placeholder={`Enter ${field.label}`}
-                                                />
-                                            );
+                                case 'select': {
+                                    let options: { value: string; label: string }[] = [];
+                                    let isDisabled = false;
+
+                                    if (field.dependsOn) {
+                                        const parentValue = formData[field.dependsOn];
+                                        if (parentValue) {
+                                            options = field.options
+                                                .filter((opt: any) => opt.parent === parentValue)
+                                                .map((opt: any) => ({ value: opt.value, label: opt.value }));
+                                        } else {
+                                            isDisabled = true;
+                                        }
+                                    } else {
+                                        options = field.options.map((opt: any) => ({
+                                            value: opt.value,
+                                            label: opt.value,
+                                        }));
                                     }
 
-                                })()}
-                            </div>
-                        ))}
+                                    return (
+                                        <div key={field.name} className="mb-4">
+                                            <Label>{field.label}{field.required && <span className="text-red-500">*</span>}</Label>
+                                            <Select
+                                                id={field.name}
+                                                options={options}
+                                                value={
+                                                    formData[field.name]
+                                                        ? options.find((opt) => opt.value === formData[field.name])
+                                                        : null
+                                                }
+                                                onChange={(opt) => handleSelectChange(field.name, opt)}
+                                                isDisabled={isDisabled}
+                                                styles={customSelectStyles}
+                                                placeholder={`Select ${field.label}`}
+                                            />
+                                        </div>
+                                    );
+                                }
+
+                                case 'file':
+                                    return (
+                                        <div key={field.name} className="mb-4">
+                                            <Label>{field.label}</Label>
+                                            <DropzoneComponent
+                                                accept={{ '*/*': [] }}
+                                                multiple={false}
+                                                onFileUploadSuccess={(url) => handleFileChange(field.name, url)}
+                                            />
+                                            {formData[field.name] && (
+                                                <div className="mt-2">
+                                                    {isImageUrl(formData[field.name]) ? (
+                                                        <img src={formData[field.name]} alt="preview" className="h-32 rounded shadow" />
+                                                    ) : (
+                                                        <a href={formData[field.name]} target="_blank" rel="noopener noreferrer" className="text-brand-500 underline">
+                                                            View Uploaded File
+                                                        </a>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
+                                    );
+
+                                case 'checkbox':
+                                    return (
+                                        <div key={field.name} className="mb-4 flex items-center gap-2">
+                                            <input
+                                                type="checkbox"
+                                                id={field.name}
+                                                checked={!!formData[field.name]}
+                                                onChange={(e) => setFormData((prev) => ({ ...prev, [field.name]: e.target.checked }))}
+                                                className="h-4 w-4 border-gray-300 rounded"
+                                            />
+                                            <label htmlFor={field.name}>{field.label}</label>
+                                        </div>
+                                    );
+
+                                default:
+                                    return (
+                                        <div key={field.name} className="mb-4">
+                                            <Label>{field.label}</Label>
+                                            <Input
+                                                id={field.name}
+                                                name={field.name}
+                                                type={field.type}
+                                                value={formData[field.name] || ''}
+                                                onChange={handleChange}
+                                                placeholder={`Enter ${field.label}`}
+                                                required={field.required}
+                                            />
+                                        </div>
+                                    );
+                            }
+                        })}
                     </div>
-                    <button type="submit" disabled={loading} className="px-4 py-2 text-sm font-medium text-white bg-brand-500 rounded-md hover:bg-brand-600 disabled:bg-gray-400">
+
+                    <button
+                        type="submit"
+                        disabled={loading}
+                        className="px-4 py-2 bg-brand-500 text-white rounded-md disabled:bg-gray-400"
+                    >
                         {loading ? 'Submitting...' : 'Submit'}
                     </button>
                 </Form>
