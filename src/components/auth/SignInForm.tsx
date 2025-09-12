@@ -47,7 +47,7 @@ const SignInForm: React.FC = () => {
         </div>
 
         <Formik
-          initialValues={{ mobileNumber: "9125456749", password: "12345" }}
+          initialValues={{ mobileNumber: "", password: "" }}
           validationSchema={validationSchema}
           onSubmit={handleSubmit}
         >
