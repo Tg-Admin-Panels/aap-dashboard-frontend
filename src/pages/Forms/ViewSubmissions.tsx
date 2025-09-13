@@ -97,28 +97,31 @@ const ViewSubmissions: React.FC = () => {
 
     const handleDownloadData = () => {
         if (!currentFormDefinition) return;
-        const allFields = [...(currentFormDefinition.fields || [])];
+
+        const locationFields = [];
         if (currentFormDefinition.locationDD) {
-            if (currentFormDefinition.locationDD.booth) {
-                allFields.unshift({ name: 'booth', label: 'Booth' });
-            }
-            if (currentFormDefinition.locationDD.legislativeAssembly) {
-                allFields.unshift({ name: 'legislativeAssembly', label: 'Legislative Assembly' });
+            if (currentFormDefinition.locationDD.state) {
+                locationFields.push({ name: 'state', label: 'State' });
             }
             if (currentFormDefinition.locationDD.district) {
-                allFields.unshift({ name: 'district', label: 'District' });
+                locationFields.push({ name: 'district', label: 'District' });
             }
-            if (currentFormDefinition.locationDD.state) {
-                allFields.unshift({ name: 'state', label: 'State' });
+            if (currentFormDefinition.locationDD.legislativeAssembly) {
+                locationFields.push({ name: 'legislativeAssembly', label: 'Legislative Assembly' });
+            }
+            if (currentFormDefinition.locationDD.booth) {
+                locationFields.push({ name: 'booth', label: 'Booth' });
             }
         }
 
-        const headers = allFields.map((f: any) => f.label);
+        const allFields = [...locationFields, ...(currentFormDefinition.fields || [])];
+
+        const headers = allFields.map((f) => f.label);
         const rows = [
             headers,
             ...submissions.map(item =>
-                allFields.map((f: any) => {
-                    const value = item.data[f.name];
+                allFields.map((f) => {
+                    const value = item.data?.[f.name];
                     if (value === null || value === undefined) return '';
                     if (typeof value === 'object') return JSON.stringify(value);
                     return String(value);
@@ -151,21 +154,22 @@ const ViewSubmissions: React.FC = () => {
         return String(item);
     };
 
-    const allFields = [...(currentFormDefinition?.fields || [])];
+    const locationFields = [];
     if (currentFormDefinition?.locationDD) {
-        if (currentFormDefinition.locationDD.booth) {
-            allFields.unshift({ name: 'booth', label: 'Booth' });
-        }
-        if (currentFormDefinition.locationDD.legislativeAssembly) {
-            allFields.unshift({ name: 'legislativeAssembly', label: 'Legislative Assembly' });
+        if (currentFormDefinition.locationDD.state) {
+            locationFields.push({ name: 'state', label: 'State' });
         }
         if (currentFormDefinition.locationDD.district) {
-            allFields.unshift({ name: 'district', label: 'District' });
+            locationFields.push({ name: 'district', label: 'District' });
         }
-        if (currentFormDefinition.locationDD.state) {
-            allFields.unshift({ name: 'state', label: 'State' });
+        if (currentFormDefinition.locationDD.legislativeAssembly) {
+            locationFields.push({ name: 'legislativeAssembly', label: 'Legislative Assembly' });
+        }
+        if (currentFormDefinition.locationDD.booth) {
+            locationFields.push({ name: 'booth', label: 'Booth' });
         }
     }
+    const allFields = [...locationFields, ...(currentFormDefinition?.fields || [])];
 
     return (
         <div className="p-8 rounded-lg shadow-xl bg-white dark:bg-gray-900 space-y-6">
