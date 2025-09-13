@@ -30,7 +30,7 @@ export default function CreateLegislativeAssembly() {
   const [file, setFile] = useState<File | null>(null);
 
   useEffect(() => {
-    dispatch(getAllDistricts(""));
+    dispatch(getAllDistricts());
   }, [dispatch]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

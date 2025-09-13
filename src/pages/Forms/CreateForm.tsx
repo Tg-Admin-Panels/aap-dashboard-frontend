@@ -42,7 +42,6 @@ const fieldTypeOptions = [
 const customSelectStyles = {
     control: (base: any) => ({
         ...base,
-
         backgroundColor: 'white',
         borderColor: '#d1d5db',
         minHeight: '44px',
@@ -60,20 +59,23 @@ const CreateForm = () => {
     const [fields, setFields] = useState([
         { name: '', label: '', type: 'text', required: false, options: [] as Option[], dependsOn: '' }
     ]);
+    const [locationDD, setLocationDD] = useState({ country: false, state: false, district: false });
 
-    // Handle field changes
     const handleFieldChange = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
         const values = [...fields];
-        const { name, value } = e.target;
-        values[index][name] = value;
-        if (name === 'label') values[index].name = toCamelCase(value);
+        const target = e.target as HTMLInputElement;
+        const value = target.type === 'checkbox' ? target.checked : target.value;
+        values[index][e.target.name] = value;
+        if (e.target.name === 'label') values[index].name = toCamelCase(e.target.value);
         setFields(values);
     };
 
     const handleFieldTypeChange = (index: number, option: any) => {
         const values = [...fields];
         values[index].type = option.value;
-        if (option.value !== 'select') values[index].options = [];
+        if (option.value !== 'select') {
+            values[index].options = [];
+        }
         setFields(values);
     };
 
@@ -99,7 +101,6 @@ const CreateForm = () => {
         setFields(values);
     };
 
-    // 🔹 Normal option handling
     const handleOptionChange = (fieldIndex: number, optionIndex: number, e: React.ChangeEvent<HTMLInputElement>) => {
         const values = [...fields];
         values[fieldIndex].options[optionIndex].value = e.target.value;
@@ -118,7 +119,6 @@ const CreateForm = () => {
         setFields(values);
     };
 
-    // 🔹 Dependent option handling
     const handleDependentOptionChange = (
         fieldIndex: number,
         parentValue: string,
@@ -145,7 +145,6 @@ const CreateForm = () => {
         setFields(values);
     };
 
-    // Submit
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         const formattedFields = fields.map(f => ({
@@ -155,7 +154,7 @@ const CreateForm = () => {
                 : []
         }));
 
-        dispatch(createFormDefinition({ formName, fields: formattedFields }))
+        dispatch(createFormDefinition({ formName, fields: formattedFields, locationDD }))
             .unwrap()
             .then(() => {
                 alert('Form created successfully!');
@@ -175,23 +174,42 @@ const CreateForm = () => {
             {error && <p className="text-red-500 mb-4">Error: {error}</p>}
 
             <Form onSubmit={handleSubmit}>
-                {/* Form Name */}
                 <div className="p-4 border rounded-md border-gray-200 dark:border-gray-700">
                     <Label htmlFor="formName">Form Name</Label>
                     <Input type="text" id="formName" value={formName} onChange={(e) => setFormName(e.target.value)} required />
                 </div>
 
-                {/* Dynamic Fields */}
+                <div className="p-4 border rounded-md border-gray-200 dark:border-gray-700 mt-4">
+                    <h3 className="text-lg font-medium">Location Dropdowns</h3>
+                    <div className="flex items-center gap-4 mt-2">
+                        <label className="flex items-center gap-2">
+                            <input type="checkbox" checked={locationDD.state} onChange={e => setLocationDD({...locationDD, state: e.target.checked})} />
+                            State
+                        </label>
+                        <label className="flex items-center gap-2">
+                            <input type="checkbox" checked={locationDD.district} onChange={e => setLocationDD({...locationDD, district: e.target.checked})} />
+                            District
+                        </label>
+                        <label className="flex items-center gap-2">
+                            <input type="checkbox" checked={locationDD.legislativeAssembly} onChange={e => setLocationDD({...locationDD, legislativeAssembly: e.target.checked})} />
+                            Legislative Assembly
+                        </label>
+                        <label className="flex items-center gap-2">
+                            <input type="checkbox" checked={locationDD.booth} onChange={e => setLocationDD({...locationDD, booth: e.target.checked})} />
+                            Booth
+                        </label>
+                    </div>
+                </div>
+
                 {fields.map((field, index) => {
                     const parentField = fields.find(f => f.name === field.dependsOn);
                     return (
-                        <div key={index} className="p-4 border rounded-md border-gray-200 dark:border-gray-700 space-y-4">
+                        <div key={index} className="p-4 border rounded-md border-gray-200 dark:border-gray-700 space-y-4 mt-4">
                             <div className="flex justify-between items-center">
                                 <h3 className="text-lg font-medium">Field #{index + 1}</h3>
                                 <button type="button" onClick={() => handleRemoveField(index)} className="text-red-500 font-semibold">Remove</button>
                             </div>
 
-                            {/* Label + Type */}
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <Label>Label</Label>
@@ -203,16 +221,13 @@ const CreateForm = () => {
                                 </div>
                             </div>
 
-                            {/* Required checkbox */}
                             <div className="flex items-center">
-                                <input type="checkbox" checked={field.required} onChange={(e) => handleRequiredChange(index, e)} />
+                                <input type="checkbox" name="required" checked={field.required} onChange={(e) => handleRequiredChange(index, e)} />
                                 <label className="ml-2 text-sm">Required</label>
                             </div>
 
-                            {/* Dropdown Options */}
                             {field.type === 'select' && (
                                 <>
-                                    {/* Depends On */}
                                     <div>
                                         <Label>Depends On</Label>
                                         <Select
@@ -228,7 +243,6 @@ const CreateForm = () => {
                                     <div className="space-y-2 p-3 border-t">
                                         <h4 className="font-medium">Dropdown Options</h4>
                                         {field.dependsOn && parentField ? (
-                                            // Dependent options
                                             (parentField.options.map(p => p.value)).map(parentOpt => (
                                                 <div key={parentOpt} className="p-2 border rounded">
                                                     <p className="font-semibold text-sm mb-2">Options for: <span className="text-blue-500">{parentOpt}</span></p>
@@ -242,7 +256,6 @@ const CreateForm = () => {
                                                 </div>
                                             ))
                                         ) : (
-                                            // Normal options
                                             <>
                                                 {field.options.map((opt, optIdx) => (
                                                     <div key={optIdx} className="flex gap-2">
@@ -260,7 +273,6 @@ const CreateForm = () => {
                     );
                 })}
 
-                {/* Actions */}
                 <div className="flex justify-between mt-6">
                     <button type="button" onClick={handleAddField} className="px-4 py-2 bg-gray-600 text-white rounded-md">Add Field</button>
                     <button type="submit" disabled={loading} className="px-6 py-2 bg-brand-500 text-white rounded-md disabled:bg-gray-400">

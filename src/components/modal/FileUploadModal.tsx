@@ -84,7 +84,7 @@ const FileUploadModal: React.FC<FileUploadModalProps> = ({ isOpen, onClose, onUp
             console.log("Upload successful, jobId:", jobId);
 
             // Start listening to SSE events
-            const url = import.meta.env.VITE_NODE_ENV === 'development' ? import.meta.env.VITE_DEV_BASE_URL : import.meta.env.VITE_PROD_BASE_URL
+            const url = import.meta.env.VITE_NODE_ENV === 'development' ? import.meta.env.VITE_DEV_BASE_URL : import.meta.env.VITE_NODE_ENV === 'local' ? import.meta.env.VITE_LOCAL_BASE_URL : import.meta.env.VITE_PROD_BASE_URL
             console.log("URL is", url)
             const es = new EventSource(`${url}/api/v1/uploads/${formId}/submissions/events?jobId=${jobId}`);
             eventSourceRef.current = es;

@@ -2,12 +2,26 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "../../utils/axiosInstance";
 import axiosFormInstance from "../../utils/axiosFormInstance";
 
-export const getAllStates = createAsyncThunk(
-  "locations/getAllStates",
+export const getAllCountries = createAsyncThunk(
+  "locations/getAllCountries",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get("/states");
-      return response.data;
+      const response = await axiosInstance.get("/countries");
+      return response.data.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch countries"
+      );
+    }
+  }
+);
+
+export const getAllStates = createAsyncThunk(
+  "locations/getAllStates",
+  async (countryId?: string, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get(countryId ? `/states?countryId=${countryId}` : "/states");
+      return response.data.data;
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message || "Failed to fetch states"
@@ -40,10 +54,24 @@ export const bulkUploadStates = createAsyncThunk(
 
 export const getAllDistricts = createAsyncThunk(
   "locations/getAllDistricts",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get("/districts");
+      return response.data.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch all districts"
+      );
+    }
+  }
+);
+
+export const getDistrictsByState = createAsyncThunk(
+  "locations/getDistrictsByState",
   async (stateId: string, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.get(`/districts?parentId=${stateId}`);
-      return response.data;
+      return response.data.data;
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message || "Failed to fetch districts"
@@ -71,7 +99,7 @@ export const getAllLegislativeAssemblies = createAsyncThunk(
   async (districtId: string, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.get(`/legislative-assemblies?parentId=${districtId}`);
-      return response.data;
+      return response.data.data;
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message || "Failed to fetch legislative assemblies"
@@ -99,7 +127,7 @@ export const getAllBooths = createAsyncThunk(
   async (legislativeAssemblyId: string, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.get(`/booths?parentId=${legislativeAssemblyId}`);
-      return response.data;
+      return response.data.data;
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message || "Failed to fetch booths"

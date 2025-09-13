@@ -97,12 +97,27 @@ const ViewSubmissions: React.FC = () => {
 
     const handleDownloadData = () => {
         if (!currentFormDefinition) return;
-        const fields = currentFormDefinition.fields;
-        const headers = fields.map((f: any) => f.label);
+        const allFields = [...(currentFormDefinition.fields || [])];
+        if (currentFormDefinition.locationDD) {
+            if (currentFormDefinition.locationDD.booth) {
+                allFields.unshift({ name: 'booth', label: 'Booth' });
+            }
+            if (currentFormDefinition.locationDD.legislativeAssembly) {
+                allFields.unshift({ name: 'legislativeAssembly', label: 'Legislative Assembly' });
+            }
+            if (currentFormDefinition.locationDD.district) {
+                allFields.unshift({ name: 'district', label: 'District' });
+            }
+            if (currentFormDefinition.locationDD.state) {
+                allFields.unshift({ name: 'state', label: 'State' });
+            }
+        }
+
+        const headers = allFields.map((f: any) => f.label);
         const rows = [
             headers,
             ...submissions.map(item =>
-                fields.map((f: any) => {
+                allFields.map((f: any) => {
                     const value = item.data[f.name];
                     if (value === null || value === undefined) return '';
                     if (typeof value === 'object') return JSON.stringify(value);
@@ -136,6 +151,22 @@ const ViewSubmissions: React.FC = () => {
         return String(item);
     };
 
+    const allFields = [...(currentFormDefinition?.fields || [])];
+    if (currentFormDefinition?.locationDD) {
+        if (currentFormDefinition.locationDD.booth) {
+            allFields.unshift({ name: 'booth', label: 'Booth' });
+        }
+        if (currentFormDefinition.locationDD.legislativeAssembly) {
+            allFields.unshift({ name: 'legislativeAssembly', label: 'Legislative Assembly' });
+        }
+        if (currentFormDefinition.locationDD.district) {
+            allFields.unshift({ name: 'district', label: 'District' });
+        }
+        if (currentFormDefinition.locationDD.state) {
+            allFields.unshift({ name: 'state', label: 'State' });
+        }
+    }
+
     return (
         <div className="p-8 rounded-lg shadow-xl bg-white dark:bg-gray-900 space-y-6">
             <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6 border-b pb-4">
@@ -165,7 +196,7 @@ const ViewSubmissions: React.FC = () => {
                         <table className="min-w-[600px] w-full table-auto divide-y divide-gray-200 dark:divide-gray-700">
                             <thead className="bg-gray-100 dark:bg-gray-700 sticky top-0 z-10">
                                 <tr>
-                                    {currentFormDefinition.fields.map((field: any) => (
+                                    {allFields.map((field: any) => (
                                         <th key={field.name} className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                             {field.label}
                                         </th>
@@ -178,7 +209,7 @@ const ViewSubmissions: React.FC = () => {
                                 {submissions.length > 0 ? (
                                     submissions.map((submission) => (
                                         <tr key={submission._id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
-                                            {currentFormDefinition.fields.map((field: any) => (
+                                            {allFields.map((field: any) => (
                                                 <td key={field.name} className="px-6 py-4 text-sm text-gray-900 dark:text-gray-200 cursor-pointer" onClick={() => navigate(`/submissions/${submission._id}`)}>
                                                     {renderTableCell(submission.data[field.name])}
                                                 </td>
@@ -193,7 +224,7 @@ const ViewSubmissions: React.FC = () => {
                                     ))
                                 ) : (
                                     <tr>
-                                        <td colSpan={currentFormDefinition.fields.length + 2} className="px-6 py-4 text-center text-sm text-gray-500">
+                                        <td colSpan={allFields.length + 2} className="px-6 py-4 text-center text-sm text-gray-500">
                                             No submissions yet for this form.
                                         </td>
                                     </tr>
