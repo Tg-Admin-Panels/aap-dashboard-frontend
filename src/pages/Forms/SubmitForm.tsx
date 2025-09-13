@@ -160,7 +160,28 @@ const SubmitForm = () => {
         e.preventDefault();
         if (!formId) return;
 
-        dispatch(submitFormData({ formId, data: formData }))
+        const submissionData = { ...formData };
+
+        if (currentFormDefinition?.locationDD) {
+            if (currentFormDefinition.locationDD.state && formData.state) {
+                const state = locationOptions.states.find(s => s.value === formData.state);
+                if (state) submissionData.state = state.label;
+            }
+            if (currentFormDefinition.locationDD.district && formData.district) {
+                const district = locationOptions.districts.find(d => d.value === formData.district);
+                if (district) submissionData.district = district.label;
+            }
+            if (currentFormDefinition.locationDD.legislativeAssembly && formData.legislativeAssembly) {
+                const legislativeAssembly = locationOptions.legislativeAssemblies.find(l => l.value === formData.legislativeAssembly);
+                if (legislativeAssembly) submissionData.legislativeAssembly = legislativeAssembly.label;
+            }
+            if (currentFormDefinition.locationDD.booth && formData.booth) {
+                const booth = locationOptions.booths.find(b => b.value === formData.booth);
+                if (booth) submissionData.booth = booth.label;
+            }
+        }
+
+        dispatch(submitFormData({ formId, data: submissionData }))
             .unwrap()
             .then(() => {
                 alert('Form submitted successfully!');
