@@ -12,7 +12,9 @@ export const loginUser = createAsyncThunk(
   'users/loginUser',
   async (credentials: LoginCredentials, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/users/login`, credentials, {
+      const url = import.meta.env.VITE_NODE_ENV === 'development' ? import.meta.env.VITE_DEV_BASE_URL : import.meta.env.VITE_PROD_BASE_URL
+      console.log("URL is", url)
+      const response = await axios.post(`${url}/users/login`, credentials, {
         withCredentials: true
       })
       console.log(response.data)
