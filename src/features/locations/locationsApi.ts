@@ -18,9 +18,23 @@ export const getAllCountries = createAsyncThunk(
 
 export const getAllStates = createAsyncThunk(
   "locations/getAllStates",
-  async (countryId?: string, { rejectWithValue }) => {
+  async (_, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get(countryId ? `/states?countryId=${countryId}` : "/states");
+      const response = await axiosInstance.get("/states");
+      return response.data.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch states"
+      );
+    }
+  }
+);
+
+export const getStatesByCountry = createAsyncThunk(
+  "locations/getStatesByCountry",
+  async (countryId: string, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get(`/states?countryId=${countryId}`);
       return response.data.data;
     } catch (error: any) {
       return rejectWithValue(
@@ -178,5 +192,33 @@ export const bulkUploadBooths = createAsyncThunk(
       headers: { "Content-Type": "multipart/form-data" },
     });
     return response.data;
+  }
+);
+
+export const getAllLegislativeAssemblies_ = createAsyncThunk(
+  "locations/getAllLegislativeAssemblies_",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get("/legislative-assemblies");
+      return response.data.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch all legislative assemblies"
+      );
+    }
+  }
+);
+
+export const getAllBooths_ = createAsyncThunk(
+  "locations/getAllBooths_",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get("/booths");
+      return response.data.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch all booths"
+      );
+    }
   }
 );

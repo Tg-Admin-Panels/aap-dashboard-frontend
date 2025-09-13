@@ -329,57 +329,59 @@ const AppSidebar: React.FC = () => {
 
   return (
     <aside
-      className={`fixed mt-16 flex flex-col lg:mt-0 top-0 px-5 left-0 bg-white dark:bg-gray-900 dark:border-gray-800 text-gray-900 h-screen transition-all duration-300 ease-in-out z-50 border-r border-gray-200 
+      className={`fixed mt-16 flex flex-col justify-between lg:mt-0 top-0 px-5 left-0 bg-white dark:bg-gray-900 dark:border-gray-800 text-gray-900 h-screen transition-all duration-300 ease-in-out z-50 border-r border-gray-200 
         ${isExpanded || isMobileOpen ? "w-[290px]" : isHovered ? "w-[290px]" : "w-[90px]"}
         ${isMobileOpen ? "translate-x-0" : "-translate-x-full"}
         lg:translate-x-0`}
       onMouseEnter={() => !isExpanded && setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div
-        className={`py-8 flex ${!isExpanded && !isHovered ? "lg:justify-center" : "justify-start"
-          }`}
-      >
-        <Link to="/">
-          {isExpanded || isHovered || isMobileOpen ? (
-            <div className=" flex flex-col items-center gap-2">
+      <div className="flex flex-col h-full">
+        <div
+          className={`py-8 flex ${!isExpanded && !isHovered ? "lg:justify-center" : "justify-start"
+            }`}
+        >
+          <Link to="/">
+            {isExpanded || isHovered || isMobileOpen ? (
+              <div className=" flex flex-col items-center gap-2">
+                <img
+                  className="brightness-0 dark:brightness-100"
+                  src="/images/logo/app-logo.png"
+                  alt="Logo"
+                  width={150}
+                  height={40}
+                />
+                <h2 className="text-2xl font-semibold text:gray-800 dark:text-gray-300">
+                  Aam Admi Party
+                </h2>
+              </div>
+            ) : (
               <img
-                className="brightness-0 dark:brightness-100"
                 src="/images/logo/app-logo.png"
                 alt="Logo"
-                width={150}
-                height={40}
+                width={32}
+                height={32}
+                className="brightness-0 dark:brightness-100"
               />
-              <h2 className="text-2xl font-semibold text:gray-800 dark:text-gray-300">
-                Aam Admi Party
-              </h2>
-            </div>
-          ) : (
-            <img
-              src="/images/logo/app-logo.png"
-              alt="Logo"
-              width={32}
-              height={32}
-              className="brightness-0 dark:brightness-100"
-            />
-          )}
-        </Link>
-      </div>
+            )}
+          </Link>
+        </div>
 
-      <div className="flex flex-col overflow-y-auto duration-300 ease-linear no-scrollbar">
-        <nav className="mb-6">
-          <div className="flex flex-col gap-4">
-            <div>
-              <h2
-                className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${!isExpanded && !isHovered ? "lg:justify-center" : "justify-start"
-                  }`}
-              >
-                {isExpanded || isHovered || isMobileOpen ? "Menu" : <HorizontaLDots className="size-6" />}
-              </h2>
-              {renderMenuItems(navItems, "main")}
+        <div className="flex flex-col overflow-y-auto duration-300 ease-linear no-scrollbar">
+          <nav className="mb-6">
+            <div className="flex flex-col gap-4">
+              <div>
+                <h2
+                  className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${!isExpanded && !isHovered ? "lg:justify-center" : "justify-start"
+                    }`}
+                >
+                  {isExpanded || isHovered || isMobileOpen ? "Menu" : <HorizontaLDots className="size-6" />}
+                </h2>
+                {renderMenuItems(navItems, "main")}
+              </div>
             </div>
-          </div>
-        </nav>
+          </nav>
+        </div>
       </div>
 
 

@@ -57,50 +57,56 @@ const SubmitForm = () => {
     }, [currentFormDefinition, dispatch]);
 
     useEffect(() => {
-        if (currentFormDefinition?.locationDD?.district) {
-            const stateId = formData.state;
-            if (stateId) {
-                dispatch(getDistrictsByState(stateId)).then(action => {
-                    if (action.payload) {
-                        setLocationOptions(prev => ({
-                            ...prev,
-                            districts: action.payload.map((d: any) => ({ value: d._id, label: d.name }))
-                        }));
-                    }
-                });
-            }
+        if (!currentFormDefinition) return;
+        const { locationDD } = currentFormDefinition;
+        if (!locationDD?.district) return;
+
+        const stateId = locationDD.state ? formData.state : locationDD.fixedState;
+        if (stateId) {
+            dispatch(getDistrictsByState(stateId)).then(action => {
+                if (action.payload) {
+                    setLocationOptions(prev => ({
+                        ...prev,
+                        districts: action.payload.map((d: any) => ({ value: d._id, label: d.name }))
+                    }));
+                }
+            });
         }
     }, [currentFormDefinition, dispatch, formData.state]);
 
     useEffect(() => {
-        if (currentFormDefinition?.locationDD?.legislativeAssembly) {
-            const districtId = formData.district;
-            if (districtId) {
-                dispatch(getAllLegislativeAssemblies(districtId)).then(action => {
-                    if (action.payload) {
-                        setLocationOptions(prev => ({
-                            ...prev,
-                            legislativeAssemblies: action.payload.map((l: any) => ({ value: l._id, label: l.name }))
-                        }));
-                    }
-                });
-            }
+        if (!currentFormDefinition) return;
+        const { locationDD } = currentFormDefinition;
+        if (!locationDD?.legislativeAssembly) return;
+
+        const districtId = locationDD.district ? formData.district : locationDD.fixedDistrict;
+        if (districtId) {
+            dispatch(getAllLegislativeAssemblies(districtId)).then(action => {
+                if (action.payload) {
+                    setLocationOptions(prev => ({
+                        ...prev,
+                        legislativeAssemblies: action.payload.map((l: any) => ({ value: l._id, label: l.name }))
+                    }));
+                }
+            });
         }
     }, [currentFormDefinition, dispatch, formData.district]);
 
     useEffect(() => {
-        if (currentFormDefinition?.locationDD?.booth) {
-            const legislativeAssemblyId = formData.legislativeAssembly;
-            if (legislativeAssemblyId) {
-                dispatch(getAllBooths(legislativeAssemblyId)).then(action => {
-                    if (action.payload) {
-                        setLocationOptions(prev => ({
-                            ...prev,
-                            booths: action.payload.map((b: any) => ({ value: b._id, label: b.name }))
-                        }));
-                    }
-                });
-            }
+        if (!currentFormDefinition) return;
+        const { locationDD } = currentFormDefinition;
+        if (!locationDD?.booth) return;
+
+        const legislativeAssemblyId = locationDD.legislativeAssembly ? formData.legislativeAssembly : locationDD.fixedLegislativeAssembly;
+        if (legislativeAssemblyId) {
+            dispatch(getAllBooths(legislativeAssemblyId)).then(action => {
+                if (action.payload) {
+                    setLocationOptions(prev => ({
+                        ...prev,
+                        booths: action.payload.map((b: any) => ({ value: b._id, label: b.name }))
+                    }));
+                }
+            });
         }
     }, [currentFormDefinition, dispatch, formData.legislativeAssembly]);
 
@@ -230,7 +236,7 @@ const SubmitForm = () => {
                                     onChange={(opt) => handleSelectChange('district', opt)}
                                     placeholder="Select District"
                                     styles={customSelectStyles}
-                                    isDisabled={!formData.state}
+                                    isDisabled={currentFormDefinition.locationDD.state && !formData.state}
                                 />
                             </div>
                         )}
@@ -244,7 +250,7 @@ const SubmitForm = () => {
                                     onChange={(opt) => handleSelectChange('legislativeAssembly', opt)}
                                     placeholder="Select Legislative Assembly"
                                     styles={customSelectStyles}
-                                    isDisabled={!formData.district}
+                                    isDisabled={currentFormDefinition.locationDD.district && !formData.district}
                                 />
                             </div>
                         )}
@@ -258,7 +264,7 @@ const SubmitForm = () => {
                                     onChange={(opt) => handleSelectChange('booth', opt)}
                                     placeholder="Select Booth"
                                     styles={customSelectStyles}
-                                    isDisabled={!formData.legislativeAssembly}
+                                    isDisabled={currentFormDefinition.locationDD.legislativeAssembly && !formData.legislativeAssembly}
                                 />
                             </div>
                         )}
