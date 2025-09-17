@@ -4,7 +4,7 @@ import Select from 'react-select';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../features/store';
 import { createFormDefinition } from '../../features/forms/formsApi';
-import { getAllStates, getAllDistricts, getAllLegislativeAssemblies_ } from '../../features/locations/locationsApi';
+import { getAllStates, getAllDistricts, getAllLegislativeAssemblies } from '../../features/locations/locationsApi';
 import Form from '../../components/form/Form';
 import Label from '../../components/form/Label';
 import Input from '../../components/form/input/InputField';
@@ -76,19 +76,19 @@ const CreateForm = () => {
     const [allLegislativeAssemblies, setAllLegislativeAssemblies] = useState([]);
 
     useEffect(() => {
-        dispatch(getAllStates()).then(action => {
+        dispatch(getAllStates({})).then(action => {
             if (action.payload) {
-                setAllStates(action.payload.map((s: any) => ({ value: s._id, label: s.name })));
+                setAllStates(action.payload.data.map((s: any) => ({ value: s._id, label: s.name })));
             }
         });
-        dispatch(getAllDistricts()).then(action => {
+        dispatch(getAllDistricts({})).then(action => {
             if (action.payload) {
-                setAllDistricts(action.payload.map((d: any) => ({ value: d._id, label: d.name })));
+                setAllDistricts(action.payload.data.map((d: any) => ({ value: d._id, label: d.name })));
             }
         });
-        dispatch(getAllLegislativeAssemblies_()).then(action => {
+        dispatch(getAllLegislativeAssemblies({})).then(action => {
             if (action.payload) {
-                setAllLegislativeAssemblies(action.payload.map((l: any) => ({ value: l._id, label: l.name })));
+                setAllLegislativeAssemblies(action.payload.data.map((l: any) => ({ value: l._id, label: l.name })));
             }
         });
     }, [dispatch]);
@@ -223,14 +223,14 @@ const CreateForm = () => {
                             <div className="space-y-4">
                                 <div className="flex items-center gap-4 p-3 rounded-md bg-gray-50">
                                     <label className="flex items-center gap-2 font-medium">
-                                        <input type="checkbox" checked={locationDD.state} onChange={e => setLocationDD({...locationDD, state: e.target.checked})} className="h-5 w-5" />
+                                        <input type="checkbox" checked={locationDD.state} onChange={e => setLocationDD({ ...locationDD, state: e.target.checked })} className="h-5 w-5" />
                                         State
                                     </label>
                                 </div>
 
                                 <div className="flex items-center gap-4 p-3 rounded-md bg-gray-50">
                                     <label className="flex items-center gap-2 font-medium">
-                                        <input type="checkbox" checked={locationDD.district} onChange={e => setLocationDD({...locationDD, district: e.target.checked})} className="h-5 w-5" />
+                                        <input type="checkbox" checked={locationDD.district} onChange={e => setLocationDD({ ...locationDD, district: e.target.checked })} className="h-5 w-5" />
                                         District
                                     </label>
                                     {locationDD.district && !locationDD.state && (
@@ -238,7 +238,7 @@ const CreateForm = () => {
                                             <Select
                                                 options={allStates}
                                                 placeholder="Select a fixed State"
-                                                onChange={opt => setLocationDD({...locationDD, fixedState: opt.value})}
+                                                onChange={opt => setLocationDD({ ...locationDD, fixedState: opt.value })}
                                                 styles={customSelectStyles}
                                             />
                                         </div>
@@ -247,7 +247,7 @@ const CreateForm = () => {
 
                                 <div className="flex items-center gap-4 p-3 rounded-md bg-gray-50">
                                     <label className="flex items-center gap-2 font-medium">
-                                        <input type="checkbox" checked={locationDD.legislativeAssembly} onChange={e => setLocationDD({...locationDD, legislativeAssembly: e.target.checked})} className="h-5 w-5" />
+                                        <input type="checkbox" checked={locationDD.legislativeAssembly} onChange={e => setLocationDD({ ...locationDD, legislativeAssembly: e.target.checked })} className="h-5 w-5" />
                                         Legislative Assembly
                                     </label>
                                     {locationDD.legislativeAssembly && !locationDD.district && (
@@ -255,7 +255,7 @@ const CreateForm = () => {
                                             <Select
                                                 options={allDistricts}
                                                 placeholder="Select a fixed District"
-                                                onChange={opt => setLocationDD({...locationDD, fixedDistrict: opt.value})}
+                                                onChange={opt => setLocationDD({ ...locationDD, fixedDistrict: opt.value })}
                                                 styles={customSelectStyles}
                                             />
                                         </div>
@@ -264,7 +264,7 @@ const CreateForm = () => {
 
                                 <div className="flex items-center gap-4 p-3 rounded-md bg-gray-50">
                                     <label className="flex items-center gap-2 font-medium">
-                                        <input type="checkbox" checked={locationDD.booth} onChange={e => setLocationDD({...locationDD, booth: e.target.checked})} className="h-5 w-5" />
+                                        <input type="checkbox" checked={locationDD.booth} onChange={e => setLocationDD({ ...locationDD, booth: e.target.checked })} className="h-5 w-5" />
                                         Booth
                                     </label>
                                     {locationDD.booth && !locationDD.legislativeAssembly && (
@@ -272,7 +272,7 @@ const CreateForm = () => {
                                             <Select
                                                 options={allLegislativeAssemblies}
                                                 placeholder="Select a fixed Legislative Assembly"
-                                                onChange={opt => setLocationDD({...locationDD, fixedLegislativeAssembly: opt.value})}
+                                                onChange={opt => setLocationDD({ ...locationDD, fixedLegislativeAssembly: opt.value })}
                                                 styles={customSelectStyles}
                                             />
                                         </div>

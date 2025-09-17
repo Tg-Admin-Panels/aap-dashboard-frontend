@@ -4,7 +4,7 @@ import Select from 'react-select';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../features/store';
 import { fetchFormDefinition, submitFormData } from '../../features/forms/formsApi';
-import { getAllStates, getDistrictsByState, getAllLegislativeAssemblies, getAllBooths } from '../../features/locations/locationsApi';
+import { getAllStates, getAllDistricts, getAllLegislativeAssemblies, getAllBooths } from '../../features/locations/locationsApi';
 import DropzoneComponent from '../../components/form/form-elements/DropZone';
 import Form from '../../components/form/Form';
 import Label from '../../components/form/Label';
@@ -45,11 +45,11 @@ const SubmitForm = () => {
 
     useEffect(() => {
         if (currentFormDefinition?.locationDD?.state) {
-            dispatch(getAllStates()).then(action => {
+            dispatch(getAllStates({})).then(action => {
                 if (action.payload) {
                     setLocationOptions(prev => ({
                         ...prev,
-                        states: action.payload.map((s: any) => ({ value: s._id, label: s.name }))
+                        states: action.payload.data.map((s: any) => ({ value: s._id, label: s.name }))
                     }));
                 }
             });
@@ -63,11 +63,11 @@ const SubmitForm = () => {
 
         const stateId = locationDD.state ? formData.state : locationDD.fixedState;
         if (stateId) {
-            dispatch(getDistrictsByState(stateId)).then(action => {
+            dispatch(getAllDistricts(stateId)).then(action => {
                 if (action.payload) {
                     setLocationOptions(prev => ({
                         ...prev,
-                        districts: action.payload.map((d: any) => ({ value: d._id, label: d.name }))
+                        districts: action.payload.data.map((d: any) => ({ value: d._id, label: d.name }))
                     }));
                 }
             });
@@ -85,7 +85,7 @@ const SubmitForm = () => {
                 if (action.payload) {
                     setLocationOptions(prev => ({
                         ...prev,
-                        legislativeAssemblies: action.payload.map((l: any) => ({ value: l._id, label: l.name }))
+                        legislativeAssemblies: action.payload.data.map((l: any) => ({ value: l._id, label: l.name }))
                     }));
                 }
             });
@@ -103,7 +103,7 @@ const SubmitForm = () => {
                 if (action.payload) {
                     setLocationOptions(prev => ({
                         ...prev,
-                        booths: action.payload.map((b: any) => ({ value: b._id, label: b.name }))
+                        booths: action.payload.data.map((b: any) => ({ value: b._id, label: b.name }))
                     }));
                 }
             });

@@ -30,7 +30,7 @@ export default function CreateBooth() {
   const [file, setFile] = useState<File | null>(null);
 
   useEffect(() => {
-    dispatch(getAllLegislativeAssemblies(""));
+    dispatch(getAllLegislativeAssemblies({}));
   }, [dispatch]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

@@ -9,6 +9,10 @@ import {
   createDistrict,
   createLegislativeAssembly,
   createBooth,
+  bulkUploadStates,
+  bulkUploadDistricts,
+  bulkUploadLegislativeAssemblies,
+  bulkUploadBooths,
 } from "./locationsApi";
 
 interface LocationItem {
@@ -55,6 +59,7 @@ const locationsSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      // ================= States =================
       .addCase(getAllStates.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -68,10 +73,6 @@ const locationsSlice = createSlice({
         state.loading = false;
         toast.error(state.error);
       })
-      .addCase(createState.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
       .addCase(createState.fulfilled, (state, action) => {
         state.states.push(action.payload.data);
         state.loading = false;
@@ -82,10 +83,18 @@ const locationsSlice = createSlice({
         state.loading = false;
         toast.error(state.error);
       })
-      .addCase(getAllDistricts.pending, (state) => {
-        state.loading = true;
-        state.error = null;
+      .addCase(bulkUploadStates.fulfilled, (state, action) => {
+        state.states = [...state.states, ...action.payload.data];
+        state.loading = false;
+        toast.success("States uploaded successfully");
       })
+      .addCase(bulkUploadStates.rejected, (state, action) => {
+        state.error = String(action.payload) || "Failed to upload states";
+        state.loading = false;
+        toast.error(state.error);
+      })
+
+      // ================= Districts =================
       .addCase(getAllDistricts.fulfilled, (state, action) => {
         state.districts = action.payload.data;
         state.loading = false;
@@ -94,10 +103,6 @@ const locationsSlice = createSlice({
         state.error = String(action.payload) || "Failed to get districts";
         state.loading = false;
         toast.error(state.error);
-      })
-      .addCase(createDistrict.pending, (state) => {
-        state.loading = true;
-        state.error = null;
       })
       .addCase(createDistrict.fulfilled, (state, action) => {
         state.districts.push(action.payload.data);
@@ -109,22 +114,27 @@ const locationsSlice = createSlice({
         state.loading = false;
         toast.error(state.error);
       })
-      .addCase(getAllLegislativeAssemblies.pending, (state) => {
-        state.loading = true;
-        state.error = null;
+      .addCase(bulkUploadDistricts.fulfilled, (state, action) => {
+        state.districts = [...state.districts, ...action.payload.data];
+        state.loading = false;
+        toast.success("Districts uploaded successfully");
       })
+      .addCase(bulkUploadDistricts.rejected, (state, action) => {
+        state.error = String(action.payload) || "Failed to upload districts";
+        state.loading = false;
+        toast.error(state.error);
+      })
+
+      // ================= Legislative Assemblies =================
       .addCase(getAllLegislativeAssemblies.fulfilled, (state, action) => {
         state.legislativeAssemblies = action.payload.data;
         state.loading = false;
       })
       .addCase(getAllLegislativeAssemblies.rejected, (state, action) => {
-        state.error = String(action.payload) || "Failed to get legislative assemblies";
+        state.error =
+          String(action.payload) || "Failed to get legislative assemblies";
         state.loading = false;
         toast.error(state.error);
-      })
-      .addCase(createLegislativeAssembly.pending, (state) => {
-        state.loading = true;
-        state.error = null;
       })
       .addCase(createLegislativeAssembly.fulfilled, (state, action) => {
         state.legislativeAssemblies.push(action.payload.data);
@@ -132,14 +142,27 @@ const locationsSlice = createSlice({
         toast.success("Legislative Assembly created successfully");
       })
       .addCase(createLegislativeAssembly.rejected, (state, action) => {
-        state.error = String(action.payload) || "Failed to create legislative assembly";
+        state.error =
+          String(action.payload) || "Failed to create legislative assembly";
         state.loading = false;
         toast.error(state.error);
       })
-      .addCase(getAllBooths.pending, (state) => {
-        state.loading = true;
-        state.error = null;
+      .addCase(bulkUploadLegislativeAssemblies.fulfilled, (state, action) => {
+        state.legislativeAssemblies = [
+          ...state.legislativeAssemblies,
+          ...action.payload.data,
+        ];
+        state.loading = false;
+        toast.success("Legislative Assemblies uploaded successfully");
       })
+      .addCase(bulkUploadLegislativeAssemblies.rejected, (state, action) => {
+        state.error =
+          String(action.payload) || "Failed to upload legislative assemblies";
+        state.loading = false;
+        toast.error(state.error);
+      })
+
+      // ================= Booths =================
       .addCase(getAllBooths.fulfilled, (state, action) => {
         state.booths = action.payload.data;
         state.loading = false;
@@ -148,10 +171,6 @@ const locationsSlice = createSlice({
         state.error = String(action.payload) || "Failed to get booths";
         state.loading = false;
         toast.error(state.error);
-      })
-      .addCase(createBooth.pending, (state) => {
-        state.loading = true;
-        state.error = null;
       })
       .addCase(createBooth.fulfilled, (state, action) => {
         state.booths.push(action.payload.data);
@@ -162,9 +181,21 @@ const locationsSlice = createSlice({
         state.error = String(action.payload) || "Failed to create booth";
         state.loading = false;
         toast.error(state.error);
+      })
+      .addCase(bulkUploadBooths.fulfilled, (state, action) => {
+        state.booths = [...state.booths, ...action.payload.data];
+        state.loading = false;
+        toast.success("Booths uploaded successfully");
+      })
+      .addCase(bulkUploadBooths.rejected, (state, action) => {
+        state.error = String(action.payload) || "Failed to upload booths";
+        state.loading = false;
+        toast.error(state.error);
       });
   },
 });
 
-export const { clearDistricts, clearLegislativeAssemblies, clearBooths } = locationsSlice.actions;
+export const { clearDistricts, clearLegislativeAssemblies, clearBooths } =
+  locationsSlice.actions;
+
 export default locationsSlice.reducer;

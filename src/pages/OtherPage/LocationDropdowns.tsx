@@ -28,12 +28,12 @@ export default function LocationDropdowns() {
   const [selectedBooth, setSelectedBooth] = useState<string | null>(null);
 
   useEffect(() => {
-    dispatch(getAllStates());
+    dispatch(getAllStates({}));
   }, [dispatch]);
 
   useEffect(() => {
     if (selectedState) {
-      dispatch(getAllDistricts(selectedState));
+      dispatch(getAllDistricts({ parentId: selectedState }));
     } else {
       dispatch(clearDistricts());
     }
@@ -41,7 +41,7 @@ export default function LocationDropdowns() {
 
   useEffect(() => {
     if (selectedDistrict) {
-      dispatch(getAllLegislativeAssemblies(selectedDistrict));
+      dispatch(getAllLegislativeAssemblies({ parentId: selectedDistrict }));
     } else {
       dispatch(clearLegislativeAssemblies());
     }
@@ -49,7 +49,7 @@ export default function LocationDropdowns() {
 
   useEffect(() => {
     if (selectedLegislativeAssembly) {
-      dispatch(getAllBooths(selectedLegislativeAssembly));
+      dispatch(getAllBooths({ parentId: selectedLegislativeAssembly }));
     } else {
       dispatch(clearBooths());
     }
