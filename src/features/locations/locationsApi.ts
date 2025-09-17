@@ -2,11 +2,31 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "../../utils/axiosInstance";
 import axiosFormInstance from "../../utils/axiosFormInstance";
 
-export const getAllStates = createAsyncThunk(
-  "locations/getAllStates",
+// ================= Countries =================
+export const getAllCountries = createAsyncThunk(
+  "locations/getAllCountries",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get("/states");
+      const response = await axiosInstance.get("/countries");
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch countries"
+      );
+    }
+  }
+);
+
+// ================= States =================
+export const getAllStates = createAsyncThunk(
+  "locations/getAllStates",
+  async (
+    { parentId }: { parentId?: string },
+    { rejectWithValue }
+  ) => {
+    try {
+      const url = parentId ? `/states?parentId=${parentId}` : `/states`;
+      const response = await axiosInstance.get(url);
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
@@ -18,7 +38,7 @@ export const getAllStates = createAsyncThunk(
 
 export const createState = createAsyncThunk(
   "locations/createState",
-  async (stateData: { name: string; code: string }, { rejectWithValue }) => {
+  async (stateData: { name: string; code: string; parentId: string }, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.post("/states", stateData);
       return response.data;
@@ -38,11 +58,16 @@ export const bulkUploadStates = createAsyncThunk(
   }
 );
 
+// ================= Districts =================
 export const getAllDistricts = createAsyncThunk(
   "locations/getAllDistricts",
-  async (stateId: string, { rejectWithValue }) => {
+  async (
+    { parentId }: { parentId?: string },
+    { rejectWithValue }
+  ) => {
     try {
-      const response = await axiosInstance.get(`/districts?parentId=${stateId}`);
+      const url = parentId ? `/districts?parentId=${parentId}` : `/districts`;
+      const response = await axiosInstance.get(url);
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
@@ -66,15 +91,34 @@ export const createDistrict = createAsyncThunk(
   }
 );
 
+export const bulkUploadDistricts = createAsyncThunk(
+  "locations/bulkUploadDistricts",
+  async ({ fd, parentId }: { fd: FormData; parentId: string }) => {
+    const response = await axiosFormInstance.post(
+      `/districts/bulk-upload?parentId=${parentId}`,
+      fd
+    );
+    return response.data;
+  }
+);
+
+// ================= Legislative Assemblies =================
 export const getAllLegislativeAssemblies = createAsyncThunk(
   "locations/getAllLegislativeAssemblies",
-  async (districtId: string, { rejectWithValue }) => {
+  async (
+    { parentId }: { parentId?: string },
+    { rejectWithValue }
+  ) => {
     try {
-      const response = await axiosInstance.get(`/legislative-assemblies?parentId=${districtId}`);
+      const url = parentId
+        ? `/legislative-assemblies?parentId=${parentId}`
+        : `/legislative-assemblies`;
+      const response = await axiosInstance.get(url);
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Failed to fetch legislative assemblies"
+        error.response?.data?.message ||
+        "Failed to fetch legislative assemblies"
       );
     }
   }
@@ -88,17 +132,35 @@ export const createLegislativeAssembly = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Failed to create legislative assembly"
+        error.response?.data?.message ||
+        "Failed to create legislative assembly"
       );
     }
   }
 );
 
+export const bulkUploadLegislativeAssemblies = createAsyncThunk(
+  "locations/bulkUploadLegislativeAssemblies",
+  async ({ fd, parentId }: { fd: FormData; parentId: string }) => {
+    const response = await axiosFormInstance.post(
+      `/legislative-assemblies/bulk-upload?parentId=${parentId}`,
+      fd,
+      { headers: { "Content-Type": "multipart/form-data" } }
+    );
+    return response.data;
+  }
+);
+
+// ================= Booths =================
 export const getAllBooths = createAsyncThunk(
   "locations/getAllBooths",
-  async (legislativeAssemblyId: string, { rejectWithValue }) => {
+  async (
+    { parentId }: { parentId?: string },
+    { rejectWithValue }
+  ) => {
     try {
-      const response = await axiosInstance.get(`/booths?parentId=${legislativeAssemblyId}`);
+      const url = parentId ? `/booths?parentId=${parentId}` : `/booths`;
+      const response = await axiosInstance.get(url);
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
@@ -122,33 +184,14 @@ export const createBooth = createAsyncThunk(
   }
 );
 
-// Bulk upload Districts
-export const bulkUploadDistricts = createAsyncThunk(
-  "locations/bulkUploadDistricts",
-  async ({ fd, parentId }: { fd: FormData, parentId: string }) => {
-    const response = await axiosFormInstance.post(`/districts/bulk-upload?parentId=${parentId}`, fd,);
-    return response.data;
-  }
-);
-
-// Bulk upload Legislative Assemblies
-export const bulkUploadLegislativeAssemblies = createAsyncThunk(
-  "locations/bulkUploadLegislativeAssemblies",
-  async ({ fd, parentId }: { fd: FormData, parentId: string }) => {
-    const response = await axiosFormInstance.post(`/legislative-assemblies/bulk-upload?parentId=${parentId}`, fd, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
-    return response.data;
-  }
-);
-
-// Bulk upload Booths
 export const bulkUploadBooths = createAsyncThunk(
   "locations/bulkUploadBooths",
-  async ({ fd, parentId }: { fd: FormData, parentId: string }) => {
-    const response = await axiosFormInstance.post(`/booths/bulk-upload?parentId=${parentId}`, fd, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
+  async ({ fd, parentId }: { fd: FormData; parentId: string }) => {
+    const response = await axiosFormInstance.post(
+      `/booths/bulk-upload?parentId=${parentId}`,
+      fd,
+      { headers: { "Content-Type": "multipart/form-data" } }
+    );
     return response.data;
   }
 );

@@ -20,6 +20,22 @@ const SubmissionDetail = () => {
     if (error) return <div className="p-6 text-red-600 bg-red-100 rounded-lg">Error: {error}</div>;
     if (!currentSubmission) return <div className="p-6">No submission data found.</div>;
 
+    const allFields = [...(currentSubmission.formId.fields || [])];
+    if (currentSubmission.formId.locationDD) {
+        if (currentSubmission.formId.locationDD.booth) {
+            allFields.unshift({ name: 'booth', label: 'Booth' });
+        }
+        if (currentSubmission.formId.locationDD.legislativeAssembly) {
+            allFields.unshift({ name: 'legislativeAssembly', label: 'Legislative Assembly' });
+        }
+        if (currentSubmission.formId.locationDD.district) {
+            allFields.unshift({ name: 'district', label: 'District' });
+        }
+        if (currentSubmission.formId.locationDD.state) {
+            allFields.unshift({ name: 'state', label: 'State' });
+        }
+    }
+
     return (
         <div className="max-w-5xl mx-auto bg-white border border-gray-800 p-6 min-h-[550px]">
             {/* Header */}
@@ -35,7 +51,7 @@ const SubmissionDetail = () => {
 
             {/* Grid of Details */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {currentSubmission.formId.fields.map((field: any) => (
+                {allFields.map((field: any) => (
                     <div
                         key={field.name}
                         className="p-3 border border-gray-300 rounded bg-gray-50"

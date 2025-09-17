@@ -4,6 +4,7 @@ import Select from 'react-select';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../features/store';
 import { fetchFormDefinition, submitFormData } from '../../features/forms/formsApi';
+import { getAllStates, getAllDistricts, getAllLegislativeAssemblies, getAllBooths } from '../../features/locations/locationsApi';
 import DropzoneComponent from '../../components/form/form-elements/DropZone';
 import Form from '../../components/form/Form';
 import Label from '../../components/form/Label';
@@ -29,12 +30,86 @@ const SubmitForm = () => {
 
     const { currentFormDefinition, loading, error } = useSelector((state: RootState) => state.forms);
     const [formData, setFormData] = useState<Record<string, any>>({});
+    const [locationOptions, setLocationOptions] = useState<Record<string, any[]>>({
+        states: [],
+        districts: [],
+        legislativeAssemblies: [],
+        booths: [],
+    });
 
     useEffect(() => {
         if (formId) {
             dispatch(fetchFormDefinition(formId));
         }
     }, [formId, dispatch]);
+
+    useEffect(() => {
+        if (currentFormDefinition?.locationDD?.state) {
+            dispatch(getAllStates({})).then(action => {
+                if (action.payload) {
+                    setLocationOptions(prev => ({
+                        ...prev,
+                        states: action.payload.data.map((s: any) => ({ value: s._id, label: s.name }))
+                    }));
+                }
+            });
+        }
+    }, [currentFormDefinition, dispatch]);
+
+    useEffect(() => {
+        if (!currentFormDefinition) return;
+        const { locationDD } = currentFormDefinition;
+        if (!locationDD?.district) return;
+
+        const stateId = locationDD.state ? formData.state : locationDD.fixedState;
+        if (stateId) {
+            dispatch(getAllDistricts(stateId)).then(action => {
+                if (action.payload) {
+                    setLocationOptions(prev => ({
+                        ...prev,
+                        districts: action.payload.data.map((d: any) => ({ value: d._id, label: d.name }))
+                    }));
+                }
+            });
+        }
+    }, [currentFormDefinition, dispatch, formData.state]);
+
+    useEffect(() => {
+        if (!currentFormDefinition) return;
+        const { locationDD } = currentFormDefinition;
+        if (!locationDD?.legislativeAssembly) return;
+
+        const districtId = locationDD.district ? formData.district : locationDD.fixedDistrict;
+        if (districtId) {
+            dispatch(getAllLegislativeAssemblies(districtId)).then(action => {
+                if (action.payload) {
+                    setLocationOptions(prev => ({
+                        ...prev,
+                        legislativeAssemblies: action.payload.data.map((l: any) => ({ value: l._id, label: l.name }))
+                    }));
+                }
+            });
+        }
+    }, [currentFormDefinition, dispatch, formData.district]);
+
+    useEffect(() => {
+        if (!currentFormDefinition) return;
+        const { locationDD } = currentFormDefinition;
+        if (!locationDD?.booth) return;
+
+        const legislativeAssemblyId = locationDD.legislativeAssembly ? formData.legislativeAssembly : locationDD.fixedLegislativeAssembly;
+        if (legislativeAssemblyId) {
+            dispatch(getAllBooths(legislativeAssemblyId)).then(action => {
+                if (action.payload) {
+                    setLocationOptions(prev => ({
+                        ...prev,
+                        booths: action.payload.data.map((b: any) => ({ value: b._id, label: b.name }))
+                    }));
+                }
+            });
+        }
+    }, [currentFormDefinition, dispatch, formData.legislativeAssembly]);
+
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -46,7 +121,22 @@ const SubmitForm = () => {
         setFormData((prev) => {
             const newState = { ...prev, [fieldName]: value };
 
-            // Reset dependent children when parent changes
+            if (fieldName === 'state') {
+                newState.district = null;
+                newState.legislativeAssembly = null;
+                newState.booth = null;
+                setLocationOptions(prevOptions => ({ ...prevOptions, districts: [], legislativeAssemblies: [], booths: [] }));
+            }
+            if (fieldName === 'district') {
+                newState.legislativeAssembly = null;
+                newState.booth = null;
+                setLocationOptions(prevOptions => ({ ...prevOptions, legislativeAssemblies: [], booths: [] }));
+            }
+            if (fieldName === 'legislativeAssembly') {
+                newState.booth = null;
+                setLocationOptions(prevOptions => ({ ...prevOptions, booths: [] }));
+            }
+
             const fieldsToReset = new Set<string>();
             let fieldsToCheck = [fieldName];
 
@@ -76,7 +166,28 @@ const SubmitForm = () => {
         e.preventDefault();
         if (!formId) return;
 
-        dispatch(submitFormData({ formId, data: formData }))
+        const submissionData = { ...formData };
+
+        if (currentFormDefinition?.locationDD) {
+            if (currentFormDefinition.locationDD.state && formData.state) {
+                const state = locationOptions.states.find(s => s.value === formData.state);
+                if (state) submissionData.state = state.label;
+            }
+            if (currentFormDefinition.locationDD.district && formData.district) {
+                const district = locationOptions.districts.find(d => d.value === formData.district);
+                if (district) submissionData.district = district.label;
+            }
+            if (currentFormDefinition.locationDD.legislativeAssembly && formData.legislativeAssembly) {
+                const legislativeAssembly = locationOptions.legislativeAssemblies.find(l => l.value === formData.legislativeAssembly);
+                if (legislativeAssembly) submissionData.legislativeAssembly = legislativeAssembly.label;
+            }
+            if (currentFormDefinition.locationDD.booth && formData.booth) {
+                const booth = locationOptions.booths.find(b => b.value === formData.booth);
+                if (booth) submissionData.booth = booth.label;
+            }
+        }
+
+        dispatch(submitFormData({ formId, data: submissionData }))
             .unwrap()
             .then(() => {
                 alert('Form submitted successfully!');
@@ -102,6 +213,62 @@ const SubmitForm = () => {
                     <h2 className="text-2xl font-semibold mb-6">{currentFormDefinition.formName}</h2>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                        {currentFormDefinition.locationDD?.state && (
+                            <div className="mb-4">
+                                <Label>State</Label>
+                                <Select
+                                    name="state"
+                                    options={locationOptions.states}
+                                    value={locationOptions.states.find(s => s.value === formData.state) || null}
+                                    onChange={(opt) => handleSelectChange('state', opt)}
+                                    placeholder="Select State"
+                                    styles={customSelectStyles}
+                                />
+                            </div>
+                        )}
+                        {currentFormDefinition.locationDD?.district && (
+                            <div className="mb-4">
+                                <Label>District</Label>
+                                <Select
+                                    name="district"
+                                    options={locationOptions.districts}
+                                    value={locationOptions.districts.find(d => d.value === formData.district) || null}
+                                    onChange={(opt) => handleSelectChange('district', opt)}
+                                    placeholder="Select District"
+                                    styles={customSelectStyles}
+                                    isDisabled={currentFormDefinition.locationDD.state && !formData.state}
+                                />
+                            </div>
+                        )}
+                        {currentFormDefinition.locationDD?.legislativeAssembly && (
+                            <div className="mb-4">
+                                <Label>Legislative Assembly</Label>
+                                <Select
+                                    name="legislativeAssembly"
+                                    options={locationOptions.legislativeAssemblies}
+                                    value={locationOptions.legislativeAssemblies.find(l => l.value === formData.legislativeAssembly) || null}
+                                    onChange={(opt) => handleSelectChange('legislativeAssembly', opt)}
+                                    placeholder="Select Legislative Assembly"
+                                    styles={customSelectStyles}
+                                    isDisabled={currentFormDefinition.locationDD.district && !formData.district}
+                                />
+                            </div>
+                        )}
+                        {currentFormDefinition.locationDD?.booth && (
+                            <div className="mb-4">
+                                <Label>Booth</Label>
+                                <Select
+                                    name="booth"
+                                    options={locationOptions.booths}
+                                    value={locationOptions.booths.find(b => b.value === formData.booth) || null}
+                                    onChange={(opt) => handleSelectChange('booth', opt)}
+                                    placeholder="Select Booth"
+                                    styles={customSelectStyles}
+                                    isDisabled={currentFormDefinition.locationDD.legislativeAssembly && !formData.legislativeAssembly}
+                                />
+                            </div>
+                        )}
+
                         {currentFormDefinition.fields.map((field: any) => {
                             switch (field.type) {
                                 case 'textarea':

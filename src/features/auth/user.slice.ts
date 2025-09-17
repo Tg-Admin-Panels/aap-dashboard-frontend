@@ -1,6 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { checkAuth, loginUser, logoutUser } from "./authApi";
-import Cookies from "js-cookie";
 
 interface User {
   _id: string;
@@ -49,11 +48,7 @@ const userSlice = createSlice({
         state.user = action.payload.data;
         state.isAuthenticated = true;
         state.loading = false;
-        Cookies.set('token', action.payload.data.token, {
-          path: '/',
-          sameSite: 'Lax',
-          // secure: window.location.protocol === 'https:',
-        });
+
       })
       .addCase(loginUser.rejected, (state) => {
         state.user = null;

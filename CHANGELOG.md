@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.0.15](https://github.com/Tg-Admin-Panels/aap-dashboard-frontend/compare/v2.0.14...v2.0.15) (2025-09-17)
+
+### [2.0.14](https://github.com/Tg-Admin-Panels/aap-dashboard-frontend/compare/v2.0.13...v2.0.14) (2025-09-15)
+
+### [2.0.13](https://github.com/Tg-Admin-Panels/aap-dashboard-frontend/compare/v2.0.12...v2.0.13) (2025-09-13)
+
+### [2.0.12](https://github.com/Tg-Admin-Panels/aap-dashboard-frontend/compare/v2.0.11...v2.0.12) (2025-09-13)
+
 ### [2.0.11](https://github.com/Tg-Admin-Panels/aap-dashboard-frontend/compare/v2.0.10...v2.0.11) (2025-09-12)
 
 ### [2.0.10](https://github.com/Tg-Admin-Panels/aap-dashboard-frontend/compare/v2.0.9...v2.0.10) (2025-09-10)

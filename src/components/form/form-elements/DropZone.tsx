@@ -41,7 +41,7 @@ const DropzoneComponent: React.FC<DropzoneProps> = ({ accept, onDrop, multiple, 
 
     try {
       // 1. Get signed signature from backend
-      const url = import.meta.env.VITE_NODE_ENV === 'development' ? import.meta.env.VITE_DEV_BASE_URL : import.meta.env.VITE_PROD_BASE_URL
+      const url = import.meta.env.VITE_NODE_ENV === 'development' ? import.meta.env.VITE_DEV_BASE_URL : import.meta.env.VITE_NODE_ENV === 'local' ? import.meta.env.VITE_LOCAL_BASE_URL : import.meta.env.VITE_PROD_BASE_URL
       console.log("URL is", url)
       const signatureResponse = await axios.post(`${url}/api/cloudinary/signature`, {
         folder: 'app_bihar_uploads', // You can customize the folder name

@@ -12,10 +12,25 @@ import {
     deleteSubmission
 } from './formsApi';
 
+interface Field {
+    name: string;
+    label: string;
+    type: string;
+    options?: any;
+    dependsOn?: string;
+    required?: boolean;
+}
+
 export interface FormDefinition {
     _id: string;
     formName: string;
-    fields: any[]
+    fields: Field[];
+    locationDD: {
+        state: boolean;
+        district: boolean;
+        legislativeAssembly: boolean;
+        booth: boolean;
+    }
 }
 interface FormsState {
     formsList: FormDefinition[];

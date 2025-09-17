@@ -18,7 +18,7 @@ export default function CreateDistrict() {
   const [file, setFile] = useState<File | null>(null);
 
   useEffect(() => {
-    dispatch(getAllStates());
+    dispatch(getAllStates({}));
   }, [dispatch]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
