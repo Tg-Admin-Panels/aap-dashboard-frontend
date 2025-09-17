@@ -68,13 +68,13 @@ export default function AddBoothTeamMember() {
 
   // Fetch states on mount
   useEffect(() => {
-    dispatch(getAllStates());
+    dispatch(getAllStates({}));
   }, [dispatch]);
 
   // Dependent fetches
   useEffect(() => {
     if (selectedState) {
-      dispatch(getAllDistricts(selectedState));
+      dispatch(getAllDistricts({ parentId: selectedState }));
     } else {
       dispatch(clearDistricts());
     }
@@ -82,7 +82,7 @@ export default function AddBoothTeamMember() {
 
   useEffect(() => {
     if (selectedDistrict) {
-      dispatch(getAllLegislativeAssemblies(selectedDistrict));
+      dispatch(getAllLegislativeAssemblies({ parentId: selectedDistrict }));
     } else {
       dispatch(clearLegislativeAssemblies());
     }
@@ -90,7 +90,7 @@ export default function AddBoothTeamMember() {
 
   useEffect(() => {
     if (selectedLegislativeAssembly) {
-      dispatch(getAllBooths(selectedLegislativeAssembly));
+      dispatch(getAllBooths({ parentId: selectedLegislativeAssembly }));
     } else {
       dispatch(clearBooths());
     }

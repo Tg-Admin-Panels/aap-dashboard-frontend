@@ -6,6 +6,7 @@ import {
   createLegislativeAssembly,
   getAllDistricts,
   bulkUploadLegislativeAssemblies,
+  getAllStates,
 } from "../../features/locations/locationsApi";
 import Form from "../../components/form/Form";
 import Label from "../../components/form/Label";
@@ -15,9 +16,11 @@ import { downloadCSV } from "../../utils/downloadCSV";
 
 export default function CreateLegislativeAssembly() {
   const dispatch = useDispatch<AppDispatch>();
-  const { loading, error, districts, legislativeAssemblies } = useSelector(
+  const { loading, error, states, districts, legislativeAssemblies } = useSelector(
     (state: RootState) => state.locations
   );
+  const [bulkUploadLoading, setBulkUploadLoading] = useState(false)
+  const [selectedState, setSelectedState] = useState('')
 
   const [errors, setErrors] = useState<
     Partial<Record<keyof typeof formData, string>>
@@ -30,8 +33,11 @@ export default function CreateLegislativeAssembly() {
   const [file, setFile] = useState<File | null>(null);
 
   useEffect(() => {
-    dispatch(getAllDistricts({}));
+    dispatch(getAllStates({}));
   }, [dispatch]);
+  useEffect(() => {
+    dispatch(getAllDistricts({ parentId: selectedState }));
+  }, [dispatch, states]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -70,10 +76,13 @@ export default function CreateLegislativeAssembly() {
 
   const handleBulkUpload = async () => {
     if (!file) return alert("Please select a file first.");
+    if (!formData.parentId) return alert("Please select a parent district.");
+    setBulkUploadLoading(true)
     const fd = new FormData();
     fd.append("file", file);
     await dispatch(bulkUploadLegislativeAssemblies({ fd, parentId: formData.parentId }));
     setFile(null);
+    setBulkUploadLoading(false)
   };
 
   const handleDownloadCSV = () => {
@@ -88,6 +97,10 @@ export default function CreateLegislativeAssembly() {
     value: district._id,
     label: district.name,
   }));
+  const stateOptions = states.map((state) => ({
+    value: state._id,
+    label: state.name,
+  }));
 
   return (
     <div className="p-6 rounded-lg shadow bg-white dark:bg-gray-900">
@@ -96,7 +109,23 @@ export default function CreateLegislativeAssembly() {
         Create / Bulk Upload Legislative Assemblies
       </h2>
       {error && <p className="text-red-500 mb-4">Error: {error}</p>}
+      <div>
+        <Label htmlFor="parentId">Select State</Label>
+        <Select
 
+          options={stateOptions}
+          onChange={(option) => {
+            setSelectedState(option ? option.value : '')
+            setFormData({ ...formData, parentId: '' })
+          }}
+
+          placeholder="Select State"
+          isClearable
+        />
+        {errors.parentId && (
+          <p className="text-red-500 text-xs mt-1">{errors.parentId}</p>
+        )}
+      </div>
       {/* Single Form */}
       <Form onSubmit={handleSubmit} className="space-y-4 mb-6">
         <div>
@@ -153,10 +182,10 @@ export default function CreateLegislativeAssembly() {
         <div className="mt-2 flex gap-2">
           <button
             onClick={handleBulkUpload}
-            disabled={!file}
+            disabled={!file || bulkUploadLoading}
             className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md disabled:opacity-50"
           >
-            Upload File
+            {bulkUploadLoading ? "Uploading..." : "Upload File"}
           </button>
           <button
             onClick={handleDownloadCSV}

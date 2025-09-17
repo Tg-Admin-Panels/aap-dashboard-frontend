@@ -10,6 +10,7 @@ import SpinnerOverlay from "../../components/ui/SpinnerOverlay";
 import DropzoneComponent from "../../components/form/form-elements/DropZone";
 import { useNavigate } from "react-router-dom";
 import CustomDatePicker from "../../components/ui/calender/CustomDatePicker";
+import { ruralData, urbanData } from "../../data/location";
 
 type Option = { value: string; label: string };
 type Zone = "" | "Urban" | "Rural";
@@ -73,26 +74,21 @@ export default function CreateVolunteer() {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  // React-Select change (with zone-specific resets)
   const handleSelectChange = (name: keyof VolunteerForm, selected: Option | null) => {
     const value = selected ? selected.value : "";
-
-    // When zone changes, clear fields not relevant to the selected zone
-    if (name === "zone") {
-      const nextZone = value as Zone;
-      setFormData(prev => ({
-        ...prev,
-        zone: nextZone,
-        // clear both sets, then re-enter only relevant later
-        cityName: nextZone === "Urban" ? prev.cityName : "",
-        streetOrLocality: nextZone === "Urban" ? prev.streetOrLocality : "",
-        panchayat: nextZone === "Rural" ? prev.panchayat : "",
-        villageName: nextZone === "Rural" ? prev.villageName : "",
-      }));
-      return;
-    }
-
     setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleZoneChange = (opt: Option | null) => {
+    const nextZone = (opt ? opt.value : "") as Zone;
+    setFormData(prev => ({
+      ...prev,
+      zone: nextZone,
+      district: "",
+      block: "",
+      panchayat: "",
+      cityName: "",
+    }));
   };
 
   const handleImageUploadSuccess = (url: string) => {
@@ -109,7 +105,6 @@ export default function CreateVolunteer() {
     if (!formData.zone) newErrors.zone = "Zone is required.";
     if (!formData.district) newErrors.district = "District is required.";
     if (!formData.block) newErrors.block = "Block is required.";
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -118,7 +113,6 @@ export default function CreateVolunteer() {
     e.preventDefault();
     if (!validate()) return;
 
-    // Optional: simple guard to prevent wrong-zone payloads
     const payload: VolunteerForm = {
       ...formData,
       cityName: formData.zone === "Urban" ? formData.cityName : "",
@@ -128,44 +122,35 @@ export default function CreateVolunteer() {
     };
 
     const action = await dispatch(createVolunteer(payload));
-    // If your thunk returns {success}, prefer checking that. Otherwise rely on slice status.
     if (!("error" in action) && !error) {
       navigate("/volunteers");
     }
   };
 
   const genderOptions: Option[] = [
-    { value: "", label: "Select Gender" },
     { value: "Male", label: "Male" },
     { value: "Female", label: "Female" },
     { value: "Other", label: "Other" },
   ];
 
   const zoneOptions: Option[] = [
-    { value: "", label: "Select Zone" },
     { value: "Urban", label: "Urban" },
     { value: "Rural", label: "Rural" },
   ];
 
-  const customStyles = {
-    control: (base: any) => ({
-      ...base,
-      backgroundColor: "transparent",
-      borderColor: "#d1d5db",
-      minHeight: "44px",
-      boxShadow: "none",
-      "&:hover": { borderColor: "#9ca3af" },
-    }),
-    singleValue: (base: any) => ({ ...base, color: "#1f2937" }),
-    input: (base: any) => ({ ...base, color: "#1f2937" }),
-    placeholder: (base: any) => ({ ...base, color: "#9ca3af" }),
-    option: (base: any, state: any) => ({
-      ...base,
-      backgroundColor: state.isSelected ? "#3b82f6" : state.isFocused ? "#e0e7ff" : "white",
-      color: state.isSelected ? "white" : "#1f2937",
-      "&:active": { backgroundColor: "#2563eb" },
-    }),
-  };
+  // dependent options
+  const districtOptions = Object.keys(formData.zone === "Rural" ? ruralData.blocks : urbanData.blocks)
+    .map(d => ({ value: d, label: d }));
+
+  const blockOptions =
+    formData.zone === "Rural"
+      ? (ruralData.blocks[formData.district] || []).map(b => ({ value: b, label: b }))
+      : (urbanData.blocks[formData.district] || []).map(b => ({ value: b, label: b }));
+
+  const lastLevelOptions =
+    formData.zone === "Rural"
+      ? (ruralData.panchayats[formData.block] || []).map(p => ({ value: p, label: p }))
+      : (urbanData.areas[formData.block] || []).map(a => ({ value: a, label: a }));
 
   return (
     <div className="p-6 rounded-lg shadow bg-white dark:bg-gray-900">
@@ -175,18 +160,17 @@ export default function CreateVolunteer() {
 
       <Form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Basic Fields */}
           <div>
-            <Label htmlFor="fullName" required>Full Name</Label>
-            <Input id="fullName" name="fullName" value={formData.fullName} onChange={handleChange} error={!!errors.fullName} hint={errors.fullName} />
+            <Label required>Full Name</Label>
+            <Input name="fullName" value={formData.fullName} onChange={handleChange} error={!!errors.fullName} hint={errors.fullName} />
           </div>
-
           <div>
-            <Label htmlFor="password">Password</Label>
-            <Input type="password" id="password" name="password" value={formData.password} onChange={handleChange} />
+            <Label>Password</Label>
+            <Input type="password" name="password" value={formData.password} onChange={handleChange} />
           </div>
-
           <div>
-            <Label htmlFor="dateOfBirth" required>Date of Birth</Label>
+            <Label required>Date of Birth</Label>
             <CustomDatePicker
               onChange={(date) => {
                 setFormData({ ...formData, dateOfBirth: date?.toISOString() || '' })
@@ -195,137 +179,101 @@ export default function CreateVolunteer() {
             />
             {errors.dateOfBirth && <p className="text-red-500 text-xs mt-1">{errors.dateOfBirth}</p>}
           </div>
-
           <div>
-            <Label htmlFor="gender" required>Gender</Label>
-            <Select
-              inputId="gender"
-              options={genderOptions}
-              onChange={(opt: Option | null) => handleSelectChange("gender", opt)}
-              value={genderOptions.find(o => o.value === formData.gender)}
-              styles={customStyles}
-            />
+            <Label required>Gender</Label>
+            <Select options={genderOptions} onChange={(opt) => handleSelectChange("gender", opt)} value={genderOptions.find(o => o.value === formData.gender)} />
             {errors.gender && <p className="text-red-500 text-xs mt-1">{errors.gender}</p>}
           </div>
-
           <div>
-            <Label htmlFor="mobileNumber" required>Mobile Number</Label>
-            <Input type="tel" id="mobileNumber" name="mobileNumber" value={formData.mobileNumber} onChange={handleChange} error={!!errors.mobileNumber} hint={errors.mobileNumber} />
+            <Label required>Mobile Number</Label>
+            <Input type="tel" name="mobileNumber" value={formData.mobileNumber} onChange={handleChange} error={!!errors.mobileNumber} hint={errors.mobileNumber} />
           </div>
-
           <div>
-            <Label htmlFor="zone" required>Zone</Label>
-            <Select
-              inputId="zone"
-              options={zoneOptions}
-              onChange={(opt: Option | null) => handleSelectChange("zone", opt)}
-              value={zoneOptions.find(o => o.value === formData.zone)}
-              styles={customStyles}
-            />
+            <Label required>Zone</Label>
+            <Select options={zoneOptions} onChange={handleZoneChange} value={zoneOptions.find(o => o.value === formData.zone)} />
             {errors.zone && <p className="text-red-500 text-xs mt-1">{errors.zone}</p>}
           </div>
 
-          <div>
-            <Label htmlFor="district" required>District</Label>
-            <Input id="district" name="district" value={formData.district} onChange={handleChange} error={!!errors.district} hint={errors.district} />
-          </div>
-
-          <div>
-            <Label htmlFor="block" required>Block</Label>
-            <Input id="block" name="block" value={formData.block} onChange={handleChange} error={!!errors.block} hint={errors.block} />
-          </div>
-
-          <div>
-            <Label htmlFor="wardNumber">Ward Number</Label>
-            <Input id="wardNumber" name="wardNumber" value={formData.wardNumber} onChange={handleChange} />
-          </div>
-
-          <div>
-            <Label htmlFor="boothNumber">Booth Number</Label>
-            <Input id="boothNumber" name="boothNumber" value={formData.boothNumber} onChange={handleChange} />
-          </div>
-
-          <div>
-            <Label htmlFor="pinCode">Pin Code</Label>
-            <Input id="pinCode" name="pinCode" value={formData.pinCode} onChange={handleChange} />
-          </div>
-
-          <div>
-            <Label htmlFor="postOffice">Post Office</Label>
-            <Input id="postOffice" name="postOffice" value={formData.postOffice} onChange={handleChange} />
-          </div>
-
-          <div>
-            <Label htmlFor="whyYouWantToJoinUs">Why You Want To Join Us</Label>
-            <Input id="whyYouWantToJoinUs" name="whyYouWantToJoinUs" value={formData.whyYouWantToJoinUs} onChange={handleChange} />
-          </div>
-
-          <div>
-            <Label htmlFor="howMuchTimeYouDedicate">How much time you will dedicate</Label>
-            <Input id="howMuchTimeYouDedicate" name="howMuchTimeYouDedicate" value={formData.howMuchTimeYouDedicate} onChange={handleChange} />
-          </div>
-
-          <div>
-            <Label htmlFor="inWhichFieldYouCanContribute">In which field you can contribute</Label>
-            <Input id="inWhichFieldYouCanContribute" name="inWhichFieldYouCanContribute" value={formData.inWhichFieldYouCanContribute} onChange={handleChange} />
-          </div>
-
-          <div>
-            <Label htmlFor="howCanYouHelpUs">How can you help us</Label>
-            <Input id="howCanYouHelpUs" name="howCanYouHelpUs" value={formData.howCanYouHelpUs} onChange={handleChange} />
-          </div>
-
-          {/* Urban-only fields */}
-          {formData.zone === "Urban" && (
+          {/* Dependent Dropdowns */}
+          {formData.zone && (
             <>
               <div>
-                <Label htmlFor="cityName">City Name</Label>
-                <Input id="cityName" name="cityName" value={formData.cityName} onChange={handleChange} />
-              </div>
-              <div>
-                <Label htmlFor="streetOrLocality">Street/Locality</Label>
-                <Input id="streetOrLocality" name="streetOrLocality" value={formData.streetOrLocality} onChange={handleChange} />
-              </div>
-            </>
-          )}
-
-          {/* Rural-only fields */}
-          {formData.zone === "Rural" && (
-            <>
-              <div>
-                <Label htmlFor="panchayat">Panchayat</Label>
-                <Input id="panchayat" name="panchayat" value={formData.panchayat} onChange={handleChange} />
-              </div>
-              <div>
-                <Label htmlFor="villageName">Village Name</Label>
-                <Input id="villageName" name="villageName" value={formData.villageName} onChange={handleChange} />
-              </div>
-            </>
-          )}
-
-          <div className="md:col-span-2">
-            <Label htmlFor="profilePicture">Profile Picture</Label>
-            <DropzoneComponent
-              accept={{ "image/*": [".png", ".gif", ".jpeg", ".jpg"] }}
-              onFileUploadSuccess={handleImageUploadSuccess}
-              multiple={false}
-            />
-            {formData.profilePicture && (
-              <div className="mt-2">
-                <img
-                  src={formData.profilePicture}
-                  alt="Profile"
-                  className="w-24 h-24 object-cover rounded-full"
+                <Label required>District</Label>
+                <Select
+                  options={districtOptions}
+                  value={districtOptions.find(o => o.value === formData.district) || null}
+                  onChange={(opt) => setFormData(prev => ({ ...prev, district: opt?.value || "", block: "", panchayat: "", cityName: "" }))}
                 />
+                {errors.district && <p className="text-red-500 text-xs mt-1">{errors.district}</p>}
               </div>
-            )}
+
+              <div>
+                <Label required>Block</Label>
+                <Select
+                  options={blockOptions}
+                  value={blockOptions.find(o => o.value === formData.block) || null}
+                  onChange={(opt) => setFormData(prev => ({ ...prev, block: opt?.value || "", panchayat: "", cityName: "" }))}
+                />
+                {errors.block && <p className="text-red-500 text-xs mt-1">{errors.block}</p>}
+              </div>
+
+              {formData.zone === "Rural" ? (
+                <div>
+                  <Label>Panchayat</Label>
+                  <Select
+                    options={lastLevelOptions}
+                    value={lastLevelOptions.find(o => o.value === formData.panchayat) || null}
+                    onChange={(opt) => setFormData(prev => ({ ...prev, panchayat: opt?.value || "" }))}
+                  />
+                </div>
+              ) : (
+                <div>
+                  <Label>Area</Label>
+                  <Select
+                    options={lastLevelOptions}
+                    value={lastLevelOptions.find(o => o.value === formData.cityName) || null}
+                    onChange={(opt) => setFormData(prev => ({ ...prev, cityName: opt?.value || "" }))}
+                  />
+                </div>
+              )}
+            </>
+          )}
+
+          {/* Extra Info */}
+          <div>
+            <Label>Ward Number</Label>
+            <Input name="wardNumber" value={formData.wardNumber} onChange={handleChange} />
+          </div>
+          <div>
+            <Label>Booth Number</Label>
+            <Input name="boothNumber" value={formData.boothNumber} onChange={handleChange} />
+          </div>
+          <div>
+            <Label>Pin Code</Label>
+            <Input name="pinCode" value={formData.pinCode} onChange={handleChange} />
+          </div>
+          <div>
+            <Label>Post Office</Label>
+            <Input name="postOffice" value={formData.postOffice} onChange={handleChange} />
           </div>
         </div>
 
-        <button
-          type="submit"
-          className="px-4 py-2 text-sm font-medium text-white bg-brand-500 rounded-md hover:bg-brand-600"
-        >
+        {/* Upload */}
+        <div className="md:col-span-2">
+          <Label>Profile Picture</Label>
+          <DropzoneComponent
+            accept={{ "image/*": [".png", ".gif", ".jpeg", ".jpg"] }}
+            onFileUploadSuccess={handleImageUploadSuccess}
+            multiple={false}
+          />
+          {formData.profilePicture && (
+            <div className="mt-2">
+              <img src={formData.profilePicture} alt="Profile" className="w-24 h-24 object-cover rounded-full" />
+            </div>
+          )}
+        </div>
+
+        <button type="submit" className="px-4 py-2 text-sm font-medium text-white bg-brand-500 rounded-md">
           Create Volunteer
         </button>
       </Form>

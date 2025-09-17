@@ -1,0 +1,60 @@
+// data/locations.ts
+
+export const ruralData = {
+    blocks: {
+        Delhi: ["Najafgarh Block", "Alipur Block", "Kanjhawala Block"],
+        Mumbai: ["Andheri Block", "Borivali Block", "Kurla Block"],
+        Bangalore: ["Anekal Block", "Devanahalli Block", "Doddaballapur Block"],
+        Pune: ["Baramati Block", "Indapur Block", "Maval Block"],
+        Jaipur: ["Amber Block", "Bassi Block", "Chaksu Block"],
+    },
+    panchayats: {
+        "Najafgarh Block": ["Najafgarh Panchayat", "Dichaun Kalan Panchayat", "Jharoda Kalan Panchayat"],
+        "Alipur Block": ["Alipur Panchayat", "Barwala Panchayat", "Bakner Panchayat"],
+        "Kanjhawala Block": ["Kanjhawala Panchayat", "Bakkarwala Panchayat", "Ghoga Panchayat"],
+        "Andheri Block": ["Andheri East Panchayat", "Andheri West Panchayat", "Jogeshwari Panchayat"],
+        "Borivali Block": ["Borivali East Panchayat", "Borivali West Panchayat", "Kandivali Panchayat"],
+        "Kurla Block": ["Kurla East Panchayat", "Kurla West Panchayat", "Chembur Panchayat"],
+        "Anekal Block": ["Anekal Panchayat", "Jigani Panchayat", "Sarjapur Panchayat"],
+        "Devanahalli Block": ["Devanahalli Panchayat", "Nandi Hills Panchayat", "Vijayapura Panchayat"],
+        "Doddaballapur Block": ["Doddaballapur Panchayat", "Peresandra Panchayat", "Sulibele Panchayat"],
+        "Baramati Block": ["Baramati Panchayat", "Morgaon Panchayat", "Malshiras Panchayat"],
+        "Indapur Block": ["Indapur Panchayat", "Bhigwan Panchayat", "Nimgaon Panchayat"],
+        "Maval Block": ["Maval Panchayat", "Talegaon Panchayat", "Vadgaon Panchayat"],
+        "Amber Block": ["Amber Panchayat", "Bassi Panchayat", "Jamwa Panchayat"],
+        "Bassi Block": ["Bassi Panchayat", "Kalwar Panchayat", "Toda Panchayat"],
+        "Chaksu Block": ["Chaksu Panchayat", "Morija Panchayat", "Sanganer Panchayat"],
+    },
+};
+
+export const urbanData = {
+    blocks: {
+        Delhi: ["Central Delhi", "North Delhi", "South Delhi", "East Delhi", "West Delhi"],
+        Mumbai: ["South Mumbai", "Western Suburbs", "Eastern Suburbs", "Navi Mumbai"],
+        Bangalore: ["Bangalore North", "Bangalore South", "Bangalore East", "Bangalore Central"],
+        Pune: ["Pune City", "Pimpri-Chinchwad", "Pune Cantonment"],
+        Jaipur: ["Jaipur North", "Jaipur South", "Jaipur East", "Jaipur West"],
+    },
+    areas: {
+        "Central Delhi": ["Connaught Place", "Karol Bagh", "Paharganj"],
+        "North Delhi": ["Civil Lines", "Model Town", "Kamla Nagar"],
+        "South Delhi": ["Defence Colony", "Lajpat Nagar", "Greater Kailash"],
+        "East Delhi": ["Laxmi Nagar", "Preet Vihar", "Mayur Vihar"],
+        "West Delhi": ["Rajouri Garden", "Janakpuri", "Dwarka"],
+        "South Mumbai": ["Colaba", "Fort", "Nariman Point"],
+        "Western Suburbs": ["Bandra", "Andheri", "Borivali"],
+        "Eastern Suburbs": ["Kurla", "Chembur", "Powai"],
+        "Navi Mumbai": ["Vashi", "Nerul", "Kharghar"],
+        "Bangalore North": ["Hebbal", "Yelahanka", "Mathikere"],
+        "Bangalore South": ["Koramangala", "BTM Layout", "Banashankari"],
+        "Bangalore East": ["Whitefield", "Marathahalli", "Indiranagar"],
+        "Bangalore Central": ["MG Road", "Brigade Road", "Chickpet"],
+        "Pune City": ["Shivajinagar", "Kothrud", "Deccan"],
+        "Pimpri-Chinchwad": ["Pimpri", "Chinchwad", "Akurdi"],
+        "Pune Cantonment": ["Camp Area", "Wanowrie", "Ghorpadi"],
+        "Jaipur North": ["C-Scheme", "Malviya Nagar", "Vaishali Nagar"],
+        "Jaipur South": ["Mansarovar", "Jagatpura", "Sanganer"],
+        "Jaipur East": ["Vidhyadhar Nagar", "Nirman Nagar", "Kardhani"],
+        "Jaipur West": ["Pratap Nagar", "Chomu", "Sikar Road"],
+    },
+};

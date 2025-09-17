@@ -1,6 +1,5 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import axiosInstance from '../../utils/axiosInstance';
-import axiosFormInstance from '../../utils/axiosFormInstance';
 
 
 // Create Wing
@@ -25,23 +24,11 @@ export const addLeaderToWing = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const formData = new FormData();
 
-      // Append each field from data
-      for (const key in data) {
-        if (data[key]) {
-          formData.append(key, data[key]);
-        }
-      }
 
-      const response = await axiosFormInstance.post(
+      const response = await axiosInstance.post(
         `/wings/${wingId}/leader`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
+        data,
       );
 
       console.log("wing data from api", response.data);
@@ -64,18 +51,11 @@ export const addMemberToWing = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const formData = new FormData();
 
-      // Append each field from data
-      for (const key in data) {
-        if (data[key]) {
-          formData.append(key, data[key]);
-        }
-      }
 
-      const response = await axiosFormInstance.post(
+      const response = await axiosInstance.post(
         `/wings/${wingId}/member`,
-        formData,
+        data,
       );
 
       console.log("wing data from api", response.data);
@@ -131,23 +111,11 @@ export const changeLeader = createAsyncThunk(
   ) => {
     try {
       console.log(data)
-      const formData = new FormData();
 
-      for (const key in data) {
-        if (data[key]) {
-          formData.append(key, data[key]);
-        }
-      }
-      console.log(...formData)
 
-      const response = await axiosFormInstance.put(
+      const response = await axiosInstance.put(
         `/wings/${wingId}/leader-change`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
+        data,
       );
 
       return response.data;
@@ -166,23 +134,12 @@ export const updateMember = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const formData = new FormData();
-      console.log("data", data);
-      for (const key in data) {
-        if (data[key]) {
-          formData.append(key, data[key]);
-        }
-      }
 
-      console.log("before api call", formData);
-      const response = await axiosFormInstance.put(
+
+
+      const response = await axiosInstance.put(
         `/wings/members/update/${memberId}`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
+        data,
       );
       console.log("member data from api", response.data);
 

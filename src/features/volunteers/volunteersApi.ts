@@ -1,13 +1,12 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "../../utils/axiosInstance";
-import axiosFormInstance from "../../utils/axiosFormInstance";
 
 // Create Volunteer
 export const createVolunteer = createAsyncThunk(
   "volunteers/createVolunteer",
   async (volunteerData: any, { rejectWithValue }) => {
     try {
-      const response = await axiosFormInstance.post(
+      const response = await axiosInstance.post(
         "/volunteers",
         volunteerData
       );
@@ -56,7 +55,7 @@ export const updateVolunteer = createAsyncThunk(
   "volunteers/updateVolunteer",
   async ({ id, data }: { id: string; data: any }, { rejectWithValue }) => {
     try {
-      const response = await axiosFormInstance.put(`/volunteers/${id}`, data);
+      const response = await axiosInstance.put(`/volunteers/${id}`, data);
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
