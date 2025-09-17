@@ -267,6 +267,7 @@ export default function CreateBooth() {
             Download CSV
           </button>
         </div>
+        {file && <p className="mt-2 text-sm text-gray-600">Selected: {file.name}</p>}
       </div>
     </div>
   );

@@ -106,7 +106,7 @@ export default function CreateLegislativeAssembly() {
 
   return (
     <div className="p-6 rounded-lg shadow bg-white dark:bg-gray-900">
-      <SpinnerOverlay loading={loading} />
+      <SpinnerOverlay loading={loading || bulkUploadLoading} />
       <h2 className="text-2xl font-semibold mb-6">
         Create / Bulk Upload Legislative Assemblies
       </h2>
@@ -221,6 +221,7 @@ export default function CreateLegislativeAssembly() {
             Download CSV
           </button>
         </div>
+        {file && <p className="mt-2 text-sm text-gray-600">Selected: {file.name}</p>}
       </div>
     </div>
   );

@@ -71,7 +71,7 @@ export default function CreateDistrict() {
 
   return (
     <div className="p-6 rounded-lg shadow bg-white dark:bg-gray-900">
-      <SpinnerOverlay loading={loading} />
+      <SpinnerOverlay loading={loading || bulkUploadLoading} />
       <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-6">
         Create / Bulk Upload Districts
       </h2>

@@ -10,7 +10,7 @@ import SpinnerOverlay from "../../components/ui/SpinnerOverlay";
 export default function CreateState() {
   const dispatch = useDispatch<AppDispatch>();
   const { loading, error } = useSelector((state: RootState) => state.locations);
-
+  const [bulkUploadLoading, setBulkUploadLoading] = useState(false)
   const [errors, setErrors] = useState<Partial<Record<keyof typeof formData, string>>>({});
   const [formData, setFormData] = useState({ name: "", code: "" });
   const [file, setFile] = useState<File | null>(null);
@@ -47,15 +47,17 @@ export default function CreateState() {
   // Bulk upload submit
   const handleBulkUpload = async () => {
     if (!file) return alert("Please select a CSV or XLSX file.");
+    setBulkUploadLoading(true)
     const formDataObj = new FormData();
     formDataObj.append("file", file);
     await dispatch(bulkUploadStates(formDataObj));
     setFile(null);
+    setBulkUploadLoading(false)
   };
 
   return (
     <div className="p-6 rounded-lg shadow bg-white dark:bg-gray-900">
-      <SpinnerOverlay loading={loading} />
+      <SpinnerOverlay loading={loading || bulkUploadLoading} />
       <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-6">
         Create / Bulk Upload States
       </h2>
@@ -133,7 +135,7 @@ export default function CreateState() {
           disabled={!file}
           className="mt-2 px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 disabled:opacity-50"
         >
-          Upload File
+          {bulkUploadLoading ? 'Uploading...' : 'Upload File'}
         </button>
         {file && <p className="mt-2 text-sm text-gray-600">Selected: {file.name}</p>}
       </div>

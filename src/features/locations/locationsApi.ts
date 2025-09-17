@@ -38,7 +38,7 @@ export const getAllStates = createAsyncThunk(
 
 export const createState = createAsyncThunk(
   "locations/createState",
-  async (stateData: { name: string; code: string; parentId: string }, { rejectWithValue }) => {
+  async (stateData: { name: string; code: string; }, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.post("/states", stateData);
       return response.data;
