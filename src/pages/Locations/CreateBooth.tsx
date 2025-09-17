@@ -225,7 +225,33 @@ export default function CreateBooth() {
       {/* Bulk Upload Section */}
       <div className="border-t pt-4">
         <h3 className="text-lg font-medium mb-2">Bulk Upload</h3>
-        <input type="file" accept=".csv,.xlsx" onChange={handleFileChange} />
+        <div className="w-full mb-5">
+          <label
+            htmlFor="fileInput"
+            className="flex flex-col items-center justify-center w-full p-6 border-2 border-dashed border-gray-400 rounded-lg cursor-pointer hover:border-brand-500 transition-colors"
+          >
+            {/* Upload Icon */}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="w-10 h-10 text-gray-500 mb-2"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5-5m0 0l5 5m-5-5v12" />
+            </svg>
+
+            <span className="text-gray-600">Click to upload CSV or Excel file</span>
+            <input
+              id="fileInput"
+              type="file"
+              accept=".csv,.xlsx"
+              onChange={handleFileChange}
+              className="hidden"
+            />
+          </label>
+        </div>
+
         <div className="mt-2 flex gap-2">
           <button
             onClick={handleBulkUpload}
