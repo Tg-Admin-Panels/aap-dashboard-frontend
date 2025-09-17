@@ -1,4 +1,4 @@
 {
-  "version": "2.0.14",
-  "lastCommit": "remove cookie set in user slice"
+  "version": "2.0.15",
+  "lastCommit": "git add fix location problem"
 }
