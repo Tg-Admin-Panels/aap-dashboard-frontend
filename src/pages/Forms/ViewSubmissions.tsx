@@ -69,7 +69,7 @@ const ViewSubmissions: React.FC = () => {
 
     const handleCopyLink = () => {
         if (!formId) return;
-        const link = `${window.location.origin}/forms/submit/${formId}`;
+        const link = `${window.location.origin}/forms/submissions/submit/${formId}`;
         navigator.clipboard.writeText(link).then(() => {
             setCopied(true);
             setTimeout(() => setCopied(false), 2000);
@@ -185,7 +185,7 @@ const ViewSubmissions: React.FC = () => {
                         <button onClick={handleCopyLink} className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md text-sm hover:bg-gray-300">
                             {copied ? 'Copied!' : 'Copy Link'}
                         </button>
-                        <Link to={`/forms/submit/${formId}`} className="px-4 py-2 bg-brand-500 text-white rounded-md text-sm hover:bg-brand-600">
+                        <Link to={`/forms/submissions/submit/${formId}`} className="px-4 py-2 bg-brand-500 text-white rounded-md text-sm hover:bg-brand-600">
                             Open Form
                         </Link>
                         <button onClick={handleUploadFile} className="px-4 py-2 bg-blue-500 text-white rounded-md text-sm hover:bg-blue-600">

@@ -4,6 +4,8 @@ import Select from "react-select";
 import { AppDispatch, RootState } from "../../features/store";
 import {
   createBooth,
+  getAllStates,
+  getAllDistricts,
   getAllLegislativeAssemblies,
   bulkUploadBooths,
 } from "../../features/locations/locationsApi";
@@ -15,9 +17,12 @@ import { downloadCSV } from "../../utils/downloadCSV";
 
 export default function CreateBooth() {
   const dispatch = useDispatch<AppDispatch>();
-  const { loading, error, legislativeAssemblies, booths } = useSelector(
-    (state: RootState) => state.locations
-  );
+  const { loading, error, states, districts, legislativeAssemblies, booths } =
+    useSelector((state: RootState) => state.locations);
+
+  const [selectedState, setSelectedState] = useState("");
+  const [selectedDistrict, setSelectedDistrict] = useState("");
+  const [bulkUploadLoading, setBulkUploadLoading] = useState(false);
 
   const [errors, setErrors] = useState<
     Partial<Record<keyof typeof formData, string>>
@@ -29,15 +34,45 @@ export default function CreateBooth() {
   });
   const [file, setFile] = useState<File | null>(null);
 
+  // Fetch all states on mount
   useEffect(() => {
-    dispatch(getAllLegislativeAssemblies({}));
+    dispatch(getAllStates({}));
   }, [dispatch]);
+
+  // Fetch districts when state changes
+  useEffect(() => {
+    if (selectedState) {
+      dispatch(getAllDistricts({ parentId: selectedState }));
+      setSelectedDistrict("");
+      setFormData({ ...formData, parentId: "" }); // reset assembly
+    }
+  }, [dispatch, selectedState]);
+
+  // Fetch assemblies when district changes
+  useEffect(() => {
+    if (selectedDistrict) {
+      dispatch(getAllLegislativeAssemblies({ parentId: selectedDistrict }));
+      setFormData({ ...formData, parentId: "" }); // reset assembly
+    }
+  }, [dispatch, selectedDistrict]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleParentChange = (
+  const handleStateChange = (
+    selectedOption: { value: string; label: string } | null
+  ) => {
+    setSelectedState(selectedOption ? selectedOption.value : "");
+  };
+
+  const handleDistrictChange = (
+    selectedOption: { value: string; label: string } | null
+  ) => {
+    setSelectedDistrict(selectedOption ? selectedOption.value : "");
+  };
+
+  const handleAssemblyChange = (
     selectedOption: { value: string; label: string } | null
   ) => {
     setFormData({
@@ -71,24 +106,41 @@ export default function CreateBooth() {
 
   const handleBulkUpload = async () => {
     if (!file) return alert("Please select a file first.");
-    const fd = new FormData();
-    fd.append("file", file);
-    await dispatch(bulkUploadBooths({ fd, parentId: formData.parentId }));
-    setFile(null);
+    if (!formData.parentId)
+      return alert("Please select a Legislative Assembly first.");
+    setBulkUploadLoading(true);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      await dispatch(bulkUploadBooths({ fd, parentId: formData.parentId }));
+      setFile(null);
+    } finally {
+      setBulkUploadLoading(false);
+    }
   };
 
   const handleDownloadCSV = () => {
     downloadCSV(booths, "booths.csv", ["name", "code", "parentId"]);
   };
 
-  const legislativeOptions = legislativeAssemblies.map((assembly) => ({
-    value: assembly._id,
-    label: assembly.name,
+  const stateOptions = states.map((s) => ({
+    value: s._id,
+    label: s.name,
+  }));
+
+  const districtOptions = districts.map((d) => ({
+    value: d._id,
+    label: d.name,
+  }));
+
+  const assemblyOptions = legislativeAssemblies.map((a) => ({
+    value: a._id,
+    label: a.name,
   }));
 
   return (
     <div className="p-6 rounded-lg shadow bg-white dark:bg-gray-900">
-      <SpinnerOverlay loading={loading} />
+      <SpinnerOverlay loading={loading || bulkUploadLoading} />
       <h2 className="text-2xl font-semibold mb-6">
         Create / Bulk Upload Booths
       </h2>
@@ -97,13 +149,37 @@ export default function CreateBooth() {
       {/* Single Form */}
       <Form onSubmit={handleSubmit} className="space-y-4 mb-6">
         <div>
+          <Label htmlFor="state">Select State</Label>
+          <Select
+            id="state"
+            options={stateOptions}
+            onChange={handleStateChange}
+            value={stateOptions.find((o) => o.value === selectedState) || null}
+            placeholder="Select State"
+            isClearable
+          />
+        </div>
+
+        <div>
+          <Label htmlFor="district">Select District</Label>
+          <Select
+            id="district"
+            options={districtOptions}
+            onChange={handleDistrictChange}
+            value={districtOptions.find((o) => o.value === selectedDistrict) || null}
+            placeholder="Select District"
+            isClearable
+          />
+        </div>
+
+        <div>
           <Label htmlFor="parentId">Parent Legislative Assembly</Label>
           <Select
             id="parentId"
             name="parentId"
-            options={legislativeOptions}
-            onChange={handleParentChange}
-            value={legislativeOptions.find((o) => o.value === formData.parentId)}
+            options={assemblyOptions}
+            onChange={handleAssemblyChange}
+            value={assemblyOptions.find((o) => o.value === formData.parentId) || null}
             placeholder="Select Assembly"
             isClearable
           />
@@ -111,6 +187,7 @@ export default function CreateBooth() {
             <p className="text-red-500 text-xs mt-1">{errors.parentId}</p>
           )}
         </div>
+
         <div>
           <Label htmlFor="name">Booth Name</Label>
           <Input
@@ -123,6 +200,7 @@ export default function CreateBooth() {
             hint={errors.name}
           />
         </div>
+
         <div>
           <Label htmlFor="code">Booth Code</Label>
           <Input
@@ -135,6 +213,7 @@ export default function CreateBooth() {
             hint={errors.code}
           />
         </div>
+
         <button
           type="submit"
           className="px-4 py-2 text-sm font-medium text-white bg-brand-500 rounded-md"
@@ -153,7 +232,7 @@ export default function CreateBooth() {
             disabled={!file}
             className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md disabled:opacity-50"
           >
-            Upload File
+            {bulkUploadLoading ? "Uploading..." : "Upload File"}
           </button>
           <button
             onClick={handleDownloadCSV}

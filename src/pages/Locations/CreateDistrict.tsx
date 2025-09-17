@@ -16,6 +16,7 @@ export default function CreateDistrict() {
   const [errors, setErrors] = useState<Partial<Record<keyof typeof formData, string>>>({});
   const [formData, setFormData] = useState({ name: "", code: "", parentId: "" });
   const [file, setFile] = useState<File | null>(null);
+  const [bulkUploadLoading, setBulkUploadLoading] = useState(false)
 
   useEffect(() => {
     dispatch(getAllStates({}));
@@ -53,10 +54,13 @@ export default function CreateDistrict() {
 
   const handleBulkUpload = async () => {
     if (!file) return alert("Please select a file first.");
+    if (!formData.parentId) return alert("Please select a parent state.");
+    setBulkUploadLoading(true)
     const fd = new FormData();
     fd.append("file", file);
     await dispatch(bulkUploadDistricts({ fd, parentId: formData.parentId }));
     setFile(null);
+    setBulkUploadLoading(false)
   };
 
   const handleDownloadCSV = () => {
@@ -124,10 +128,10 @@ export default function CreateDistrict() {
         <div className="mt-2 flex gap-2">
           <button
             onClick={handleBulkUpload}
-            disabled={!file}
+            disabled={!file || bulkUploadLoading}
             className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md disabled:opacity-50"
           >
-            Upload File
+            {bulkUploadLoading ? "Uploading..." : "Upload File"}
           </button>
           <button
             onClick={handleDownloadCSV}

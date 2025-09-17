@@ -194,9 +194,10 @@ const CreateForm = () => {
 
         dispatch(createFormDefinition({ formName, fields: formattedFields, locationDD: finalLocationDD }))
             .unwrap()
-            .then(() => {
+            .then((data) => {
+                console.log("Form created:", data);
                 alert('Form created successfully!');
-                navigate(-1);
+                navigate(`/forms/submissions/${data._id}`);
             })
             .catch(err => console.error("Failed to create form:", err));
     };

@@ -121,7 +121,7 @@ export default function App() {
             <Route path="/forms/create" element={<CreateForm />} />
             <Route path="/forms/list" element={<ViewForm />} />
             <Route path="/forms/submissions/:formId" element={<ViewSubmissions />} />
-            <Route path="/forms/submit/:formId" element={<SubmitForm />} />
+            <Route path="/forms/submissions/submit/:formId" element={<SubmitForm />} />
             <Route path="/submissions/:submissionId" element={<SubmissionDetail />} />
           </Route>
         </Route>
