@@ -1,4 +1,4 @@
 {
-  "version": "2.0.16",
-  "lastCommit": "🐛 remove express-fileupload and use multer"
+  "version": "2.0.17",
+  "lastCommit": "✨ implement infinit loading and create list for all location"
 }
