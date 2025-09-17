@@ -7,6 +7,7 @@ import {
   getAllDistricts,
   bulkUploadLegislativeAssemblies,
   getAllStates,
+  getAllLegislativeAssemblies,
 } from "../../features/locations/locationsApi";
 import Form from "../../components/form/Form";
 import Label from "../../components/form/Label";
@@ -16,7 +17,7 @@ import { downloadCSV } from "../../utils/downloadCSV";
 
 export default function CreateLegislativeAssembly() {
   const dispatch = useDispatch<AppDispatch>();
-  const { loading, error, states, districts, legislativeAssemblies } = useSelector(
+  const { loading, error, states: statesData, districts: districtsData, legislativeAssemblies: legislativeAssembliesData } = useSelector(
     (state: RootState) => state.locations
   );
   const [bulkUploadLoading, setBulkUploadLoading] = useState(false)
@@ -33,12 +34,12 @@ export default function CreateLegislativeAssembly() {
   const [file, setFile] = useState<File | null>(null);
 
   useEffect(() => {
-    dispatch(getAllStates({}));
+    dispatch(getAllStates({ limit: 1000 }));
   }, [dispatch]);
 
   useEffect(() => {
     console.log("Selected state changed:", selectedState);
-    dispatch(getAllDistricts({ parentId: selectedState }));
+    dispatch(getAllDistricts({ parentId: selectedState, limit: 1000 }));
   }, [dispatch, selectedState]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -68,6 +69,7 @@ export default function CreateLegislativeAssembly() {
     if (!validate()) return;
     await dispatch(createLegislativeAssembly(formData));
     setFormData({ name: "", code: "", parentId: "" });
+    dispatch(getAllLegislativeAssemblies({ page: 1, parentId: formData.parentId })); // Refresh the list
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -85,21 +87,16 @@ export default function CreateLegislativeAssembly() {
     await dispatch(bulkUploadLegislativeAssemblies({ fd, parentId: formData.parentId }));
     setFile(null);
     setBulkUploadLoading(false)
+    dispatch(getAllLegislativeAssemblies({ page: 1, parentId: formData.parentId })); // Refresh the list
   };
 
-  const handleDownloadCSV = () => {
-    downloadCSV(
-      legislativeAssemblies,
-      "legislative_assemblies.csv",
-      ["name", "code",]
-    );
-  };
 
-  const districtOptions = districts.map((district) => ({
+
+  const districtOptions = districtsData.items.map((district) => ({
     value: district._id,
     label: district.name,
   }));
-  const stateOptions = states.map((state) => ({
+  const stateOptions = statesData.items.map((state) => ({
     value: state._id,
     label: state.name,
   }));
@@ -214,12 +211,7 @@ export default function CreateLegislativeAssembly() {
           >
             {bulkUploadLoading ? "Uploading..." : "Upload File"}
           </button>
-          <button
-            onClick={handleDownloadCSV}
-            className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md"
-          >
-            Download CSV
-          </button>
+
         </div>
         {file && <p className="mt-2 text-sm text-gray-600">Selected: {file.name}</p>}
       </div>

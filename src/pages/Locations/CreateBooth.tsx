@@ -8,6 +8,7 @@ import {
   getAllDistricts,
   getAllLegislativeAssemblies,
   bulkUploadBooths,
+  getAllBooths,
 } from "../../features/locations/locationsApi";
 import Form from "../../components/form/Form";
 import Label from "../../components/form/Label";
@@ -17,7 +18,7 @@ import { downloadCSV } from "../../utils/downloadCSV";
 
 export default function CreateBooth() {
   const dispatch = useDispatch<AppDispatch>();
-  const { loading, error, states, districts, legislativeAssemblies, booths } =
+  const { loading, error, states: statesData, districts: districtsData, legislativeAssemblies: legislativeAssembliesData, booths: boothsData } =
     useSelector((state: RootState) => state.locations);
 
   const [selectedState, setSelectedState] = useState("");
@@ -36,13 +37,13 @@ export default function CreateBooth() {
 
   // Fetch all states on mount
   useEffect(() => {
-    dispatch(getAllStates({}));
+    dispatch(getAllStates({ limit: 1000 }));
   }, [dispatch]);
 
   // Fetch districts when state changes
   useEffect(() => {
     if (selectedState) {
-      dispatch(getAllDistricts({ parentId: selectedState }));
+      dispatch(getAllDistricts({ parentId: selectedState, limit: 1000 }));
       setSelectedDistrict("");
       setFormData({ ...formData, parentId: "" }); // reset assembly
     }
@@ -51,7 +52,7 @@ export default function CreateBooth() {
   // Fetch assemblies when district changes
   useEffect(() => {
     if (selectedDistrict) {
-      dispatch(getAllLegislativeAssemblies({ parentId: selectedDistrict }));
+      dispatch(getAllLegislativeAssemblies({ parentId: selectedDistrict, limit: 1000 }));
       setFormData({ ...formData, parentId: "" }); // reset assembly
     }
   }, [dispatch, selectedDistrict]);
@@ -96,6 +97,7 @@ export default function CreateBooth() {
     if (!validate()) return;
     await dispatch(createBooth(formData));
     setFormData({ name: "", code: "", parentId: "" });
+    dispatch(getAllBooths({ page: 1, parentId: formData.parentId })); // Refresh the list
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -114,26 +116,27 @@ export default function CreateBooth() {
       fd.append("file", file);
       await dispatch(bulkUploadBooths({ fd, parentId: formData.parentId }));
       setFile(null);
+      dispatch(getAllBooths({ page: 1, parentId: formData.parentId })); // Refresh the list
     } finally {
       setBulkUploadLoading(false);
     }
   };
 
   const handleDownloadCSV = () => {
-    downloadCSV(booths, "booths.csv", ["name", "code", "parentId"]);
+    downloadCSV(boothsData.items, "booths.csv", ["name", "code", "parentId"]);
   };
 
-  const stateOptions = states.map((s) => ({
+  const stateOptions = statesData.items.map((s) => ({
     value: s._id,
     label: s.name,
   }));
 
-  const districtOptions = districts.map((d) => ({
+  const districtOptions = districtsData.items.map((d) => ({
     value: d._id,
     label: d.name,
   }));
 
-  const assemblyOptions = legislativeAssemblies.map((a) => ({
+  const assemblyOptions = legislativeAssembliesData.items.map((a) => ({
     value: a._id,
     label: a.name,
   }));
@@ -260,12 +263,7 @@ export default function CreateBooth() {
           >
             {bulkUploadLoading ? "Uploading..." : "Upload File"}
           </button>
-          <button
-            onClick={handleDownloadCSV}
-            className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md"
-          >
-            Download CSV
-          </button>
+
         </div>
         {file && <p className="mt-2 text-sm text-gray-600">Selected: {file.name}</p>}
       </div>

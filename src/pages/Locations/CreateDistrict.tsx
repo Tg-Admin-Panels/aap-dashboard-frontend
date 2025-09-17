@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Select from "react-select";
 import { AppDispatch, RootState } from "../../features/store";
-import { createDistrict, getAllStates, bulkUploadDistricts } from "../../features/locations/locationsApi";
+import { createDistrict, getAllStates, bulkUploadDistricts, getAllDistricts } from "../../features/locations/locationsApi";
 import Form from "../../components/form/Form";
 import Label from "../../components/form/Label";
 import Input from "../../components/form/input/InputField";
@@ -11,7 +11,7 @@ import { downloadCSV } from "../../utils/downloadCSV";
 
 export default function CreateDistrict() {
   const dispatch = useDispatch<AppDispatch>();
-  const { loading, error, states, districts } = useSelector((state: RootState) => state.locations);
+  const { loading, error, states: statesData } = useSelector((state: RootState) => state.locations);
 
   const [errors, setErrors] = useState<Partial<Record<keyof typeof formData, string>>>({});
   const [formData, setFormData] = useState({ name: "", code: "", parentId: "" });
@@ -19,7 +19,7 @@ export default function CreateDistrict() {
   const [bulkUploadLoading, setBulkUploadLoading] = useState(false)
 
   useEffect(() => {
-    dispatch(getAllStates({}));
+    dispatch(getAllStates({ limit: 1000 })); // Fetch all states for dropdown
   }, [dispatch]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -44,6 +44,7 @@ export default function CreateDistrict() {
     if (!validate()) return;
     await dispatch(createDistrict(formData));
     setFormData({ name: "", code: "", parentId: "" });
+    dispatch(getAllDistricts({ page: 1 })); // Refresh the list after creation
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -61,13 +62,11 @@ export default function CreateDistrict() {
     await dispatch(bulkUploadDistricts({ fd, parentId: formData.parentId }));
     setFile(null);
     setBulkUploadLoading(false)
+    dispatch(getAllDistricts({ page: 1, parentId: formData.parentId })); // Refresh the list
   };
 
-  const handleDownloadCSV = () => {
-    downloadCSV(districts, "districts.csv", ["name", "code", "parentId"]);
-  };
 
-  const stateOptions = states.map((state) => ({ value: state._id, label: state.name }));
+  const stateOptions = statesData.items.map((state) => ({ value: state._id, label: state.name }));
 
   return (
     <div className="p-6 rounded-lg shadow bg-white dark:bg-gray-900">
@@ -159,12 +158,7 @@ export default function CreateDistrict() {
           >
             {bulkUploadLoading ? "Uploading..." : "Upload File"}
           </button>
-          <button
-            onClick={handleDownloadCSV}
-            className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md"
-          >
-            Download CSV
-          </button>
+
         </div>
         {file && <p className="mt-2 text-sm text-gray-600">Selected: {file.name}</p>}
       </div>

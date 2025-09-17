@@ -24,6 +24,10 @@ import CreateState from "./pages/Locations/CreateState";
 import CreateDistrict from "./pages/Locations/CreateDistrict";
 import CreateLegislativeAssembly from "./pages/Locations/CreateLegislativeAssembly";
 import CreateBooth from "./pages/Locations/CreateBooth";
+import StateList from "./pages/Locations/StateList";
+import DistrictList from "./pages/Locations/DistrictList";
+import AssemblyList from "./pages/Locations/AssemblyList";
+import BoothList from "./pages/Locations/BoothList";
 import VisionTable from "./pages/Visions/VisionTable";
 import CreateVisionForm from "./pages/Visions/CreateVisionForm";
 import VisionDetails from "./pages/Visions/VisionDetailsPage";
@@ -106,6 +110,11 @@ export default function App() {
             <Route path="/locations/create-district" element={<CreateDistrict />} />
             <Route path="/locations/create-assembly" element={<CreateLegislativeAssembly />} />
             <Route path="/locations/create-booth" element={<CreateBooth />} />
+            <Route path="/locations" element={<Navigate to="/locations/states" />} />
+            <Route path="/locations/states" element={<StateList />} />
+            <Route path="/locations/states/:stateId/districts" element={<DistrictList />} />
+            <Route path="/locations/districts/:districtId/assemblies" element={<AssemblyList />} />
+            <Route path="/locations/assemblies/:assemblyId/booths" element={<BoothList />} />
             <Route path="/visions/list" element={<VisionTable />} />
             <Route path="/visions/add" element={<CreateVisionForm />} />
             <Route path="/visions/:id/details" element={<VisionDetails />} />

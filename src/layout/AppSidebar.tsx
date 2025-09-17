@@ -172,7 +172,7 @@ const AppSidebar: React.FC = () => {
       icon: <GridIcon />,
       name: "Locations",
       subItems: [
-        { name: "All Locations", path: "/locations", pro: false, role: ["admin"] },
+        { name: "Location Management", path: "/locations/states", pro: false, role: ["admin"] },
         { name: "Create State", path: "/locations/create-state", pro: false, role: ["admin"] },
         { name: "Create District", path: "/locations/create-district", pro: false, role: ["admin"] },
         { name: "Create Legislative Assembly", path: "/locations/create-assembly", pro: false, role: ["admin"] },
