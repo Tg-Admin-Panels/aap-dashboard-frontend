@@ -11,6 +11,7 @@ import {
     uploadSubmissionsFromCSV,
     deleteSubmission
 } from './formsApi';
+import { toast } from 'react-toastify';
 
 interface Field {
     name: string;
@@ -73,6 +74,7 @@ const formsSlice = createSlice({
             .addCase(createFormDefinition.fulfilled, (state, action) => {
                 state.loading = false;
                 state.formsList.push(action.payload);
+                toast.success('Form created successfully');
             })
             .addCase(createFormDefinition.rejected, (state, action) => {
                 state.loading = false;
@@ -130,6 +132,7 @@ const formsSlice = createSlice({
             })
             .addCase(submitFormData.fulfilled, (state) => {
                 state.loading = false;
+                toast.success('Form submitted successfully');
             })
             .addCase(submitFormData.rejected, (state, action) => {
                 state.loading = false;
@@ -169,6 +172,7 @@ const formsSlice = createSlice({
             })
             .addCase(uploadSubmissionsFromCSV.fulfilled, (state) => {
                 state.loading = false;
+                toast.success('Submissions uploaded successfully');
             })
             .addCase(uploadSubmissionsFromCSV.rejected, (state, action) => {
                 state.loading = false;

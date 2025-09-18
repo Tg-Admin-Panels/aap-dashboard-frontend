@@ -72,6 +72,7 @@ const volunteerSlice = createSlice({
         state.volunteers.push(action.payload.data);
         state.selectedVolunteer = action.payload.data;
         state.loading = false;
+        toast.success("Volunteer created successfully");
       })
       .addCase(createVolunteer.rejected, (state, action) => {
         state.loading = false;
@@ -121,7 +122,7 @@ const volunteerSlice = createSlice({
         );
         state.selectedVolunteer = updated;
         state.loading = false;
-        toast.success("Updated Successfully");
+        toast.success("Volunteer updated successfully");
       })
       .addCase(updateVolunteer.rejected, (state, action) => {
         state.loading = false;
@@ -139,7 +140,7 @@ const volunteerSlice = createSlice({
         state.volunteers = state.volunteers.filter((v) => v._id !== id);
         state.selectedVolunteer = null;
         state.loading = false;
-        toast.success("Deleted Successfully");
+        toast.success("Volunteer deleted successfully");
       })
       .addCase(deleteVolunteer.rejected, (state, action) => {
         state.loading = false;
@@ -159,7 +160,7 @@ const volunteerSlice = createSlice({
           state.volunteers[index].status = updated.status;
         }
         state.loading = false;
-        toast.success("Status Updated Successfully");
+        toast.success("Volunteer status updated successfully");
       })
       .addCase(updateVolunteerStatus.rejected, (state, action) => {
         state.loading = false;
@@ -170,4 +171,5 @@ const volunteerSlice = createSlice({
 });
 
 export default volunteerSlice.reducer;
-export const { clearSelectedVolunteer, clearVolunteerError } = volunteerSlice.actions;
+export const { clearSelectedVolunteer, clearVolunteerError } =
+  volunteerSlice.actions;

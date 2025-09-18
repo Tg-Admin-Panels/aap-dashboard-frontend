@@ -123,6 +123,31 @@ export default function CreateVolunteer() {
 
     const action = await dispatch(createVolunteer(payload));
     if (!("error" in action) && !error) {
+      setFormData(
+        {
+          fullName: "",
+          password: "",
+          dateOfBirth: new Date().toISOString(),
+          gender: "",
+          mobileNumber: "",
+          zone: "",
+          district: "",
+          block: "",
+          whyYouWantToJoinUs: "",
+          howMuchTimeYouDedicate: "",
+          inWhichFieldYouCanContribute: "",
+          howCanYouHelpUs: "",
+          wardNumber: "",
+          boothNumber: "",
+          pinCode: "",
+          postOffice: "",
+          cityName: "",
+          streetOrLocality: "",
+          panchayat: "",
+          villageName: "",
+          profilePicture: "",
+        }
+      )
       navigate("/volunteers");
     }
   };
