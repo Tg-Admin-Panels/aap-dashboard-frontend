@@ -10,8 +10,17 @@ import SpinnerOverlay from "../../../components/ui/SpinnerOverlay";
 import DropzoneComponent from "../../../components/form/form-elements/DropZone";
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "../../../utils/axiosInstance";
+import CustomDatePicker from "../../../components/ui/calender/CustomDatePicker";
 
 type Option = { value: string; label: string };
+
+const SectionTitle = ({ title }: { title: string }) => (
+    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 col-span-1 md:col-span-2">{title}</h3>
+);
+
+const pastElectionOptions = [
+    "लोकसभा", "विधानसभा", "नगर पालिका", "वार्ड पार्षद", "सांसद", "उप मुख्य पार्षद", "मुख्य पार्षद", "ग्राम पंचायत के सदस्य", "ग्राम कचहरी के पंच", "ग्राम पंचायत के मुखिया", "ग्राम कचहरी के सरपंच", "पंचायत समिति के सदस्य", "जिला परिषद्  के सदस्य", "पैक्स", "अन्य", "नहीं"
+].map(option => ({ value: option, label: option }));
 
 export default function ApplyForCandidacy() {
     const dispatch = useDispatch<AppDispatch>();
@@ -23,23 +32,61 @@ export default function ApplyForCandidacy() {
     const [legislativeAssemblies, setLegislativeAssemblies] = useState<Option[]>([]);
 
     const [formData, setFormData] = useState({
+        // 1. व्यक्तिगत विवरण
         applicantName: "",
+        fatherName: "",
+        fatherOccupation: "",
+        dob: "",
+        age: 0,
+        gender: "",
+        religion: "",
+        maritalStatus: "",
         state: "",
         district: "",
         legislativeAssembly: "",
-        mobile: "",
         address: "",
-        harGharJhandaCount: 0,
-        janAakroshMeetingsCount: 0,
-        communityMeetingsCount: 0,
+        pincode: "",
+
+        // 2. संपर्क विवरण
+        mobile: "",
+        whatsapp: "",
+        email: "",
         facebookFollowers: 0,
-        facebookPageLink: "",
+        facebookLink: "",
         instagramFollowers: 0,
         instagramLink: "",
-        biodataPdfUrl: "",
+
+        // 3. शैक्षिक एवं आर्थिक विवरण
+        education: "",
+        panNumber: "",
+        occupation: "",
+        occupation1: "",
+        occupation2: "",
+        occupation3: "",
+        itrAmount: 0,
+        totalAssets: 0,
+        vehicleDetails: "",
+
+        // 4. चुनाव सम्बन्धी विवरण
+        pastElection: "",
+        totalBooths: 0,
+        activeBooths: 0,
+
+        // 5. टीम विवरण
+        teamMembers: [{ name: "", mobile: "" }],
+
+        // 6. सामाजिक गतिविधियाँ
+        socialPrograms: "",
+
+        // 7. आगामी कार्यक्रम
+        programDate: "",
+        meetingDate: "",
+
+        // 8. जीवनी
+        biodataPdf: "",
     });
 
-    const [errorsState, setErrorsState] = useState<Partial<Record<keyof typeof formData, string>>>({});
+    const [errorsState, setErrorsState] = useState<Partial<Record<keyof typeof formData, any>>>({});
 
     // -------- Fetchers ----------
     useEffect(() => {
@@ -80,7 +127,16 @@ export default function ApplyForCandidacy() {
     // -------- Handlers ----------
     const handleTextChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
+        if (name === "mobile" || name === "whatsapp" || name === "pincode") {
+            const numericValue = value.replace(/[^0-9]/g, "");
+            if (numericValue.length <= 10 && (name === "mobile" || name === "whatsapp")) {
+                setFormData(prev => ({ ...prev, [name]: numericValue }));
+            } else if (numericValue.length <= 6 && name === "pincode") {
+                setFormData(prev => ({ ...prev, [name]: numericValue }));
+            }
+        } else {
+            setFormData(prev => ({ ...prev, [name]: value }));
+        }
     };
 
     const handleNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -98,54 +154,52 @@ export default function ApplyForCandidacy() {
         }));
     };
 
-    const handleBiodataUploadSuccess = (url: string) => {
-        // ✅ No reset — we only set the field in the same state
-        setFormData(prev => ({ ...prev, biodataPdfUrl: url }));
+    const handleDateChange = (name: keyof typeof formData, date: Date | null) => {
+        setFormData(prev => ({
+            ...prev,
+            [name]: date ? date.toISOString() : "",
+        }));
     };
 
-    // -------- Validation (simple/normal) ----------
-    const validate = () => {
-        const errs: Partial<Record<keyof typeof formData, string>> = {};
+    const handleBiodataUploadSuccess = (url: string) => {
+        setFormData(prev => ({ ...prev, biodataPdf: url }));
+    };
 
-        if (!formData.applicantName || formData.applicantName.trim().length < 2) {
-            errs.applicantName = "Applicant name is required (min 2 characters)";
-        }
+    const handleTeamMemberChange = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        const teamMembers = [...formData.teamMembers];
+        teamMembers[index] = { ...teamMembers[index], [name]: value };
+        setFormData(prev => ({ ...prev, teamMembers }));
+    };
+
+    const addTeamMember = () => {
+        setFormData(prev => ({ ...prev, teamMembers: [...prev.teamMembers, { name: "", mobile: "" }] }));
+    };
+
+    // -------- Validation ----------
+    const validate = () => {
+        const errs: Partial<Record<keyof typeof formData, any>> = {};
+
+        if (!formData.applicantName) errs.applicantName = "Applicant name is required";
+        if (!formData.fatherName) errs.fatherName = "Father name is required";
+        if (!formData.dob) errs.dob = "Date of birth is required";
+        if (!formData.gender) errs.gender = "Gender is required";
         if (!formData.state) errs.state = "State is required";
         if (!formData.district) errs.district = "District is required";
         if (!formData.legislativeAssembly) errs.legislativeAssembly = "Legislative Assembly is required";
-
-        if (!/^\d{10}$/.test(formData.mobile)) errs.mobile = "Enter a valid 10-digit mobile number";
-
         if (!formData.address) errs.address = "Address is required";
+        if (!formData.biodataPdf) errs.biodataPdf = "Biodata PDF is required";
 
-        const nonNegatives: Array<keyof typeof formData> = [
-            "harGharJhandaCount",
-            "janAakroshMeetingsCount",
-            "communityMeetingsCount",
-            "facebookFollowers",
-            "instagramFollowers",
-        ];
-        nonNegatives.forEach((key) => {
-            const val = formData[key] as unknown as number;
-            if (val === null || val === undefined || Number.isNaN(val)) {
-                errs[key] = "This field is required";
-            } else if (val < 0) {
-                errs[key] = "Value cannot be negative";
-            }
-        });
-
-        const isValidUrl = (url: string) => {
-            try { new URL(url); return true; } catch { return false; }
-        };
-
-        if (!formData.facebookPageLink || !isValidUrl(formData.facebookPageLink)) {
-            errs.facebookPageLink = "Valid Facebook page link is required";
+        if (!/^[0-9]{10}$/.test(formData.mobile)) {
+            errs.mobile = "Mobile number must be 10 digits.";
         }
-        if (!formData.instagramLink || !isValidUrl(formData.instagramLink)) {
-            errs.instagramLink = "Valid Instagram link is required";
+
+        if (formData.whatsapp && !/^[0-9]{10}$/.test(formData.whatsapp)) {
+            errs.whatsapp = "WhatsApp number must be 10 digits.";
         }
-        if (!formData.biodataPdfUrl) {
-            errs.biodataPdfUrl = "Biodata PDF is required";
+
+        if (formData.pincode && !/^[0-9]{6}$/.test(formData.pincode)) {
+            errs.pincode = "Pincode must be 6 digits.";
         }
 
         setErrorsState(errs);
@@ -156,21 +210,8 @@ export default function ApplyForCandidacy() {
     const onSubmit = async (e: FormEvent) => {
         e.preventDefault();
         if (!validate()) return;
-
-        const payload = {
-            ...formData,
-            // ensure numbers are numbers
-            harGharJhandaCount: Number(formData.harGharJhandaCount),
-            janAakroshMeetingsCount: Number(formData.janAakroshMeetingsCount),
-            communityMeetingsCount: Number(formData.communityMeetingsCount),
-            facebookFollowers: Number(formData.facebookFollowers),
-            instagramFollowers: Number(formData.instagramFollowers),
-        };
-
-        const resultAction = await dispatch(createCandidateApplication(payload) as any);
-
-        // If your thunk sets error in slice, rely on it; else check resultAction.meta/rejected
-        if (!error && !("error" in resultAction)) {
+        const resultAction = await dispatch(createCandidateApplication(formData) as any);
+        if (!("error" in resultAction)) {
             navigate("/");
         }
     };
@@ -181,191 +222,211 @@ export default function ApplyForCandidacy() {
             <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-6">Apply for Candidacy</h2>
             {error && <p className="text-red-500 mb-4">Error: {error}</p>}
 
-            <Form onSubmit={onSubmit} className="space-y-4">
+            <Form onSubmit={onSubmit} className="space-y-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                    <SectionTitle title="1. व्यक्तिगत विवरण" />
                     <div>
                         <Label htmlFor="applicantName" required>Applicant Name</Label>
-                        <Input
-                            id="applicantName"
-                            name="applicantName"
-                            value={formData.applicantName}
-                            onChange={handleTextChange}
-                            error={!!errorsState.applicantName}
-                            hint={errorsState.applicantName}
-                        />
+                        <Input id="applicantName" name="applicantName" value={formData.applicantName} onChange={handleTextChange} required />
+                        {errorsState.applicantName && <p className="text-red-500 text-xs mt-1">{errorsState.applicantName}</p>}
                     </div>
-
                     <div>
-                        <Label htmlFor="mobile" required>Mobile</Label>
-                        <Input
-                            id="mobile"
-                            name="mobile"
-                            value={formData.mobile}
-                            onChange={handleTextChange}
-                            error={!!errorsState.mobile}
-                            hint={errorsState.mobile}
-                        />
+                        <Label htmlFor="fatherName" required>Father Name</Label>
+                        <Input id="fatherName" name="fatherName" value={formData.fatherName} onChange={handleTextChange} required />
+                        {errorsState.fatherName && <p className="text-red-500 text-xs mt-1">{errorsState.fatherName}</p>}
                     </div>
-
+                    <div>
+                        <Label htmlFor="fatherOccupation">Father Occupation</Label>
+                        <Input id="fatherOccupation" name="fatherOccupation" value={formData.fatherOccupation} onChange={handleTextChange} />
+                    </div>
+                    <div>
+                        <Label htmlFor="dob" required>Date of Birth</Label>
+                        <CustomDatePicker
+                            placeholderText="Select Date of Birth"
+                            selectedDate={formData.dob ? new Date(formData.dob) : null}
+                            onChange={(date) => handleDateChange("dob", date)}
+                        />
+                        {errorsState.dob && <p className="text-red-500 text-xs mt-1">{errorsState.dob}</p>}
+                    </div>
+                    <div>
+                        <Label htmlFor="age">Age</Label>
+                        <Input id="age" name="age" type="number" value={formData.age} onChange={handleNumberChange} />
+                    </div>
+                    <div>
+                        <Label htmlFor="gender" required>Gender</Label>
+                        <Select inputId="gender" placeholder="Select Gender" options={[{ value: "Male", label: "Male" }, { value: "Female", label: "Female" }, { value: "Other", label: "Other" }]} onChange={opt => handleSelectChange("gender", opt as Option | null)} />
+                        {errorsState.gender && <p className="text-red-500 text-xs mt-1">{errorsState.gender}</p>}
+                    </div>
+                    <div>
+                        <Label htmlFor="religion">Religion</Label>
+                        <Input id="religion" name="religion" value={formData.religion} onChange={handleTextChange} />
+                    </div>
+                    <div>
+                        <Label htmlFor="maritalStatus">Marital Status</Label>
+                        <Select inputId="maritalStatus" placeholder="Select Marital Status" options={[{ value: "Married", label: "Married" }, { value: "Unmarried", label: "Unmarried" }, { value: "Other", label: "Other" }]} onChange={opt => handleSelectChange("maritalStatus", opt as Option | null)} />
+                    </div>
                     <div>
                         <Label htmlFor="state" required>State</Label>
-                        <Select
-                            inputId="state"
-                            options={states}
-                            onChange={(opt) => handleSelectChange("state", opt as Option | null)}
-                            value={states.find(o => o.value === formData.state) || null}
-                            placeholder="Select State"
-                        />
+                        <Select inputId="state" placeholder="Select State" options={states} onChange={opt => handleSelectChange("state", opt as Option | null)} />
                         {errorsState.state && <p className="text-red-500 text-xs mt-1">{errorsState.state}</p>}
                     </div>
-
                     <div>
                         <Label htmlFor="district" required>District</Label>
-                        <Select
-                            inputId="district"
-                            options={districts}
-                            onChange={(opt) => handleSelectChange("district", opt as Option | null)}
-                            value={districts.find(o => o.value === formData.district) || null}
-                            placeholder="Select District"
-                            isDisabled={!formData.state}
-                        />
+                        <Select inputId="district" placeholder="Select District" options={districts} onChange={opt => handleSelectChange("district", opt as Option | null)} isDisabled={!formData.state} />
                         {errorsState.district && <p className="text-red-500 text-xs mt-1">{errorsState.district}</p>}
                     </div>
-
                     <div>
                         <Label htmlFor="legislativeAssembly" required>Legislative Assembly</Label>
-                        <Select
-                            inputId="legislativeAssembly"
-                            options={legislativeAssemblies}
-                            onChange={(opt) => handleSelectChange("legislativeAssembly", opt as Option | null)}
-                            value={legislativeAssemblies.find(o => o.value === formData.legislativeAssembly) || null}
-                            placeholder="Select Legislative Assembly"
-                            isDisabled={!formData.district}
-                        />
+                        <Select inputId="legislativeAssembly" placeholder="Select Legislative Assembly" options={legislativeAssemblies} onChange={opt => handleSelectChange("legislativeAssembly", opt as Option | null)} isDisabled={!formData.district} />
                         {errorsState.legislativeAssembly && <p className="text-red-500 text-xs mt-1">{errorsState.legislativeAssembly}</p>}
                     </div>
-
-                    <div className="md:col-span-2">
+                    <div>
                         <Label htmlFor="address" required>Address</Label>
-                        <Input
-                            id="address"
-                            name="address"
-                            value={formData.address}
-                            onChange={handleTextChange}
-                            error={!!errorsState.address}
-                            hint={errorsState.address}
-                        />
+                        <Input id="address" name="address" value={formData.address} onChange={handleTextChange} required />
+                        {errorsState.address && <p className="text-red-500 text-xs mt-1">{errorsState.address}</p>}
                     </div>
-
                     <div>
-                        <Label htmlFor="harGharJhandaCount" required>Har Ghar Jhanda Count</Label>
-                        <Input
-                            type="number"
-                            id="harGharJhandaCount"
-                            name="harGharJhandaCount"
-                            value={formData.harGharJhandaCount}
-                            onChange={handleNumberChange}
-                            error={!!errorsState.harGharJhandaCount}
-                            hint={errorsState.harGharJhandaCount}
-                        />
+                        <Label htmlFor="pincode">Pincode</Label>
+                        <Input id="pincode" name="pincode" value={formData.pincode} onChange={handleTextChange} />
+                        {errorsState.pincode && <p className="text-red-500 text-xs mt-1">{errorsState.pincode}</p>}
                     </div>
 
+                    <SectionTitle title="2. संपर्क विवरण" />
                     <div>
-                        <Label htmlFor="janAakroshMeetingsCount" required>Jan Aakrosh Meetings Count</Label>
-                        <Input
-                            type="number"
-                            id="janAakroshMeetingsCount"
-                            name="janAakroshMeetingsCount"
-                            value={formData.janAakroshMeetingsCount}
-                            onChange={handleNumberChange}
-                            error={!!errorsState.janAakroshMeetingsCount}
-                            hint={errorsState.janAakroshMeetingsCount}
-                        />
+                        <Label htmlFor="mobile" required>Mobile</Label>
+                        <Input id="mobile" name="mobile" value={formData.mobile} onChange={handleTextChange} required />
+                        {errorsState.mobile && <p className="text-red-500 text-xs mt-1">{errorsState.mobile}</p>}
                     </div>
-
                     <div>
-                        <Label htmlFor="communityMeetingsCount" required>Community Meetings Count</Label>
-                        <Input
-                            type="number"
-                            id="communityMeetingsCount"
-                            name="communityMeetingsCount"
-                            value={formData.communityMeetingsCount}
-                            onChange={handleNumberChange}
-                            error={!!errorsState.communityMeetingsCount}
-                            hint={errorsState.communityMeetingsCount}
-                        />
+                        <Label htmlFor="whatsapp">WhatsApp</Label>
+                        <Input id="whatsapp" name="whatsapp" value={formData.whatsapp} onChange={handleTextChange} />
+                        {errorsState.whatsapp && <p className="text-red-500 text-xs mt-1">{errorsState.whatsapp}</p>}
                     </div>
-
                     <div>
-                        <Label htmlFor="facebookFollowers" required>Facebook Followers</Label>
-                        <Input
-                            type="number"
-                            id="facebookFollowers"
-                            name="facebookFollowers"
-                            value={formData.facebookFollowers}
-                            onChange={handleNumberChange}
-                            error={!!errorsState.facebookFollowers}
-                            hint={errorsState.facebookFollowers}
-                        />
+                        <Label htmlFor="email">Email</Label>
+                        <Input id="email" name="email" type="email" value={formData.email} onChange={handleTextChange} />
                     </div>
-
                     <div>
-                        <Label htmlFor="facebookPageLink" required>Facebook Page Link</Label>
-                        <Input
-                            id="facebookPageLink"
-                            name="facebookPageLink"
-                            value={formData.facebookPageLink}
-                            onChange={handleTextChange}
-                            error={!!errorsState.facebookPageLink}
-                            hint={errorsState.facebookPageLink}
-                        />
+                        <Label htmlFor="facebookFollowers">Facebook Followers</Label>
+                        <Input id="facebookFollowers" name="facebookFollowers" type="number" value={formData.facebookFollowers} onChange={handleNumberChange} />
                     </div>
-
                     <div>
-                        <Label htmlFor="instagramFollowers" required>Instagram Followers</Label>
-                        <Input
-                            type="number"
-                            id="instagramFollowers"
-                            name="instagramFollowers"
-                            value={formData.instagramFollowers}
-                            onChange={handleNumberChange}
-                            error={!!errorsState.instagramFollowers}
-                            hint={errorsState.instagramFollowers}
-                        />
+                        <Label htmlFor="facebookLink">Facebook Link</Label>
+                        <Input id="facebookLink" name="facebookLink" value={formData.facebookLink} onChange={handleTextChange} />
                     </div>
-
                     <div>
-                        <Label htmlFor="instagramLink" required>Instagram Link</Label>
-                        <Input
-                            id="instagramLink"
-                            name="instagramLink"
-                            value={formData.instagramLink}
-                            onChange={handleTextChange}
-                            error={!!errorsState.instagramLink}
-                            hint={errorsState.instagramLink}
+                        <Label htmlFor="instagramFollowers">Instagram Followers</Label>
+                        <Input id="instagramFollowers" name="instagramFollowers" type="number" value={formData.instagramFollowers} onChange={handleNumberChange} />
+                    </div>
+                    <div>
+                        <Label htmlFor="instagramLink">Instagram Link</Label>
+                        <Input id="instagramLink" name="instagramLink" value={formData.instagramLink} onChange={handleTextChange} />
+                    </div>
+
+                    <SectionTitle title="3. शैक्षिक एवं आर्थिक विवरण" />
+                    <div>
+                        <Label htmlFor="education">Education</Label>
+                        <Input id="education" name="education" value={formData.education} onChange={handleTextChange} />
+                    </div>
+                    <div>
+                        <Label htmlFor="panNumber">PAN Number</Label>
+                        <Input id="panNumber" name="panNumber" value={formData.panNumber} onChange={handleTextChange} />
+                    </div>
+                    <div>
+                        <Label htmlFor="occupation">Occupation</Label>
+                        <Input id="occupation" name="occupation" value={formData.occupation} onChange={handleTextChange} />
+                    </div>
+                    <div>
+                        <Label htmlFor="occupation1">Occupation 1</Label>
+                        <Input id="occupation1" name="occupation1" value={formData.occupation1} onChange={handleTextChange} />
+                    </div>
+                    <div>
+                        <Label htmlFor="occupation2">Occupation 2</Label>
+                        <Input id="occupation2" name="occupation2" value={formData.occupation2} onChange={handleTextChange} />
+                    </div>
+                    <div>
+                        <Label htmlFor="occupation3">Occupation 3</Label>
+                        <Input id="occupation3" name="occupation3" value={formData.occupation3} onChange={handleTextChange} />
+                    </div>
+                    <div>
+                        <Label htmlFor="itrAmount">ITR Amount</Label>
+                        <Input id="itrAmount" name="itrAmount" type="number" value={formData.itrAmount} onChange={handleNumberChange} />
+                    </div>
+                    <div>
+                        <Label htmlFor="totalAssets">Total Assets</Label>
+                        <Input id="totalAssets" name="totalAssets" type="number" value={formData.totalAssets} onChange={handleNumberChange} />
+                    </div>
+                    <div>
+                        <Label htmlFor="vehicleDetails">Vehicle Details</Label>
+                        <Input id="vehicleDetails" name="vehicleDetails" value={formData.vehicleDetails} onChange={handleTextChange} />
+                    </div>
+
+                    <SectionTitle title="4. चुनाव सम्बन्धी विवरण" />
+                    <div>
+                        <Label htmlFor="pastElection">Past Election</Label>
+                        <Select inputId="pastElection" placeholder="Select Past Election" options={pastElectionOptions} onChange={opt => handleSelectChange("pastElection", opt as Option | null)} />
+                    </div>
+                    <div>
+                        <Label htmlFor="totalBooths">Total Booths</Label>
+                        <Input id="totalBooths" name="totalBooths" type="number" value={formData.totalBooths} onChange={handleNumberChange} />
+                    </div>
+                    <div>
+                        <Label htmlFor="activeBooths">Active Booths</Label>
+                        <Input id="activeBooths" name="activeBooths" type="number" value={formData.activeBooths} onChange={handleNumberChange} />
+                    </div>
+
+                    <SectionTitle title="5. टीम विवरण" />
+                    {formData.teamMembers.map((member, index) => (
+                        <div key={index} className="grid grid-cols-1 md:grid-cols-2 gap-4 col-span-1 md:col-span-2">
+                            <div>
+                                <Label htmlFor={`teamMemberName${index}`}>Team Member {index + 1} Name</Label>
+                                <Input id={`teamMemberName${index}`} name="name" value={member.name} onChange={e => handleTeamMemberChange(index, e)} />
+                            </div>
+                            <div>
+                                <Label htmlFor={`teamMemberMobile${index}`}>Team Member {index + 1} Mobile</Label>
+                                <Input id={`teamMemberMobile${index}`} name="mobile" value={member.mobile} onChange={e => handleTeamMemberChange(index, e)} />
+                            </div>
+                        </div>
+                    ))}
+                    <button type="button" onClick={addTeamMember} className="text-sm text-blue-500">+ Add Team Member</button>
+
+                    <SectionTitle title="6. सामाजिक गतिविधियाँ" />
+                    <div>
+                        <Label htmlFor="socialPrograms">Social Programs</Label>
+                        <Input id="socialPrograms" name="socialPrograms" value={formData.socialPrograms} onChange={handleTextChange} />
+                    </div>
+
+                    <SectionTitle title="7. आगामी कार्यक्रम" />
+                    <div>
+                        <Label htmlFor="programDate">Program Date</Label>
+                        <CustomDatePicker
+                            placeholderText="Select Date"
+                            selectedDate={formData.programDate ? new Date(formData.programDate) : null}
+                            onChange={(date) => handleDateChange("programDate", date)}
+                        />
+                    </div>
+                    <div>
+                        <Label htmlFor="meetingDate">Meeting Date</Label>
+                        <CustomDatePicker
+                            placeholderText="Select Date "
+                            selectedDate={formData.meetingDate ? new Date(formData.meetingDate) : null}
+                            onChange={(date) => handleDateChange("meetingDate", date)}
                         />
                     </div>
 
-                    <div className="md:col-span-2">
-                        <Label htmlFor="biodataPdfUrl" required>Biodata (PDF)</Label>
+                    <SectionTitle title="8. जीवनी" />
+                    <div className="col-span-1 md:col-span-2">
+                        <Label htmlFor="biodataPdf" required>Biodata (PDF)</Label>
                         <DropzoneComponent
                             accept={{ "application/pdf": [".pdf"] }}
                             onFileUploadSuccess={handleBiodataUploadSuccess}
                             multiple={false}
                         />
-                        {errorsState.biodataPdfUrl && (
-                            <p className="text-red-500 text-xs mt-1">{errorsState.biodataPdfUrl}</p>
-                        )}
-                        {formData.biodataPdfUrl && (
+                        {errorsState.biodataPdf && <p className="text-red-500 text-xs mt-1">{errorsState.biodataPdf}</p>}
+                        {formData.biodataPdf && (
                             <div className="mt-2">
-                                <a
-                                    href={formData.biodataPdfUrl}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    className="text-blue-500 underline"
-                                >
-                                    View Uploaded PDF
-                                </a>
+                                <a href={formData.biodataPdf} target="_blank" rel="noreferrer" className="text-blue-500 underline">View Uploaded PDF</a>
                             </div>
                         )}
                     </div>

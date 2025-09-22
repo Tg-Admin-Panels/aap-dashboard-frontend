@@ -32,6 +32,7 @@ export default function AssemblyList() {
 
   useEffect(() => {
     if (districtId) {
+      console.log("Fetching assemblies for district:", districtId);
       dispatch(getAllLegislativeAssemblies({ parentId: districtId, page: 1 }));
     }
   }, [dispatch, districtId]);
@@ -90,7 +91,7 @@ export default function AssemblyList() {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableCell isHeader>Name</TableCell>
+            <TableCell className="text-left pl-3" isHeader>Name</TableCell>
             <TableCell isHeader>Code</TableCell>
             <TableCell isHeader>Actions</TableCell>
           </TableRow>
@@ -98,10 +99,10 @@ export default function AssemblyList() {
         <TableBody>
           {legislativeAssemblies.items.map((assembly) => (
             <TableRow key={assembly._id} onClick={() => handleRowClick(assembly)} className="cursor-pointer">
-              <TableCell>{assembly.name}</TableCell>
-              <TableCell>{assembly.code}</TableCell>
+              <TableCell className="pl-3">{assembly.name}</TableCell>
+              <TableCell className="text-center">{assembly.code}</TableCell>
               <TableCell>
-                <div className="flex space-x-2">
+                <div className="flex space-x-2 justify-center items-center">
                   <button onClick={(e) => { e.stopPropagation(); handleEditClick(assembly); }} className="p-1 text-blue-500 hover:text-blue-700">
                     <PencilIcon />
                   </button>
@@ -117,8 +118,8 @@ export default function AssemblyList() {
 
       {legislativeAssemblies.hasNextPage && (
         <div className="mt-4 flex justify-center">
-          <button 
-            onClick={handleLoadMore} 
+          <button
+            onClick={handleLoadMore}
             className="px-4 py-2 text-sm font-medium text-white bg-brand-500 rounded-md hover:bg-brand-600 disabled:opacity-50"
             disabled={loading}
           >

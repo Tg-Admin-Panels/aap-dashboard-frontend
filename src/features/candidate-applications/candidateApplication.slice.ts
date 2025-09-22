@@ -12,21 +12,61 @@ import {
 
 export interface CandidateApplication {
     _id: string;
+    // 1. व्यक्तिगत विवरण
     applicantName: string;
+    fatherName: string;
+    fatherOccupation?: string;
+    dob: string;
+    age: number;
+    gender: "Male" | "Female" | "Other";
+    religion?: string;
+    maritalStatus?: "Married" | "Unmarried" | "Other";
     state: { _id: string; name: string };
     district: { _id: string; name: string };
     legislativeAssembly: { _id: string; name: string };
-    mobile: string;
     address: string;
-    harGharJhandaCount: number;
-    janAakroshMeetingsCount: number;
-    communityMeetingsCount: number;
-    facebookFollowers: number;
-    facebookPageLink: string;
-    instagramFollowers: number;
-    instagramLink: string;
-    biodataPdfUrl: string;
+    pincode?: string;
+
+    // 2. संपर्क विवरण
+    mobile: string;
+    whatsapp?: string;
+    email?: string;
+    facebookFollowers?: number;
+    facebookLink?: string;
+    instagramFollowers?: number;
+    instagramLink?: string;
+
+    // 3. शैक्षिक एवं आर्थिक विवरण
+    education?: string;
+    panNumber?: string;
+    occupation?: string;
+    occupation1?: string;
+    occupation2?: string;
+    occupation3?: string;
+    itrAmount?: number;
+    totalAssets?: number;
+    vehicleDetails?: string;
+
+    // 4. चुनाव सम्बन्धी विवरण
+    pastElection?: string;
+    totalBooths?: number;
+    activeBooths?: number;
+
+    // 5. टीम विवरण
+    teamMembers: { name: string; mobile: string }[];
+
+    // 6. सामाजिक गतिविधियाँ
+    socialPrograms?: string;
+
+    // 7. आगामी कार्यक्रम
+    programDate?: string;
+    meetingDate?: string;
+
+    // 8. जीवनी
+    biodataPdf: string;
     biodataPdfPublicId?: string;
+
+    // Meta
     status: "pending" | "approved" | "rejected";
     notes?: string;
 }

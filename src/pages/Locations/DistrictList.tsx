@@ -90,7 +90,7 @@ export default function DistrictList() {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableCell isHeader>Name</TableCell>
+            <TableCell className="text-left pl-3" isHeader>Name</TableCell>
             <TableCell isHeader>Code</TableCell>
             <TableCell isHeader>Actions</TableCell>
           </TableRow>
@@ -98,10 +98,10 @@ export default function DistrictList() {
         <TableBody>
           {districts.items.map((district) => (
             <TableRow key={district._id}>
-              <TableCell><span className="hover:underline hover:cursor-pointer" onClick={() => handleRowClick(district)}> {district.name}</span></TableCell>
-              <TableCell>{district.code}</TableCell>
+              <TableCell className="pl-3"><span className="hover:underline hover:cursor-pointer" onClick={() => handleRowClick(district)}> {district.name}</span></TableCell>
+              <TableCell className="text-center">{district.code}</TableCell>
               <TableCell>
-                <div className="flex space-x-2">
+                <div className="flex space-x-2 justify-center items-center">
                   <button onClick={(e) => { e.stopPropagation(); handleEditClick(district); }} className="p-1 text-blue-500 hover:text-blue-700">
                     <PencilIcon />
                   </button>
@@ -117,8 +117,8 @@ export default function DistrictList() {
 
       {districts.hasNextPage && (
         <div className="mt-4 flex justify-center">
-          <button 
-            onClick={handleLoadMore} 
+          <button
+            onClick={handleLoadMore}
             className="px-4 py-2 text-sm font-medium text-white bg-brand-500 rounded-md hover:bg-brand-600 disabled:opacity-50"
             disabled={loading}
           >

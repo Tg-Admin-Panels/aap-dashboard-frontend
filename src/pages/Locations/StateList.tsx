@@ -78,7 +78,7 @@ export default function StateList() {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableCell isHeader>Name</TableCell>
+            <TableCell className="text-left pl-3" isHeader>Name</TableCell>
             <TableCell isHeader>Code</TableCell>
             <TableCell isHeader>Actions</TableCell>
           </TableRow>
@@ -86,10 +86,10 @@ export default function StateList() {
         <TableBody>
           {states.items.map((state) => (
             <TableRow key={state._id}>
-              <TableCell><span className="hover:underline hover:cursor-pointer" onClick={() => handleRowClick(state)} >{state.name}</span></TableCell>
-              <TableCell>{state.code}</TableCell>
-              <TableCell>
-                <div className="flex space-x-2">
+              <TableCell className="pl-3"><span className="hover:underline hover:cursor-pointer" onClick={() => handleRowClick(state)} >{state.name}</span></TableCell>
+              <TableCell className="text-center">{state.code}</TableCell>
+              <TableCell >
+                <div className="flex space-x-2 justify-center items-center">
                   <button onClick={(e) => { e.stopPropagation(); handleEditClick(state); }} className="p-1 text-blue-500 hover:text-blue-700">
                     <PencilIcon />
                   </button>
@@ -105,8 +105,8 @@ export default function StateList() {
 
       {states.hasNextPage && (
         <div className="mt-4 flex justify-center">
-          <button 
-            onClick={handleLoadMore} 
+          <button
+            onClick={handleLoadMore}
             className="px-4 py-2 text-sm font-medium text-white bg-brand-500 rounded-md hover:bg-brand-600 disabled:opacity-50"
             disabled={loading}
           >

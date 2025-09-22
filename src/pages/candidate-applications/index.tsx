@@ -36,7 +36,7 @@ const StatusBadge = ({ status }: { status: CandidateApplication["status"] }) => 
 
 const SkeletonRow = () => (
     <TableRow>
-        <TableCell colSpan={6}>
+        <TableCell colSpan={10}>
             <div className="animate-pulse flex items-center gap-4 py-3">
                 <div className="h-4 w-40 rounded bg-gray-200/70" />
                 <div className="h-4 w-24 rounded bg-gray-200/70" />
@@ -88,7 +88,7 @@ const CandidateApplications = () => {
         const term = q.trim().toLowerCase();
         if (!term) return applications;
         return applications.filter((a) =>
-            [a.applicantName, a.mobile, a?.district?.name, a?.legislativeAssembly?.name]
+            [a.applicantName, a.fatherName, a.mobile, a?.district?.name, a?.legislativeAssembly?.name, a.pincode, a.pastElection]
                 .filter(Boolean)
                 .some((v) => String(v).toLowerCase().includes(term))
         );
@@ -124,9 +124,14 @@ const CandidateApplications = () => {
                         <TableHeader className="bg-gray-50 sticky top-0  z-10">
                             <TableRow>
                                 <TableCell isHeader className="min-w-[200px]">Applicant</TableCell>
+                                <TableCell isHeader className="min-w-[200px]">Father Name</TableCell>
                                 <TableCell isHeader className="min-w-[120px]">Mobile</TableCell>
+                                <TableCell isHeader className="min-w-[100px]">Gender</TableCell>
+                                <TableCell isHeader className="min-w-[80px]">Age</TableCell>
                                 <TableCell isHeader className="min-w-[160px]">District</TableCell>
                                 <TableCell isHeader className="min-w-[200px]">Legislative Assembly</TableCell>
+                                <TableCell isHeader className="min-w-[120px]">Pincode</TableCell>
+                                <TableCell isHeader className="min-w-[200px]">Past Election</TableCell>
                                 <TableCell isHeader className="min-w-[120px]">Status</TableCell>
                                 <TableCell isHeader className="min-w-[220px]">Actions</TableCell>
                             </TableRow>
@@ -143,7 +148,7 @@ const CandidateApplications = () => {
 
                             {!loading && filtered.length === 0 && (
                                 <TableRow>
-                                    <TableCell colSpan={6}>
+                                    <TableCell colSpan={11}>
                                         <EmptyState />
                                     </TableCell>
                                 </TableRow>
@@ -158,9 +163,14 @@ const CandidateApplications = () => {
                                                 <span className="text-xs text-gray-500">ID: {a._id.slice(-8)}</span>
                                             </div>
                                         </TableCell>
+                                        <TableCell className="text-gray-700">{a.fatherName}</TableCell>
                                         <TableCell className="text-gray-700">{a.mobile}</TableCell>
+                                        <TableCell className="text-gray-700">{a.gender}</TableCell>
+                                        <TableCell className="text-gray-700">{a.age}</TableCell>
                                         <TableCell className="text-gray-700">{a?.district?.name ?? "-"}</TableCell>
                                         <TableCell className="text-gray-700">{a?.legislativeAssembly?.name ?? "-"}</TableCell>
+                                        <TableCell className="text-gray-700">{a.pincode}</TableCell>
+                                        <TableCell className="text-gray-700">{a.pastElection}</TableCell>
                                         <TableCell>
                                             <StatusBadge status={a.status} />
                                         </TableCell>
