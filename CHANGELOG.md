@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.0.18](https://github.com/Tg-Admin-Panels/aap-dashboard-frontend/compare/v2.0.17...v2.0.18) (2025-09-22)
+
+
+### Bug Fixes
+
+* add volunteer form reset ([30d1550](https://github.com/Tg-Admin-Panels/aap-dashboard-frontend/commit/30d1550365e3db0b78de23ffd08cb7be79f42d3d))
+
 ### [2.0.17](https://github.com/Tg-Admin-Panels/aap-dashboard-frontend/compare/v2.0.16...v2.0.17) (2025-09-17)
 
 ### [2.0.16](https://github.com/Tg-Admin-Panels/aap-dashboard-frontend/compare/v2.0.15...v2.0.16) (2025-09-17)
