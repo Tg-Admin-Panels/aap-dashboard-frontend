@@ -18,6 +18,7 @@ import {
   clearDistricts,
   clearLegislativeAssemblies,
   clearBooths,
+  appendBooths, // ✅ Make sure this action exists in your slice (explained below)
 } from "../../features/locations/locations.slice";
 
 type Option = { value: string; label: string };
@@ -33,10 +34,7 @@ type FormData = {
 };
 
 type ErrorState = Partial<
-  Record<
-    keyof FormData | "state" | "district" | "legislativeAssembly",
-    string
-  >
+  Record<keyof FormData | "state" | "district" | "legislativeAssembly", string>
 >;
 
 export default function AddBoothTeamMember() {
@@ -63,8 +61,14 @@ export default function AddBoothTeamMember() {
 
   const [selectedState, setSelectedState] = useState<string | null>(null);
   const [selectedDistrict, setSelectedDistrict] = useState<string | null>(null);
-  const [selectedLegislativeAssembly, setSelectedLegislativeAssembly] = useState<string | null>(null);
+  const [selectedLegislativeAssembly, setSelectedLegislativeAssembly] =
+    useState<string | null>(null);
   const [selectedBooth, setSelectedBooth] = useState<string | null>(null);
+
+  // Booth pagination
+  const [boothPage, setBoothPage] = useState(1);
+  const [hasMoreBooths, setHasMoreBooths] = useState(true);
+  const [isBoothLoading, setIsBoothLoading] = useState(false);
 
   // Fetch states on mount
   useEffect(() => {
@@ -88,24 +92,34 @@ export default function AddBoothTeamMember() {
     }
   }, [dispatch, selectedDistrict]);
 
+  // ✅ Booth fetch with pagination reset
   useEffect(() => {
     if (selectedLegislativeAssembly) {
-      dispatch(getAllBooths({ parentId: selectedLegislativeAssembly }));
+      setBoothPage(1);
+      setHasMoreBooths(true);
+      dispatch(
+        getAllBooths({ parentId: selectedLegislativeAssembly, page: 1, limit: 100 })
+      );
     } else {
       dispatch(clearBooths());
     }
   }, [dispatch, selectedLegislativeAssembly]);
 
+  // ========== Handlers ==========
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
   const handlePostChange = (opt: Option | null) => {
-    setFormData(prev => ({ ...prev, post: opt ? opt.value : "", padnaam: "" }));
+    setFormData((prev) => ({
+      ...prev,
+      post: opt ? opt.value : "",
+      padnaam: "",
+    }));
   };
 
   const handlePadnaamChange = (opt: Option | null) => {
-    setFormData(prev => ({ ...prev, padnaam: opt ? opt.value : "" }));
+    setFormData((prev) => ({ ...prev, padnaam: opt ? opt.value : "" }));
   };
 
   const handleStateChange = (opt: Option | null) => {
@@ -113,39 +127,80 @@ export default function AddBoothTeamMember() {
     setSelectedDistrict(null);
     setSelectedLegislativeAssembly(null);
     setSelectedBooth(null);
-    setFormData(prev => ({ ...prev, boothId: "", boothName: "" }));
+    setFormData((prev) => ({ ...prev, boothId: "", boothName: "" }));
   };
 
   const handleDistrictChange = (opt: Option | null) => {
     setSelectedDistrict(opt ? opt.value : null);
     setSelectedLegislativeAssembly(null);
     setSelectedBooth(null);
-    setFormData(prev => ({ ...prev, boothId: "", boothName: "" }));
+    setFormData((prev) => ({ ...prev, boothId: "", boothName: "" }));
   };
 
   const handleLegislativeAssemblyChange = (opt: Option | null) => {
     setSelectedLegislativeAssembly(opt ? opt.value : null);
     setSelectedBooth(null);
-    setFormData(prev => ({ ...prev, boothId: "", boothName: "" }));
+    setFormData((prev) => ({ ...prev, boothId: "", boothName: "" }));
   };
 
   const handleBoothChange = (opt: Option | null) => {
     setSelectedBooth(opt ? opt.value : null);
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       boothId: opt ? opt.value : "",
       boothName: opt ? opt.label : "",
     }));
   };
 
+  // ✅ Infinite scroll for booth select
+  const handleBoothMenuScroll = async (event: WheelEvent | TouchEvent) => {
+    const target = event.target as HTMLElement | null;
+    if (!target) return;
+
+    // Because event type is generic, ensure target has scroll properties
+    const scrollTop = (target as any).scrollTop ?? 0;
+    const clientHeight = (target as any).clientHeight ?? 0;
+    const scrollHeight = (target as any).scrollHeight ?? 0;
+
+    const nearBottom = scrollTop + clientHeight >= scrollHeight - 10;
+
+    if (nearBottom && hasMoreBooths && !isBoothLoading) {
+      setIsBoothLoading(true);
+      const nextPage = boothPage + 1;
+
+      const res: any = await dispatch(
+        getAllBooths({
+          parentId: selectedLegislativeAssembly!,
+          page: nextPage,
+          limit: 100,
+        })
+      );
+
+      if (res?.payload?.data?.length) {
+        dispatch(appendBooths(res.payload.data));
+        setBoothPage(nextPage);
+        setHasMoreBooths(res.payload.pagination?.hasNextPage ?? false);
+      } else {
+        setHasMoreBooths(false);
+      }
+
+      setIsBoothLoading(false);
+    }
+  };
+
+
+  // ========== Validation ==========
   const validate = () => {
     const newErrors: ErrorState = {};
     if (!formData.name) newErrors.name = "Name is required.";
-    if (!formData.phone) newErrors.phone = "Phone number is required.";
-    else if (!/^\d{10}$/.test(formData.phone)) newErrors.phone = "Please enter a valid 10-digit phone number.";
+    if (!formData.phone)
+      newErrors.phone = "Phone number is required.";
+    else if (!/^\d{10}$/.test(formData.phone))
+      newErrors.phone = "Enter a valid 10-digit phone number.";
     if (!selectedState) newErrors.state = "State is required.";
     if (!selectedDistrict) newErrors.district = "District is required.";
-    if (!selectedLegislativeAssembly) newErrors.legislativeAssembly = "Legislative Assembly is required.";
+    if (!selectedLegislativeAssembly)
+      newErrors.legislativeAssembly = "Legislative Assembly is required.";
     if (!formData.boothId) newErrors.boothId = "Booth is required.";
     if (!formData.post) newErrors.post = "Post is required.";
     if (!formData.padnaam) newErrors.padnaam = "Padnaam is required.";
@@ -158,26 +213,22 @@ export default function AddBoothTeamMember() {
     e.preventDefault();
     if (!validate()) return;
 
-    // Ensure boothName consistency
     const finalFormData: FormData = { ...formData };
     if (selectedBooth) {
-      const booth = booths.find(b => b._id === selectedBooth);
-      if (booth) {
-        finalFormData.boothName = booth.name;
-      }
+      const booth = booths.items.find((b) => b._id === selectedBooth);
+      if (booth) finalFormData.boothName = booth.name;
     }
 
     try {
       await dispatch(createBoothTeamMember(finalFormData)).unwrap();
       navigate("/booth-team");
     } catch (err) {
-      // Slice will already set apiError; optionally surface a local toast here.
       console.error(err);
     }
   };
 
+  // Options
   const postOptions: Option[] = [
-    { value: "", label: "Select Post" },
     { value: "Prabhari", label: "Prabhari" },
     { value: "Adhyaksh", label: "Adhyaksh" },
   ];
@@ -198,12 +249,25 @@ export default function AddBoothTeamMember() {
     return [];
   };
 
-  const padnaamOptions: Option[] = [{ value: "", label: "Select Padnaam" }, ...generatePadnaamOptions()];
-
-  const stateOptions: Option[] = states.map(s => ({ value: s._id, label: s.name }));
-  const districtOptions: Option[] = districts.map(d => ({ value: d._id, label: d.name }));
-  const legislativeAssemblyOptions: Option[] = legislativeAssemblies.map(a => ({ value: a._id, label: a.name }));
-  const boothOptions: Option[] = booths.map(b => ({ value: b._id, label: b.name }));
+  const padnaamOptions: Option[] = generatePadnaamOptions();
+  const stateOptions: Option[] = states.items.map((s) => ({
+    value: s._id,
+    label: s.name,
+  }));
+  const districtOptions: Option[] = districts.items.map((d) => ({
+    value: d._id,
+    label: d.name,
+  }));
+  const legislativeAssemblyOptions: Option[] = legislativeAssemblies.items.map(
+    (a) => ({
+      value: a._id,
+      label: a.name,
+    })
+  );
+  const boothOptions: Option[] = booths.items.map((b) => ({
+    value: b._id,
+    label: b.name,
+  }));
 
   const customStyles = {
     control: (base: any) => ({
@@ -219,7 +283,11 @@ export default function AddBoothTeamMember() {
     placeholder: (base: any) => ({ ...base, color: "#9ca3af" }),
     option: (base: any, state: any) => ({
       ...base,
-      backgroundColor: state.isSelected ? "#3b82f6" : state.isFocused ? "#e0e7ff" : "white",
+      backgroundColor: state.isSelected
+        ? "#3b82f6"
+        : state.isFocused
+          ? "#e0e7ff"
+          : "white",
       color: state.isSelected ? "white" : "#1f2937",
       "&:active": { backgroundColor: "#2563eb" },
     }),
@@ -235,8 +303,11 @@ export default function AddBoothTeamMember() {
 
       <Form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* === Inputs === */}
           <div>
-            <Label htmlFor="name" required>Name</Label>
+            <Label htmlFor="name" required>
+              Name
+            </Label>
             <Input
               id="name"
               name="name"
@@ -249,7 +320,9 @@ export default function AddBoothTeamMember() {
           </div>
 
           <div>
-            <Label htmlFor="phone" required>Phone</Label>
+            <Label htmlFor="phone" required>
+              Phone
+            </Label>
             <Input
               id="phone"
               name="phone"
@@ -273,99 +346,136 @@ export default function AddBoothTeamMember() {
             />
           </div>
 
-          {/* Locations */}
+          {/* === State, District, Assembly === */}
           <div>
-            <Label htmlFor="state-select" required>State</Label>
+            <Label htmlFor="state-select" required>
+              State
+            </Label>
             <Select
               inputId="state-select"
               options={stateOptions}
               onChange={handleStateChange}
-              value={stateOptions.find(o => o.value === selectedState) || null}
+              value={stateOptions.find((o) => o.value === selectedState) || null}
               placeholder="Select State"
               isClearable
               styles={customStyles}
             />
-            {errors.state && <p className="text-red-500 text-xs mt-1">{errors.state}</p>}
+            {errors.state && (
+              <p className="text-red-500 text-xs mt-1">{errors.state}</p>
+            )}
           </div>
 
           <div>
-            <Label htmlFor="district-select" required>District</Label>
+            <Label htmlFor="district-select" required>
+              District
+            </Label>
             <Select
               inputId="district-select"
               options={districtOptions}
               onChange={handleDistrictChange}
-              value={districtOptions.find(o => o.value === selectedDistrict) || null}
+              value={
+                districtOptions.find((o) => o.value === selectedDistrict) || null
+              }
               placeholder="Select District"
               isClearable
               isDisabled={!selectedState}
               styles={customStyles}
             />
-            {errors.district && <p className="text-red-500 text-xs mt-1">{errors.district}</p>}
+            {errors.district && (
+              <p className="text-red-500 text-xs mt-1">{errors.district}</p>
+            )}
           </div>
 
           <div>
-            <Label htmlFor="legislative-assembly-select" required>Legislative Assembly</Label>
+            <Label htmlFor="legislative-assembly-select" required>
+              Legislative Assembly
+            </Label>
             <Select
               inputId="legislative-assembly-select"
               options={legislativeAssemblyOptions}
               onChange={handleLegislativeAssemblyChange}
-              value={legislativeAssemblyOptions.find(o => o.value === selectedLegislativeAssembly) || null}
+              value={
+                legislativeAssemblyOptions.find(
+                  (o) => o.value === selectedLegislativeAssembly
+                ) || null
+              }
               placeholder="Select Legislative Assembly"
               isClearable
               isDisabled={!selectedDistrict}
               styles={customStyles}
             />
             {errors.legislativeAssembly && (
-              <p className="text-red-500 text-xs mt-1">{errors.legislativeAssembly}</p>
+              <p className="text-red-500 text-xs mt-1">
+                {errors.legislativeAssembly}
+              </p>
             )}
           </div>
 
+          {/* === Booth with Infinite Scroll === */}
           <div>
-            <Label htmlFor="booth-select" required>Booth</Label>
+            <Label htmlFor="booth-select" required>
+              Booth
+            </Label>
             <Select
               inputId="booth-select"
               options={boothOptions}
               onChange={handleBoothChange}
-              value={boothOptions.find(o => o.value === selectedBooth) || null}
-              placeholder="Select Booth"
+              value={boothOptions.find((o) => o.value === selectedBooth) || null}
+              placeholder={isBoothLoading ? "Loading booths..." : "Select Booth"}
               isClearable
               isDisabled={!selectedLegislativeAssembly}
               styles={customStyles}
+              onMenuScrollToBottom={handleBoothMenuScroll}
+              loadingMessage={() => "Loading more booths..."}
+              menuPortalTarget={document.body}
+              menuPlacement="auto"
+              menuShouldScrollIntoView={false}
             />
-            {errors.boothId && <p className="text-red-500 text-xs mt-1">{errors.boothId}</p>}
+            {errors.boothId && (
+              <p className="text-red-500 text-xs mt-1">{errors.boothId}</p>
+            )}
           </div>
 
+          {/* === Post & Padnaam === */}
           <div>
-            <Label htmlFor="post" required>Post</Label>
+            <Label htmlFor="post" required>
+              Post
+            </Label>
             <Select
               inputId="post"
               name="post"
               options={postOptions}
               onChange={handlePostChange}
-              value={postOptions.find(o => o.value === formData.post) || null}
+              value={postOptions.find((o) => o.value === formData.post) || null}
               placeholder="Select Post"
               isClearable
-              isSearchable
               styles={customStyles}
             />
-            {errors.post && <p className="text-red-500 text-xs mt-1">{errors.post}</p>}
+            {errors.post && (
+              <p className="text-red-500 text-xs mt-1">{errors.post}</p>
+            )}
           </div>
 
           {formData.post && (
             <div>
-              <Label htmlFor="padnaam" required>Padnaam</Label>
+              <Label htmlFor="padnaam" required>
+                Padnaam
+              </Label>
               <Select
                 inputId="padnaam"
                 name="padnaam"
                 options={padnaamOptions}
                 onChange={handlePadnaamChange}
-                value={padnaamOptions.find(o => o.value === formData.padnaam) || null}
+                value={
+                  padnaamOptions.find((o) => o.value === formData.padnaam) || null
+                }
                 placeholder="Select Padnaam"
                 isClearable
-                isSearchable
                 styles={customStyles}
               />
-              {errors.padnaam && <p className="text-red-500 text-xs mt-1">{errors.padnaam}</p>}
+              {errors.padnaam && (
+                <p className="text-red-500 text-xs mt-1">{errors.padnaam}</p>
+              )}
             </div>
           )}
         </div>

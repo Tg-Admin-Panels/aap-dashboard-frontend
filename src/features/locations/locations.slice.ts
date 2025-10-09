@@ -80,6 +80,10 @@ const locationsSlice = createSlice({
     clearBooths: (state) => {
       state.booths = initialPaginatedData;
     },
+    appendBooths: (state, action) => {
+      state.booths.items = [...state.booths.items, ...action.payload];
+    },
+
   },
   extraReducers: (builder) => {
     builder
@@ -342,7 +346,7 @@ const locationsSlice = createSlice({
   },
 });
 
-export const { clearDistricts, clearLegislativeAssemblies, clearBooths } =
+export const { clearDistricts, clearLegislativeAssemblies, clearBooths, appendBooths } =
   locationsSlice.actions;
 
 export default locationsSlice.reducer;
