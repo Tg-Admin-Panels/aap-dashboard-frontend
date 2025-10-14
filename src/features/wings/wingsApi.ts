@@ -158,7 +158,21 @@ export const deleteWingMember = createAsyncThunk(
   async (memberId: string, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.delete(`/wings/members/${memberId}`);
-      return { memberId, ...response.data };
+      console.log(response.data)
+      return response.data.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to delete member"
+      );
+    }
+  }
+);
+export const deleteWing = createAsyncThunk(
+  "wings/deleteWing",
+  async (wingId: string, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.delete(`/wings/${wingId}`);
+      return { wingId, ...response.data.data };
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message || "Failed to delete member"
@@ -167,3 +181,17 @@ export const deleteWingMember = createAsyncThunk(
   }
 );
 
+export const getWingLeader = createAsyncThunk(
+  "wings/fetchWingLeader",
+  async (wingId: string, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get(`/wings/${wingId}/leader`);
+      console.log(response)
+      return { wing: wingId, ...response.data.data };
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to delete member"
+      );
+    }
+  }
+);

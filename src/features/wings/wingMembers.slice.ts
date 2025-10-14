@@ -1,27 +1,34 @@
+// src/features/wings/wingMemberSlice.ts
 import { createSlice } from "@reduxjs/toolkit";
-interface Member {
+import { getWingLeader } from "./wingsApi";
+
+interface Leader {
   _id: string;
   name: string;
   phone: string;
   image: string;
-  role: string;
-  post: string;
+  role: "leader" | "member";
+  post?: string;
+  fbLink?: string;
+  instafbLink?: string;
+  xLink?: string;
+  wing?: string;
 }
 
-interface MemberState {
-  members: Member[];
+interface WingMemberState {
+  leaderDetail: Leader | null;
   loading: boolean;
   error: string | null;
 }
 
-const initialState: MemberState = {
-  members: [],
+const initialState: WingMemberState = {
+  leaderDetail: null,
   loading: false,
   error: null,
 };
 
 const wingMemberSlice = createSlice({
-  name: "wings",
+  name: "wingMembers",
   initialState,
   reducers: {
     setErrorToNull: (state) => {
@@ -30,22 +37,21 @@ const wingMemberSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // .addCase(getAllWingMembers.pending, (state) => {
-      //   state.loading = true;
-      //   state.error = null;
-      // })
-      // .addCase(getAllWingMembers.rejected, (state, action) => {
-      //   state.error = String(action.payload) || "Failed to create wing";
-      //   state.loading = false;
-      // })
-      // .addCase(getAllWingMembers.fulfilled, (state, action) => {
-      //   state.members = action.payload.data;
-      //   state.loading = false;
-      //   state.error = null;
-      // });
+      .addCase(getWingLeader.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getWingLeader.fulfilled, (state, action) => {
+        state.loading = false;
+        state.leaderDetail = action.payload; // ✅ Correct field
+      })
+      .addCase(getWingLeader.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      });
   },
 });
 
-export default wingMemberSlice.reducer;
-
 export const { setErrorToNull } = wingMemberSlice.actions;
+
+export default wingMemberSlice.reducer;

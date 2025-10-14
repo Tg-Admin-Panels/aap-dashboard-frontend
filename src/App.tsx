@@ -46,6 +46,7 @@ import SubmitForm from "./pages/Forms/SubmitForm";
 import SubmissionDetail from "./pages/Forms/SubmissionDetail";
 import ViewForm from "./pages/Forms/ViewForm";
 import { useEffect } from "react";
+import LeaderDetail from "./pages/wings/LeaderDetail";
 
 export default function App() {
   const { isAuthenticated, status } = useSelector((state: RootState) => state.auth);
@@ -92,6 +93,7 @@ export default function App() {
             <Route index path="/" element={<Home />} />
             <Route path="/wing/add" element={<CreateWing />} />
             <Route path="/wing/list" element={<MedicineList />} />
+            <Route path="/wing/leader/:wingId" element={<LeaderDetail />} />
             <Route path="/wings/:id/details" element={<WingDetails />} />
             <Route path="/volunteers/" element={<VolunteerTable />} />
             <Route path="/volunteers/add" element={<CreateVolunteer />} />
