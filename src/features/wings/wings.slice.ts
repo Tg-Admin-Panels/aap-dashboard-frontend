@@ -4,6 +4,8 @@ import {
   addMemberToWing,
   changeLeader,
   createWing,
+  deleteWing,
+  deleteWingMember,
   getAllWings,
   getWingMembers,
   updateMember,
@@ -249,7 +251,52 @@ const wingSlice = createSlice({
         state.loading = false;
         state.error = String(action.payload) || "Failed to update member";
         toast.error(state.error);
+      })
+      .addCase(deleteWing.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(deleteWing.fulfilled, (state, action) => {
+
+        state.loading = false;
+        state.error = null;
+        state.wings = state.wings.filter(wing => String(wing._id) !== String(action.payload?.wingId));
+        toast.success("Wing deleted successfully");
+      })
+      .addCase(deleteWing.rejected, (state, action) => {
+        state.loading = false;
+        state.error = String(action.payload) || "Failed to change leader";
+        toast.error(state.error);
+      })
+      .addCase(deleteWingMember.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+
+      .addCase(deleteWingMember.fulfilled, (state, action) => {
+        const { wing, memberId } = action.payload;
+
+
+        state.selectedWing = {
+          ...state.selectedWing!,
+          members: state.selectedWing?.members.filter(
+            (member) => String(member._id) !== String(memberId)
+          ) || [],
+        }
+
+
+        state.loading = false;
+        state.error = null;
+        toast.success("Wing member deleted successfully");
+      })
+
+      .addCase(deleteWingMember.rejected, (state, action) => {
+        state.loading = false;
+        state.error = String(action.payload) || "Failed to delete member";
+        toast.error(state.error);
       });
+
+
   },
 });
 
