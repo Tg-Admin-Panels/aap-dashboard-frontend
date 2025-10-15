@@ -352,7 +352,7 @@ const AppSidebar: React.FC = () => {
                   height={40}
                 />
                 <h2 className="text-2xl font-semibold text:gray-800 dark:text-gray-300">
-                  Aam Admi Party
+                  Aam Aadmi Party
                 </h2>
               </div>
             ) : (

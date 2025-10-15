@@ -5,21 +5,26 @@ import PageMeta from "../../components/common/PageMeta";
 import axiosInstance from "../../utils/axiosInstance";
 import Chart from "react-apexcharts";
 import SpinnerOverlay from "../../components/ui/SpinnerOverlay";
+import { useSearchParams } from "react-router";
 
 const Dashboard = () => {
   const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+  const [searchParams] = useSearchParams();
+  const period = searchParams.get("period") || "monthly"; // ✅ read period from URL
 
   useEffect(() => {
-    axiosInstance.get("/dashboard/stats").then((res) => {
-      console.log("res.data.data", res.data.data);
-      setData(res.data.data);
-    });
-  }, []);
+    setLoading(true);
+    axiosInstance
+      .get(`/dashboard/stats?period=${period}`) // ✅ send as query
+      .then((res) => setData(res.data.data))
+      .finally(() => setLoading(false));
+  }, [period]); // ✅ re-fetch when tab changes
 
-  if (!data) {
+  if (loading || !data) {
     return (
       <div className="flex justify-center items-center h-screen text-xl">
-        <SpinnerOverlay loading={!data} />
+        <SpinnerOverlay loading={loading} />
       </div>
     );
   }
