@@ -1,4 +1,4 @@
 {
-  "version": "2.0.20",
-  "lastCommit": "adding delete in volunteer, member, show leader detail,wing delete"
+  "version": "2.0.21",
+  "lastCommit": "include the filter in dashboard and improve chart tab"
 }
