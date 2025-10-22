@@ -7,6 +7,7 @@
     "dev": "vite --host",
     "build:prod": "tsc -b && vite build",
     "build:dev": "vite build",
+    "deploy:dist": "git subtree split --prefix=dist -b dist-deploy && git push origin dist-deploy:dist --force && git branch -D dist-deploy",
     "lint": "eslint .",
     "preview": "vite preview",
     "release": "standard-version && node scripts/generate-version-details.js",
