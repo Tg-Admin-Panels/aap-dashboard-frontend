@@ -18,7 +18,7 @@ import {
   clearDistricts,
   clearLegislativeAssemblies,
   clearBooths,
-  appendBooths, // ✅ Make sure this action exists in your slice (explained below)
+  appendBooths,
 } from "../../features/locations/locations.slice";
 
 type Option = { value: string; label: string };
@@ -27,6 +27,9 @@ type FormData = {
   name: string;
   phone: string;
   email: string;
+  state: string;
+  district: string;
+  legislativeAssembly: string;
   boothId: string;
   boothName: string;
   post: string;
@@ -40,6 +43,7 @@ type ErrorState = Partial<
 export default function AddBoothTeamMember() {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
+
   const { loading, error: apiError } = useSelector(
     (state: RootState) => state.boothTeam
   );
@@ -51,6 +55,9 @@ export default function AddBoothTeamMember() {
     name: "",
     phone: "",
     email: "",
+    state: "",
+    district: "",
+    legislativeAssembly: "",
     boothId: "",
     boothName: "",
     post: "",
@@ -75,7 +82,7 @@ export default function AddBoothTeamMember() {
     dispatch(getAllStates({}));
   }, [dispatch]);
 
-  // Dependent fetches
+  // Dependent dropdowns
   useEffect(() => {
     if (selectedState) {
       dispatch(getAllDistricts({ parentId: selectedState }));
@@ -92,7 +99,7 @@ export default function AddBoothTeamMember() {
     }
   }, [dispatch, selectedDistrict]);
 
-  // ✅ Booth fetch with pagination reset
+  // Booth list with pagination
   useEffect(() => {
     if (selectedLegislativeAssembly) {
       setBoothPage(1);
@@ -127,20 +134,38 @@ export default function AddBoothTeamMember() {
     setSelectedDistrict(null);
     setSelectedLegislativeAssembly(null);
     setSelectedBooth(null);
-    setFormData((prev) => ({ ...prev, boothId: "", boothName: "" }));
+    setFormData((prev) => ({
+      ...prev,
+      state: opt ? opt.label : "",
+      district: "",
+      legislativeAssembly: "",
+      boothId: "",
+      boothName: "",
+    }));
   };
 
   const handleDistrictChange = (opt: Option | null) => {
     setSelectedDistrict(opt ? opt.value : null);
     setSelectedLegislativeAssembly(null);
     setSelectedBooth(null);
-    setFormData((prev) => ({ ...prev, boothId: "", boothName: "" }));
+    setFormData((prev) => ({
+      ...prev,
+      district: opt ? opt.label : "",
+      legislativeAssembly: "",
+      boothId: "",
+      boothName: "",
+    }));
   };
 
   const handleLegislativeAssemblyChange = (opt: Option | null) => {
     setSelectedLegislativeAssembly(opt ? opt.value : null);
     setSelectedBooth(null);
-    setFormData((prev) => ({ ...prev, boothId: "", boothName: "" }));
+    setFormData((prev) => ({
+      ...prev,
+      legislativeAssembly: opt ? opt.label : "",
+      boothId: "",
+      boothName: "",
+    }));
   };
 
   const handleBoothChange = (opt: Option | null) => {
@@ -152,12 +177,11 @@ export default function AddBoothTeamMember() {
     }));
   };
 
-  // ✅ Infinite scroll for booth select
+  // Infinite scroll for booth select
   const handleBoothMenuScroll = async (event: WheelEvent | TouchEvent) => {
     const target = event.target as HTMLElement | null;
     if (!target) return;
 
-    // Because event type is generic, ensure target has scroll properties
     const scrollTop = (target as any).scrollTop ?? 0;
     const clientHeight = (target as any).clientHeight ?? 0;
     const scrollHeight = (target as any).scrollHeight ?? 0;
@@ -188,7 +212,6 @@ export default function AddBoothTeamMember() {
     }
   };
 
-
   // ========== Validation ==========
   const validate = () => {
     const newErrors: ErrorState = {};
@@ -197,9 +220,9 @@ export default function AddBoothTeamMember() {
       newErrors.phone = "Phone number is required.";
     else if (!/^\d{10}$/.test(formData.phone))
       newErrors.phone = "Enter a valid 10-digit phone number.";
-    if (!selectedState) newErrors.state = "State is required.";
-    if (!selectedDistrict) newErrors.district = "District is required.";
-    if (!selectedLegislativeAssembly)
+    if (!formData.state) newErrors.state = "State is required.";
+    if (!formData.district) newErrors.district = "District is required.";
+    if (!formData.legislativeAssembly)
       newErrors.legislativeAssembly = "Legislative Assembly is required.";
     if (!formData.boothId) newErrors.boothId = "Booth is required.";
     if (!formData.post) newErrors.post = "Post is required.";
@@ -209,15 +232,12 @@ export default function AddBoothTeamMember() {
     return Object.keys(newErrors).length === 0;
   };
 
+  // ========== Submit ==========
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!validate()) return;
 
     const finalFormData: FormData = { ...formData };
-    if (selectedBooth) {
-      const booth = booths.items.find((b) => b._id === selectedBooth);
-      if (booth) finalFormData.boothName = booth.name;
-    }
 
     try {
       await dispatch(createBoothTeamMember(finalFormData)).unwrap();
@@ -346,7 +366,7 @@ export default function AddBoothTeamMember() {
             />
           </div>
 
-          {/* === State, District, Assembly === */}
+          {/* === Location Selects === */}
           <div>
             <Label htmlFor="state-select" required>
               State
@@ -411,7 +431,7 @@ export default function AddBoothTeamMember() {
             )}
           </div>
 
-          {/* === Booth with Infinite Scroll === */}
+          {/* === Booth === */}
           <div>
             <Label htmlFor="booth-select" required>
               Booth

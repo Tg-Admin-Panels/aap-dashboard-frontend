@@ -30,7 +30,14 @@ interface Volunteer {
   panchayat?: string;
   villageName?: string;
   status: string;
+
+  // Newly added Hindi dropdown fields
+  whyYouWantToJoinUs?: string;
+  howMuchTimeYouDedicate?: string;
+  inWhichFieldYouCanContribute?: string;
+  howCanYouHelpUs?: string;
 }
+
 
 interface VolunteerState {
   volunteers: Volunteer[];

@@ -32,11 +32,11 @@ interface VolunteerForm {
   boothNumber: string;
   pinCode: string;
   postOffice: string;
-  cityName: string;         // Urban only
-  streetOrLocality: string; // Urban only
-  panchayat: string;        // Rural only
-  villageName: string;      // Rural only
-  profilePicture: string;   // Cloudinary URL
+  cityName: string;
+  streetOrLocality: string;
+  panchayat: string;
+  villageName: string;
+  profilePicture: string;
 }
 
 export default function CreateVolunteer() {
@@ -123,31 +123,29 @@ export default function CreateVolunteer() {
 
     const action = await dispatch(createVolunteer(payload));
     if (!("error" in action) && !error) {
-      setFormData(
-        {
-          fullName: "",
-          password: "",
-          dateOfBirth: new Date().toISOString(),
-          gender: "",
-          mobileNumber: "",
-          zone: "",
-          district: "",
-          block: "",
-          whyYouWantToJoinUs: "",
-          howMuchTimeYouDedicate: "",
-          inWhichFieldYouCanContribute: "",
-          howCanYouHelpUs: "",
-          wardNumber: "",
-          boothNumber: "",
-          pinCode: "",
-          postOffice: "",
-          cityName: "",
-          streetOrLocality: "",
-          panchayat: "",
-          villageName: "",
-          profilePicture: "",
-        }
-      )
+      setFormData({
+        fullName: "",
+        password: "",
+        dateOfBirth: new Date().toISOString(),
+        gender: "",
+        mobileNumber: "",
+        zone: "",
+        district: "",
+        block: "",
+        whyYouWantToJoinUs: "",
+        howMuchTimeYouDedicate: "",
+        inWhichFieldYouCanContribute: "",
+        howCanYouHelpUs: "",
+        wardNumber: "",
+        boothNumber: "",
+        pinCode: "",
+        postOffice: "",
+        cityName: "",
+        streetOrLocality: "",
+        panchayat: "",
+        villageName: "",
+        profilePicture: "",
+      });
       navigate("/volunteers");
     }
   };
@@ -161,6 +159,42 @@ export default function CreateVolunteer() {
   const zoneOptions: Option[] = [
     { value: "Urban", label: "Urban" },
     { value: "Rural", label: "Rural" },
+  ];
+
+  // ✅ Hindi dropdowns from your image
+  const whyJoinOptions: Option[] = [
+    { value: "समाज सेवा", label: "समाज सेवा" },
+    { value: "अनुभव प्राप्त करना", label: "अनुभव प्राप्त करना" },
+    { value: "सीखने का अवसर", label: "सीखने का अवसर" },
+    { value: "करियर विकास", label: "करियर विकास" },
+    { value: "अन्य", label: "अन्य" },
+  ];
+
+  const timeDedicateOptions: Option[] = [
+    { value: "प्रतिदिन 1–2 घंटे", label: "प्रतिदिन 1–2 घंटे" },
+    { value: "प्रतिदिन 3–4 घंटे", label: "प्रतिदिन 3–4 घंटे" },
+    { value: "प्रतिदिन 5+ घंटे", label: "प्रतिदिन 5+ घंटे" },
+    { value: "आवश्यकता अनुसार", label: "आवश्यकता अनुसार" },
+  ];
+
+  const contributeOptions: Option[] = [
+    { value: "संगठन", label: "संगठन" },
+    { value: "सोशल मीडिया", label: "सोशल मीडिया" },
+    { value: "ग्राफिक डिजाइनिंग", label: "ग्राफिक डिजाइनिंग" },
+    { value: "वीडियो एडिटिंग", label: "वीडियो एडिटिंग" },
+    { value: "लेखन/रिसर्च", label: "लेखन/रिसर्च" },
+    { value: "जनसंपर्क", label: "जनसंपर्क" },
+    { value: "आयोजन/मैनेजमेंट", label: "आयोजन/मैनेजमेंट" },
+    { value: "अन्य", label: "अन्य" },
+  ];
+
+  const helpOptions: Option[] = [
+    { value: "प्रचार-प्रसार में", label: "प्रचार-प्रसार में" },
+    { value: "तकनीकी सहयोग में", label: "तकनीकी सहयोग में" },
+    { value: "लोगों को जोड़ने में", label: "लोगों को जोड़ने में" },
+    { value: "आयोजन में", label: "आयोजन में" },
+    { value: "आर्थिक सहयोग", label: "आर्थिक सहयोग" },
+    { value: "अन्य", label: "अन्य" },
   ];
 
   // dependent options
@@ -185,7 +219,6 @@ export default function CreateVolunteer() {
 
       <Form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Basic Fields */}
           <div>
             <Label required>Full Name</Label>
             <Input name="fullName" value={formData.fullName} onChange={handleChange} error={!!errors.fullName} hint={errors.fullName} />
@@ -194,6 +227,7 @@ export default function CreateVolunteer() {
             <Label>Password</Label>
             <Input type="password" name="password" value={formData.password} onChange={handleChange} />
           </div>
+
           <div>
             <Label required>Date of Birth</Label>
             <CustomDatePicker
@@ -204,22 +238,25 @@ export default function CreateVolunteer() {
             />
             {errors.dateOfBirth && <p className="text-red-500 text-xs mt-1">{errors.dateOfBirth}</p>}
           </div>
+
           <div>
             <Label required>Gender</Label>
             <Select options={genderOptions} onChange={(opt) => handleSelectChange("gender", opt)} value={genderOptions.find(o => o.value === formData.gender)} />
             {errors.gender && <p className="text-red-500 text-xs mt-1">{errors.gender}</p>}
           </div>
+
           <div>
             <Label required>Mobile Number</Label>
             <Input type="tel" name="mobileNumber" value={formData.mobileNumber} onChange={handleChange} error={!!errors.mobileNumber} hint={errors.mobileNumber} />
           </div>
+
           <div>
             <Label required>Zone</Label>
             <Select options={zoneOptions} onChange={handleZoneChange} value={zoneOptions.find(o => o.value === formData.zone)} />
             {errors.zone && <p className="text-red-500 text-xs mt-1">{errors.zone}</p>}
           </div>
 
-          {/* Dependent Dropdowns */}
+          {/* Dependent dropdowns */}
           {formData.zone && (
             <>
               <div>
@@ -264,7 +301,48 @@ export default function CreateVolunteer() {
             </>
           )}
 
-          {/* Extra Info */}
+          {/* Hindi Dropdowns (from Step 3) */}
+          <div>
+            <Label>आप हमें क्यों जॉइन करना चाहते हैं?</Label>
+            <Select
+              options={whyJoinOptions}
+              value={whyJoinOptions.find(o => o.value === formData.whyYouWantToJoinUs) || null}
+              onChange={(opt) => handleSelectChange("whyYouWantToJoinUs", opt)}
+              placeholder="Select reason"
+            />
+          </div>
+
+          <div>
+            <Label>आप कितना समय समर्पित कर सकते हैं?</Label>
+            <Select
+              options={timeDedicateOptions}
+              value={timeDedicateOptions.find(o => o.value === formData.howMuchTimeYouDedicate) || null}
+              onChange={(opt) => handleSelectChange("howMuchTimeYouDedicate", opt)}
+              placeholder="Select time"
+            />
+          </div>
+
+          <div>
+            <Label>आप किस क्षेत्र में योगदान दे सकते हैं?</Label>
+            <Select
+              options={contributeOptions}
+              value={contributeOptions.find(o => o.value === formData.inWhichFieldYouCanContribute) || null}
+              onChange={(opt) => handleSelectChange("inWhichFieldYouCanContribute", opt)}
+              placeholder="Select field"
+            />
+          </div>
+
+          <div>
+            <Label>आप हमारी किस प्रकार मदद कर सकते हैं?</Label>
+            <Select
+              options={helpOptions}
+              value={helpOptions.find(o => o.value === formData.howCanYouHelpUs) || null}
+              onChange={(opt) => handleSelectChange("howCanYouHelpUs", opt)}
+              placeholder="Select help type"
+            />
+          </div>
+
+          {/* Other fields */}
           <div>
             <Label>Ward Number</Label>
             <Input name="wardNumber" value={formData.wardNumber} onChange={handleChange} />
@@ -284,7 +362,7 @@ export default function CreateVolunteer() {
         </div>
 
         {/* Upload */}
-        <div className="md:col-span-2">
+        <div className="md:col-span-2 mt-4">
           <Label>Profile Picture</Label>
           <DropzoneComponent
             accept={{ "image/*": [".png", ".gif", ".jpeg", ".jpg"] }}

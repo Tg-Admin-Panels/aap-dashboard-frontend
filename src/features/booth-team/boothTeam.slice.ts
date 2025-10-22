@@ -14,6 +14,7 @@ interface BoothTeamMember {
   boothName: string;
   post: string;
   padnaam?: string;
+  state: string, district: string, legislativeAssembly: string,
 }
 
 interface BoothTeamState {

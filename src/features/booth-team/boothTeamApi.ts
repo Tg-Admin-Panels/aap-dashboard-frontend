@@ -4,38 +4,59 @@ import axiosInstance from "../../utils/axiosInstance";
 // Get All Booth Team Members
 export const getAllBoothTeamMembers = createAsyncThunk(
   "boothTeam/getAllBoothTeamMembers",
-  async (filters: { boothName?: string; post?: string; padnaam?: string; page?: number; limit?: number }, { rejectWithValue }) => {
+  async (
+    filters: {
+      state?: string;
+      district?: string;
+      legislativeAssembly?: string;
+      boothId?: string;
+      boothName?: string;
+      post?: string;
+      padnaam?: string;
+      page?: number;
+      limit?: number;
+    },
+    { rejectWithValue }
+  ) => {
     try {
-      const { boothName, post, padnaam, page, limit } = filters;
+      const {
+        state,
+        district,
+        legislativeAssembly,
+        boothId,
+        boothName,
+        post,
+        padnaam,
+        page,
+        limit,
+      } = filters;
+
       let url = "/booth-team";
       const params = new URLSearchParams();
-      if (boothName) {
-        params.append("boothName", boothName);
-      }
-      if (post) {
-        params.append("post", post);
-      }
-      if (padnaam) {
-        params.append("padnaam", padnaam);
-      }
-      if (page) {
-        params.append("page", page.toString());
-      }
-      if (limit) {
-        params.append("limit", limit.toString());
-      }
-      if (params.toString()) {
-        url += `?${params.toString()}`;
-      }
+
+      if (state) params.append("state", state);
+      if (district) params.append("district", district);
+      if (legislativeAssembly) params.append("legislativeAssembly", legislativeAssembly);
+      if (boothId) params.append("boothId", boothId);
+      if (boothName) params.append("boothName", boothName);
+      if (post) params.append("post", post);
+      if (padnaam) params.append("padnaam", padnaam);
+      if (page) params.append("page", page.toString());
+      if (limit) params.append("limit", limit.toString());
+
+      if (params.toString()) url += `?${params.toString()}`;
+
       const response = await axiosInstance.get(url);
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Failed to fetch booth team members"
+        error.response?.data?.message ||
+        "Failed to fetch booth team members"
       );
     }
   }
 );
+
 
 // Create Booth Team Member
 export const createBoothTeamMember = createAsyncThunk(

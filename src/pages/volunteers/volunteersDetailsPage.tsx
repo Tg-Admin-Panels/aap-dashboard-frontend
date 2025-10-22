@@ -1,11 +1,10 @@
 // src/pages/VolunteerDetailsPage.tsx
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../features/store";
 import { getMembersByVolunteer } from "../../features/members/membersApi";
 import { useParams } from "react-router-dom";
 import { getVolunteerById } from "../../features/volunteers/volunteersApi";
-
 
 export default function VolunteerDetailsPage() {
   const { volunteerId } = useParams<{ volunteerId: string }>();
@@ -25,8 +24,21 @@ export default function VolunteerDetailsPage() {
     }
   }, [dispatch, volunteerId]);
 
+  // ✅ Calculate Age Dynamically from DOB
+  const calculatedAge = useMemo(() => {
+    if (!volunteer?.dateOfBirth) return null;
+    const dob = new Date(volunteer.dateOfBirth);
+    const today = new Date();
+    let age = today.getFullYear() - dob.getFullYear();
+    const m = today.getMonth() - dob.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
+      age--;
+    }
+    return age;
+  }, [volunteer?.dateOfBirth]);
+
   return (
-    <div className="p-4 space-y-6 max-w-5xl mx-auto">
+    <div className="p-4 space-y-6 max-w-6xl mx-auto">
       {loading && <p>Loading...</p>}
       {error && <p className="text-red-600">Error: {error}</p>}
 
@@ -36,61 +48,59 @@ export default function VolunteerDetailsPage() {
           <h2 className="text-3xl font-semibold text-gray-900 dark:text-white mb-6">
             Volunteer Details
           </h2>
+
           <div className="w-full flex flex-col justify-center items-center gap-6">
-            <img
-              src={volunteer.profilePicture}
-              alt={volunteer.fullName}
-              className="w-36 h-36 rounded-full object-cover  border"
-            />
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-12 gap-y-4 text-[17px] text-gray-800 dark:text-gray-200 w-full">
+            {volunteer.profilePicture && (
+              <img
+                src={volunteer.profilePicture}
+                alt={volunteer.fullName}
+                className="w-36 h-36 rounded-full object-cover border"
+              />
+            )}
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-4 text-[17px] text-gray-800 dark:text-gray-200 w-full">
+              <p><strong>Name:</strong> {volunteer.fullName}</p>
+              <p><strong>Mobile:</strong> {volunteer.mobileNumber}</p>
+              <p><strong>Gender:</strong> {volunteer.gender}</p>
               <p>
-                {/* <FaUser className="inline mr-2" />  */}
-                <strong>Name:</strong>{" "}
-                {volunteer.fullName}
+                <strong>Date of Birth:</strong>{" "}
+                {new Date(volunteer.dateOfBirth).toLocaleDateString()}
               </p>
               <p>
-                {/* <FaPhone className="inline mr-2" />  */}
-                <strong>Mobile:</strong>{" "}
-                {volunteer.mobileNumber}
-              </p>
-              <p>
-                {/* <FaVenusMars className="inline mr-2" />  */}
-                <strong>Gender:</strong>{" "}
-                {volunteer.gender}
-              </p>
-              <p>
-                {/* <FaBirthdayCake className="inline mr-2" />  */}
                 <strong>Age:</strong>{" "}
-                {volunteer.age}
+                {calculatedAge !== null ? `${calculatedAge} years` : "N/A"}
               </p>
-              <p>
-                {/* <FaMapMarkerAlt className="inline mr-2" />{" "} */}
-                <strong>Zone:</strong> {volunteer.zone}
-              </p>
-              <p>
-                {/* <FaBuilding className="inline mr-2" />{" "} */}
-                <strong>District:</strong> {volunteer.district}
-              </p>
-              <p>
-                {/* <FaBuilding className="inline mr-2" />  */}
-                <strong>Block:</strong>{" "}
-                {volunteer.block}
-              </p>
-              <p>
-                {/* <FaHashtag className="inline mr-2" />  */}
-                <strong>Ward No:</strong>{" "}
-                {volunteer.wardNumber}
-              </p>
-              <p>
-                {/* <FaHashtag className="inline mr-2" />  */}
-                <strong>Booth No:</strong>{" "}
-                {volunteer.boothNumber}
-              </p>
-              <p>
-                {/* <FaCheck className="inline mr-2" />  */}
-                <strong>Status:</strong>{" "}
-                {volunteer.status}
-              </p>
+              <p><strong>Zone:</strong> {volunteer.zone}</p>
+              <p><strong>District:</strong> {volunteer.district}</p>
+              <p><strong>Block:</strong> {volunteer.block}</p>
+
+              {/* Rural-specific */}
+              {volunteer.zone === "Rural" && (
+                <>
+                  <p><strong>Panchayat:</strong> {volunteer.panchayat}</p>
+                  <p><strong>Village:</strong> {volunteer.villageName}</p>
+                </>
+              )}
+
+              {/* Urban-specific */}
+              {volunteer.zone === "Urban" && (
+                <>
+                  <p><strong>City:</strong> {volunteer.cityName}</p>
+                  <p><strong>Street/Locality:</strong> {volunteer.streetOrLocality}</p>
+                </>
+              )}
+
+              <p><strong>Ward No:</strong> {volunteer.wardNumber}</p>
+              <p><strong>Booth No:</strong> {volunteer.boothNumber}</p>
+              <p><strong>Pin Code:</strong> {volunteer.pinCode}</p>
+              <p><strong>Post Office:</strong> {volunteer.postOffice}</p>
+              <p><strong>Status:</strong> {volunteer.status}</p>
+
+              {/* Hindi dropdown fields */}
+              <p><strong>आप हमें क्यों जॉइन करना चाहते हैं?:</strong> {volunteer.whyYouWantToJoinUs}</p>
+              <p><strong>आप कितना समय समर्पित कर सकते हैं?:</strong> {volunteer.howMuchTimeYouDedicate}</p>
+              <p><strong>आप किस क्षेत्र में योगदान दे सकते हैं?:</strong> {volunteer.inWhichFieldYouCanContribute}</p>
+              <p><strong>आप हमारी किस प्रकार मदद कर सकते हैं?:</strong> {volunteer.howCanYouHelpUs}</p>
             </div>
           </div>
         </div>
