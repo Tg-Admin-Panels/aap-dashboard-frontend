@@ -51,6 +51,9 @@ export default function BoothTeamList() {
   useEffect(() => {
     if (selectedState) {
       dispatch(getAllDistricts({ parentId: selectedState.value }));
+      setSelectedDistrict(null)
+      setSelectedLegislativeAssembly(null)
+      setSelectedBooth(null)
     } else {
       dispatch(clearDistricts());
     }
@@ -59,6 +62,9 @@ export default function BoothTeamList() {
   useEffect(() => {
     if (selectedDistrict) {
       dispatch(getAllLegislativeAssemblies({ parentId: selectedDistrict.value }));
+
+      setSelectedLegislativeAssembly(null)
+      setSelectedBooth(null)
     } else {
       dispatch(clearLegislativeAssemblies());
     }
@@ -67,6 +73,8 @@ export default function BoothTeamList() {
   useEffect(() => {
     if (selectedLegislativeAssembly) {
       dispatch(getAllBooths({ parentId: selectedLegislativeAssembly.value }));
+
+      setSelectedBooth(null)
     } else {
       dispatch(clearBooths());
     }
