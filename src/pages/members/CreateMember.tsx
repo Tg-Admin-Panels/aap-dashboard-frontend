@@ -25,7 +25,7 @@ export default function CreateMember() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     let joinedBy = "self";
-    if (["admin", "superadmin"].includes(user?.role || "")) {
+    if (user?.role === "admin") {
       joinedBy = "admin";
     } else if (user?.role === "volunteer") {
       joinedBy = "volunteer";

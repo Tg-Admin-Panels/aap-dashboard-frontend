@@ -26,7 +26,7 @@ export default function MemberTable() {
   useEffect(() => {
     if (user?.role === "volunteer" && user.volunteer) {
       dispatch(getMembersByVolunteer({ volunteerId: user.volunteer, search: "" }));
-    } else if (["admin", "superadmin"].includes(user?.role || "")) {
+    } else if (user?.role === "admin") {
       dispatch(getAllMembers());
     }
 
