@@ -9,6 +9,7 @@ const axiosFormInstance = axios.create({
     : import.meta.env.VITE_NODE_ENV === 'local' ? import.meta.env.VITE_LOCAL_BASE_URL : import.meta.env.VITE_DEV_BASE_URL,
   headers: {
     'Content-Type': 'multipart/form-data',
+    'ngrok-skip-browser-warning': 'true',
   },
   withCredentials: true
 })
